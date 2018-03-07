@@ -40,8 +40,33 @@ public class Sys_user extends Model implements Serializable {
     @Comment("昵称")
     @ColDefine(type = ColType.VARCHAR, width = 100)
     private String nickname;
+    
+    @Column
+    @Comment("联系方式")
+    @ColDefine(type = ColType.VARCHAR, width = 11)
+    private String phone;
+    
+    @Column
+    @Comment("店铺/⼯⼚名称")
+    @ColDefine(type = ColType.VARCHAR, width = 30)
+    private String shopname;
+    
+    @Column
+    @Comment("审核状态 0:审核不通过 1:审核通过  2:待审核")
+    @ColDefine(type = ColType.INT)
+    private int status;
 
     @Column
+    @Comment("账号类型 0:物流 1:淘宝 2:工厂")
+    @ColDefine(type = ColType.INT)
+    private int accountType;
+    
+    @Column
+    @Comment("结算方式  0:现结 1:日结 2:周结")
+    @ColDefine(type = ColType.INT)
+    private int mosa;
+    
+	@Column
     @Comment("是否在线")
     @ColDefine(type = ColType.BOOLEAN)
     private boolean isOnline;
@@ -312,4 +337,48 @@ public class Sys_user extends Model implements Serializable {
     public void setCustomMenus(List<Sys_menu> customMenus) {
         this.customMenus = customMenus;
     }
+    
+    public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getShopname() {
+		return shopname;
+	}
+
+	public void setShopname(String shopname) {
+		this.shopname = shopname;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public int getAccountType() {
+		return accountType;
+	}
+
+	public void setAccountType(int accountType) {
+		this.accountType = accountType;
+	}
+
+	public int getMosa() {
+		return mosa;
+	}
+
+	public void setMosa(int mosa) {
+		this.mosa = mosa;
+	}
+
+	public void setOnline(boolean isOnline) {
+		this.isOnline = isOnline;
+	}
 }
