@@ -23,12 +23,16 @@ public class Lo_taobao_factory extends Model implements Serializable {
 	    private String id;
 	    
 	    @Column
-	    @Name
 	    @Comment("淘宝店id")
 	    @ColDefine(type = ColType.VARCHAR, width = 32)
 	    private String taobaoid;
 	    
-	    public String getId() {
+		@Column
+	    @Comment("工厂id")
+	    @ColDefine(type = ColType.VARCHAR, width = 32)
+	    private String factoryid;
+		
+		public String getId() {
 			return id;
 		}
 
@@ -51,10 +55,4 @@ public class Lo_taobao_factory extends Model implements Serializable {
 		public void setFactoryid(String factoryid) {
 			this.factoryid = factoryid;
 		}
-
-		@Column
-	    @Name
-	    @Comment("工厂id")
-	    @ColDefine(type = ColType.VARCHAR, width = 32)
-	    private String factoryid;
 }

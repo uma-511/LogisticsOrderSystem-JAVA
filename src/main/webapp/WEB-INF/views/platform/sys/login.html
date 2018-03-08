@@ -81,9 +81,17 @@
                             <p id="tip" class="bg-danger p15" style="display:none"></p>
 
                             <div class="show">
-                                <button class="btn btn-primary btn-lg btn-block" type="submit"
+                                <button id="login" class="btn btn-primary btn-lg btn-block" type="submit"
                                         data-loading-text="${msg['login.submit']}...">
                                     ${msg['login.submit']}
+                                </button>
+                            </div>
+                            <p></p>
+
+                            <div class="show">
+                                <button id="register" class="btn btn-default btn-lg btn-block" type="button"
+                                        data-loading-text="${msg['login.register']}...">
+                                    ${msg['login.register']}
                                 </button>
                             </div>
                         </form>
@@ -173,6 +181,10 @@
             }
         });
         $("#username").focus();
+        
+        $("#register").on("click", function () {
+    		window.location.href = "${base!}/platform/login/enroll";
+    	});	
     });
 </script>
 

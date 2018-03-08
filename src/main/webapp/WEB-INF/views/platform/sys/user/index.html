@@ -190,6 +190,7 @@ layout("/layouts/platform.html"){
                                 '<li class="divider"></li>' +
                                 '<li><a href="javascript:;" onclick="enableUser(\'' + row.id + '\')">启用</a></li>' +
                                 '<li><a href="javascript:;" onclick="disableUser(\'' + row.id + '\')">禁用</a></li>' +
+                                '<li><a href="javascript:;" onclick="StatusUser(\'' + row.id + '\')">审核处理</a></li>' +
                                 '</ul></div>';
                     },
                     "targets": 4
@@ -300,6 +301,15 @@ layout("/layouts/platform.html"){
         $.post("${base}/platform/sys/user/disable/" + id, {}, function (data) {
             if (data.code == 0) {
                 $("#disable_" + id).attr("class", "fa fa-circle text-danger ml5");
+            } else {
+                Toast.error(data.msg);
+            }
+        }, "json");
+    }
+    function StatusUser(id) {
+        $.post("${base}/platform/sys/user/status/" + id, {}, function (data) {
+            if (data.code == 0) {
+                $("#disable_" + id).attr("class", "fa fa-circle text-success ml5");
             } else {
                 Toast.error(data.msg);
             }

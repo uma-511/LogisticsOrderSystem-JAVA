@@ -23,40 +23,74 @@ public class Lo_orders extends Model implements Serializable {
 	    private String id;
 	    
 	    @Column
-	    @Name
 	    @Comment("淘宝店id")
 	    @ColDefine(type = ColType.VARCHAR, width = 32)
 	    private String taobaoId;
 	    
 	    @Column
-	    @Name
 	    @Comment("工厂id")
 	    @ColDefine(type = ColType.VARCHAR, width = 32)
 	    private String factoryId;
 	    
 	    @Column
-	    @Name
 	    @Comment("淘宝单号")
 	    @ColDefine(type = ColType.VARCHAR, width = 32)
 	    private String tbId;
 	    
 	    @Column
-	    @Name
 	    @Comment("发布时间")
 	    @ColDefine(type = ColType.DATETIME, width = 32)
 	    private String publishTime;
 	    
 	    @Column
-	    @Name
 	    @Comment("确认时间")
 	    @ColDefine(type = ColType.DATETIME, width = 32)
 	    private String confirmTime;
 	    
 	    @Column
-	    @Name
 	    @Comment("待揽件时间")
 	    @ColDefine(type = ColType.DATETIME, width = 32)
 	    private String waitTime;
+	    
+		@Column
+	    @Comment("待揽件时间")
+	    @ColDefine(type = ColType.DATETIME, width = 32)
+	    private String packageTime;
+	    
+	    @Column
+	    @Comment("关闭时间")
+	    @ColDefine(type = ColType.DATETIME, width = 32)
+	    private String closeTime;
+	    
+	    @Column
+	    @Comment("运单号")
+	    @ColDefine(type = ColType.VARCHAR, width = 32)
+	    private String expNum;
+
+	    @Column
+	    @Comment("运费")
+	    @ColDefine(type = ColType.FLOAT, width = 32)
+	    private String freight;
+	    
+	    @Column
+	    @Comment("备注")
+	    @ColDefine(type = ColType.VARCHAR, width = 200)
+	    private String remark;
+	    
+	    @Column
+	    @Comment("揽件图片")
+	    @ColDefine(type = ColType.VARCHAR, width = 200)
+	    private String packagePhoto;
+	    
+	    @Column
+	    @Comment("订单状态 1:已发布 2:已确认（有货） 3:已确认（无货） 4:待揽件 5:已揽件 6:已关闭")
+	    @ColDefine(type = ColType.INT)
+	    private int orderStatus;
+	    
+	    @Column
+	    @Comment("支付状态 0:未支付 1:已支付")
+	    @ColDefine(type = ColType.INT)
+	    private int payStatus;
 	    
 	    public String getId() {
 			return id;
@@ -177,52 +211,4 @@ public class Lo_orders extends Model implements Serializable {
 		public void setPayStatus(int payStatus) {
 			this.payStatus = payStatus;
 		}
-
-		@Column
-	    @Name
-	    @Comment("待揽件时间")
-	    @ColDefine(type = ColType.DATETIME, width = 32)
-	    private String packageTime;
-	    
-	    @Column
-	    @Name
-	    @Comment("关闭时间")
-	    @ColDefine(type = ColType.DATETIME, width = 32)
-	    private String closeTime;
-	    
-	    @Column
-	    @Name
-	    @Comment("运单号")
-	    @ColDefine(type = ColType.VARCHAR, width = 32)
-	    private String expNum;
-
-	    @Column
-	    @Name
-	    @Comment("运费")
-	    @ColDefine(type = ColType.FLOAT, width = 32)
-	    private String freight;
-	    
-	    @Column
-	    @Name
-	    @Comment("备注")
-	    @ColDefine(type = ColType.VARCHAR, width = 200)
-	    private String remark;
-	    
-	    @Column
-	    @Name
-	    @Comment("揽件图片")
-	    @ColDefine(type = ColType.VARCHAR, width = 200)
-	    private String packagePhoto;
-	    
-	    @Column
-	    @Name
-	    @Comment("订单状态 1:已发布 2:已确认（有货） 3:已确认（无货） 4:待揽件 5:已揽件 6:已关闭")
-	    @ColDefine(type = ColType.INT)
-	    private int orderStatus;
-	    
-	    @Column
-	    @Name
-	    @Comment("支付状态 0:未支付 1:已支付")
-	    @ColDefine(type = ColType.INT)
-	    private int payStatus;
 }

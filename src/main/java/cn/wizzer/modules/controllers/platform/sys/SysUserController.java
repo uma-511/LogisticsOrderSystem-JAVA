@@ -20,15 +20,24 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.subject.Subject;
 import org.nutz.dao.*;
 import org.nutz.dao.Chain;
+import org.nutz.integration.json4excel.J4E;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
+import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.Disks;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -201,6 +210,24 @@ public class SysUserController {
         }
     }
 
+    @At("/status/?")
+    @Ok("json")
+    @RequiresPermissions("sys.manager.user.edit")
+    @SLog(tag = "审核用户", msg = "用户名:${args[1].getAttribute('loginname')}")
+    public Object status(String userId, HttpServletRequest req) {
+        try {
+            String loginname = userService.fetch(userId).getLoginname();
+            if ("superadmin".equals(loginname)) {
+                return Result.error("system.not.allow");
+            }
+            req.setAttribute("loginname", loginname);
+            userService.update(Chain.make("status", 1), Cnd.where("id", "=", userId));
+            return Result.success("system.success");
+        } catch (Exception e) {
+            return Result.error("system.error");
+        }
+    }
+    
     @At("/detail/?")
     @Ok("beetl:/platform/sys/user/detail.html")
     @RequiresAuthentication
@@ -358,4 +385,5 @@ public class SysUserController {
             return Result.error("原密码不正确");
         }
     }
+    
 }

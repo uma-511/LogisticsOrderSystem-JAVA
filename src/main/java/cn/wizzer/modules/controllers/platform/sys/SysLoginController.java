@@ -17,6 +17,9 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.crypto.RandomNumberGenerator;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
+import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.session.SessionException;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
@@ -27,11 +30,13 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
+import org.nutz.mvc.adaptor.WhaleAdaptor;
 import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 /**
  * Created by wizzer on 2016/6/22.
@@ -64,6 +69,13 @@ public class SysLoginController {
     public void noPermission() {
 
     }
+    
+    @At("/enroll")
+	@Ok("beetl:/platform/sys/enroll.html")
+	@Filters
+	public void enroll() {
+
+	}
     /**
      * 切换样式，对登陆用户有效
      *
@@ -115,6 +127,33 @@ public class SysLoginController {
     }
 
     /**
+	 * 注册新用户
+	 * 
+	 * @param user
+	 * @return
+	 */
+	@At("/bind")
+	@Ok("json:full")
+	@AdaptBy(type = WhaleAdaptor.class)
+	public Object bind(@Param("..") Sys_user user, HttpServletRequest req) {
+		try {
+			RandomNumberGenerator rng = new SecureRandomNumberGenerator();
+			String salt = rng.nextBytes().toBase64();
+			String hashedPasswordBase64 = new Sha256Hash(user.getPassword(), salt, 1024).toBase64();
+			user.setSalt(salt);
+			user.setPassword(hashedPasswordBase64);
+			user.setLoginPjax(true);
+			user.setLoginCount(0);
+			user.setLoginAt(0);
+			user.setNickname(user.getLoginname());
+			user.setStatus(2);
+			user = userService.insert(user);
+			return Result.success("system.success");
+		} catch (Exception e) {
+			return Result.error("system.error");
+		}
+	}
+    /**
      * 登陆验证
      *
      * @param token
@@ -133,21 +172,28 @@ public class SysLoginController {
             ThreadContext.bind(subject);
             subject.login(token);
             Sys_user user = (Sys_user) subject.getPrincipal();
-            int count = user.getLoginCount() == null ? 0 : user.getLoginCount();
-            userService.update(Chain.make("loginIp", user.getLoginIp()).add("loginAt", (int) (System.currentTimeMillis() / 1000))
-                            .add("loginCount", count + 1).add("isOnline", true)
-                    , Cnd.where("id", "=", user.getId()));
-			Sys_log sysLog = new Sys_log();
-            sysLog.setType("info");
-            sysLog.setTag("用户登陆");
-            sysLog.setSrc(this.getClass().getName()+"#doLogin");
-            sysLog.setMsg("成功登录系统！");
-            sysLog.setIp(StringUtil.getRemoteAddr());
-            sysLog.setOpBy(user.getId());
-            sysLog.setOpAt((int) (System.currentTimeMillis() / 1000));
-            sysLog.setNickname(user.getNickname());
-            sLogService.async(sysLog);
-            return Result.success("login.success");
+			if (user.getStatus() == 1) {
+
+				int count = user.getLoginCount() == null ? 0 : user.getLoginCount();
+				userService.update(Chain.make("loginIp", user.getLoginIp())
+						.add("loginAt", (int) (System.currentTimeMillis() / 1000)).add("loginCount", count + 1)
+						.add("isOnline", true), Cnd.where("id", "=", user.getId()));
+				Sys_log sysLog = new Sys_log();
+				sysLog.setType("info");
+				sysLog.setTag("用户登陆");
+				sysLog.setSrc(this.getClass().getName() + "#doLogin");
+				sysLog.setMsg("成功登录系统！");
+				sysLog.setIp(StringUtil.getRemoteAddr());
+				sysLog.setOpBy(user.getId());
+				sysLog.setOpAt((int) (System.currentTimeMillis() / 1000));
+				sysLog.setNickname(user.getNickname());
+				sLogService.async(sysLog);
+				return Result.success("login.success");
+			} else {
+		        SecurityUtils.getSubject().getSession(true).setAttribute("errCount", errCount);
+		        subject.logout();
+				return Result.error(5,"login.error.verify");
+			}
         } catch (IncorrectCaptchaException e) {
             //自定义的验证码错误异常
             return Result.error(1, "login.error.captcha");

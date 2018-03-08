@@ -846,6 +846,8 @@ public class Setup implements org.nutz.mvc.Setup {
             user.setLoginScroll(false);
             user.setLoginSidebar(false);
             user.setLoginPjax(true);
+            user.setStatus(1);
+            user.setAccountType(0);
             user.setUnitid(dbunit.getId());
             Sys_user dbuser = dao.insert(user);
             //不同的插入数据方式(安全)

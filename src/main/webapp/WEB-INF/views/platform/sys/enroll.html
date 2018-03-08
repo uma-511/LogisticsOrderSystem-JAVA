@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html class="signin no-js" lang="${lang!}">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="${AppName!}">
+    <meta name="keywords" content="nutz,nutzwk">
+    <title>${AppName!}</title>
+    <link rel="stylesheet" href="${base!}/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="${base!}/assets/css/font-awesome.css">
+    <link rel="stylesheet" href="${base!}/assets/css/themify-icons.css">
+    <link rel="stylesheet" href="${base!}/assets/css/animate.min.css">
+    <link rel="stylesheet" href="${base!}/assets/css/skins/palette.css">
+    <link rel="stylesheet" href="${base!}/assets/css/fonts/font.css">
+    <link rel="stylesheet" href="${base!}/assets/css/main.css">
+    <!--[if lt IE 9]>
+    <script src="${base!}/assets/js/html5shiv.js"></script>
+    <script src="${base!}/assets/js/respond.min.js"></script>
+    <script src="${base!}/assets/js/json2.js"></script>
+    <![endif]-->
+    <script src="${base!}/assets/plugins/modernizr.js"></script>
+    <script src="${base!}/assets/plugins/jquery-1.11.1.min.js"></script>
+    <script src="${base!}/assets/js/jquery.pjax.js"></script>
+    <script src="${base!}/assets/js/sso/RSA.js"></script>
+    <script src="${base!}/assets/js/sso/BigInt.js"></script>
+    <script src="${base!}/assets/js/sso/Barrett.js"></script>
+    <style type="text/css">
+    #abc a:hover {
+	    color: #1374c5;
+	 }
+    </style>
+
+<body>
+<div class="overlay"></div>
+<div class="center-wrapper">
+    <div class="center-content">
+        <div class="row no-m">
+            <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+                <section class="panel bg-white no-b fadeIn animated">
+                    <header class="panel-heading no-b text-center" style="font-size:30px;">
+                        ${msg['login.register']}
+                    </header>
+                    <div class="p15">
+                    <div id="bind">
+                    <form id="bindForm" role="form"  data-parsley-validate
+                            action="${base!}/platform/login/bind" novalidate="" method="post" >
+
+                            <div class="form-group">
+                                <span>用户名：</span>
+                                <input type="text" id="loginname" name="loginname" value="" required
+                                       class="form-control input-lg mb25"
+                                       placeholder="${msg['login.username']}">
+                            </div>
+                            <div class="form-group">
+                                <span> 密码：</span>
+                                  <input id="password" type="password" class="form-control input-lg mb25" required name="password"
+                              data-parsley-required="true" data-parsley-minlength="6" data-parsley-maxlength="20"  maxlength="16"
+                               placeholder="${msg['login.password']}" onKeyUp="AuthPasswd(this.value.trim())">
+                                 <span>6-16位字母、数字、符号，不区分大小写</span>
+                                 <input type="hidden" id="security" name="security" value=""
+                                       class="form-control input-lg mb25"
+                                       placeholder="">
+                            </div>
+                            <div class="form-group">
+                                <span>联系方式：</span>
+                                <input type="text" id="phone" name="phone" value="" required
+                                       class="form-control input-lg mb25"
+                                       placeholder="联系方式">
+                            </div>
+                             <div class="form-group" id="business">
+                                <span>店铺/⼯⼚名称：</span>
+                                <input type="text" id="shopname" name="shopname" value="" required
+                                       class="form-control input-lg mb25"
+                                       placeholder="店铺/⼯⼚名称">
+                                <ul class="parsley-errors-list filled" id="parsley-id-6" style="display:none;"><li class="parsley-required">此企业（单位、组织）已被注册</li></ul>
+                            </div>
+                            <div class="form-group">
+                                <span>角色类型：</span>
+                                <div class="radio">
+                                   <label><input type="radio" name="accountType" value="1" checked="" >淘宝店主</label>
+                                   <label> <input type="radio" name="accountType" value="2" >⼯⼚</label>
+                                </div>
+                            </div>
+                            <p id="tip" class="bg-danger p15" style="display:none"></p>
+                            
+                             <div class="show">
+                                <button id="next" class="btn btn-primary btn-lg btn-block" type="button"
+                                        data-loading-text="${msg['login.newregister']}...">
+                                                                                完成注册
+                                </button>
+                            </div>
+                            <p id="tip" class="bg-danger p15" style="display:none"></p>
+                        
+                      </form>
+                      </div>
+                      <div class="form-group" id="success" style="display:none;">
+                            <header class="panel-heading no-b text-center" style="font-size:25px;margin-left:22px;">
+		                                              恭喜您成功注册！
+		                    </header>
+                           <button id="back" class="btn btn-primary btn-lg btn-block" type="button"
+                                        data-loading-text="确定">
+                                                                                确定
+                           </button>
+                      </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function () {
+	$("#login").on("click", function () {
+		window.location.href = "${base!}/platform/login";
+	});
+	$("#next").on("click",function(){
+	    $('#bindForm').submit();
+    });
+	$("#back").on("click",function(){
+        window.location.href = "${base!}/platform/login";
+    });
+	$('#bindForm').ajaxForm({
+        dataType: 'json',
+        beforeSubmit: function (arr, form, options) {
+	        	console.log("ddd");
+        },
+        success: function (data, statusText, xhr, form) {
+        	 $("#bind").hide();
+	           $("#success").show();
+        }
+    });
+})
+</script>
+
+<script src="${base!}/assets/bootstrap/js/bootstrap.js"></script>
+<script src="${base!}/assets/plugins/jquery.form.js"></script>
+<script src="${base!}/assets/plugins/parsley.min.js"></script>
+<script src="${base!}/assets/plugins/parsley.zh_cn.js"></script>
+<script src="${base!}/assets/plugins/jquery.cookie.js"></script>
+<script src="${base!}/assets/plugins/getUrlParam.js"></script>
+<script src="${base!}/assets/js/password-security.js"></script>
+</body>
+</html>
