@@ -272,6 +272,7 @@ public class SysUserController {
     @RequiresAuthentication
     public Object data(@Param("unitid") String unitid, @Param("loginname") String loginname, @Param("nickname") String nickname, @Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
         Cnd cnd = Cnd.NEW();
+        cnd.and("accountType","=",0);
         if (!Strings.isBlank(unitid) && !"root".equals(unitid))
             cnd.and("unitid", "=", unitid);
         if (!Strings.isBlank(loginname))

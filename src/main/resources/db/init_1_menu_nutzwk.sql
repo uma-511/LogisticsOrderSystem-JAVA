@@ -1,0 +1,6 @@
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('8ae0e5decd8c47ce8f885626e4636789', '', '0004', '淘宝账号管理', NULL, 'menu', '', '', '', '1', '0', 'taobao', NULL, '57', '1', 'cd4618704b5f4e4784295d10395ad0cb', '1520503156', '0');
+
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('1e4415c59d79485da4d576fb0db6da3a', '8ae0e5decd8c47ce8f885626e4636789', '00040001', '淘宝账号管理', NULL, 'menu', '', '', '', '1', '0', 'taobao.number', NULL, '58', '1', 'cd4618704b5f4e4784295d10395ad0cb', '1520503169', '0');
+
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('066c308370204a2c9fddf4a77618551a', '1e4415c59d79485da4d576fb0db6da3a', '000400010001', '账号管理', NULL, 'menu', '/platform/losys/taobao', '', '', '1', '0', 'taobao.number.account', NULL, '59', '0', 'cd4618704b5f4e4784295d10395ad0cb', '1520503211', '0');
+

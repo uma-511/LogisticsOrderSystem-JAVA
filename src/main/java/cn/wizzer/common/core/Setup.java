@@ -819,6 +819,22 @@ public class Setup implements org.nutz.mvc.Setup {
             role.setDisabled(false);
             dao.insert(role);
             role = new Sys_role();
+            role.setName("工厂方");
+            role.setCode("factory");
+            role.setAliasName("Factory");
+            role.setNote("factory role");
+            role.setUnitid("");
+            role.setDisabled(false);
+            dao.insert(role);
+            role = new Sys_role();
+            role.setName("淘宝方");
+            role.setCode("taobao");
+            role.setAliasName("Taobao");
+            role.setNote("taobao role");
+            role.setUnitid("");
+            role.setDisabled(false);
+            dao.insert(role);
+            role = new Sys_role();
             role.setName("系统管理员");
             role.setCode("sysadmin");
             role.setAliasName("Sysadmin");
@@ -826,6 +842,7 @@ public class Setup implements org.nutz.mvc.Setup {
             role.setUnitid("");
             role.setMenus(menuList);
             role.setDisabled(false);
+
             Sys_role dbrole = dao.insert(role);
             //初始化用户
             Sys_user user = new Sys_user();
