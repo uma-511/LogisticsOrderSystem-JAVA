@@ -20,6 +20,8 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.subject.Subject;
 import org.nutz.dao.*;
 import org.nutz.dao.Chain;
+import org.nutz.dao.entity.Record;
+import org.nutz.dao.sql.Sql;
 import org.nutz.integration.json4excel.J4E;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
@@ -65,44 +67,54 @@ public class LosysTaobaoController {
 
     }
 
+    @At("/edit/?")
+    @Ok("beetl:/platform/losys/taobao/edit.html")
+    @RequiresAuthentication
+    public Object edit(String id) {
+        return userService.fetch(id);
+    }
 
-    @At("/status/?")
+    @At
     @Ok("json")
-    @RequiresPermissions("sys.manager.user.edit")
-    @SLog(tag = "审核用户", msg = "用户名:${args[1].getAttribute('loginname')}")
-    public Object status(String userId, HttpServletRequest req) {
+    @SLog(tag = "修改用户", msg = "用户名:${args[1]}->${args[0].loginname}")
+    public Object editDo(@Param("..") Sys_user user, HttpServletRequest req) {
         try {
-            String loginname = userService.fetch(userId).getLoginname();
-            if ("superadmin".equals(loginname)) {
-                return Result.error("system.not.allow");
-            }
-            req.setAttribute("loginname", loginname);
-            userService.update(Chain.make("status", 1), Cnd.where("id", "=", userId));
+            user.setOpBy(Strings.sNull(req.getAttribute("uid")));
+            user.setOpAt((int) (System.currentTimeMillis() / 1000));
+            RandomNumberGenerator rng = new SecureRandomNumberGenerator();
+            String salt = rng.nextBytes().toBase64();
+            String hashedPasswordBase64 = new Sha256Hash(user.getPassword(), salt, 1024).toBase64();
+            user.setSalt(salt);
+            user.setPassword(hashedPasswordBase64);
+            user.setStatus(1);
+            user.setAccountType(1);
+            userService.updateIgnoreNull(user);
             return Result.success("system.success");
         } catch (Exception e) {
             return Result.error("system.error");
         }
     }
     
-    @At("/detail/?")
-    @Ok("beetl:/platform/sys/user/detail.html")
-    @RequiresAuthentication
-    public Object detail(String id) {
-        if (!Strings.isBlank(id)) {
-            Sys_user user = userService.fetch(id);
-            return userService.fetchLinks(user, "roles");
-        }
-        return null;
+    @At("/audit/?")
+    @Ok("beetl:/platform/losys/taobao/audit.html")
+    public Object audit(String id, HttpServletRequest request) {
+    	Sys_user user = userService.fetch(id);
+        return user;
     }
 
+    @At("/doAudit")
+    @Ok("json")
+    public Object doAudit(@Param("id") String id, @Param("status") int status, @Param("remark") String remark) {
+    	 userService.update(Chain.make("status", status), Cnd.where("id", "=", id));
+        return Result.success("cw.success");
+    }
+    
     @At
     @Ok("json:{locked:'password|salt',ignoreNull:false}") // 忽略password和createAt属性,忽略空属性的json输出
     @RequiresAuthentication
-    public Object data(@Param("unitid") String unitid, @Param("loginname") String loginname, @Param("nickname") String nickname, @Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
+    public Object data(@Param("loginname") String loginname, @Param("nickname") String nickname, @Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
         Cnd cnd = Cnd.NEW();
         cnd.and("accountType","=",1);
-        if (!Strings.isBlank(unitid) && !"root".equals(unitid))
-            cnd.and("unitid", "=", unitid);
         if (!Strings.isBlank(loginname))
             cnd.and("loginname", "like", "%" + loginname + "%");
         if (!Strings.isBlank(nickname))
@@ -112,7 +124,6 @@ public class LosysTaobaoController {
 
     @At("/delete/?")
     @Ok("json")
-    @RequiresPermissions("sys.manager.user.delete")
     @SLog(tag = "删除用户", msg = "用户名:${args[1].getAttribute('loginname')}")
     public Object delete(String userId, HttpServletRequest req) {
         try {

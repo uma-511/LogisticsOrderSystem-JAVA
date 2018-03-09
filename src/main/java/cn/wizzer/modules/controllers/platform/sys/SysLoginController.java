@@ -189,10 +189,14 @@ public class SysLoginController {
 				sysLog.setNickname(user.getNickname());
 				sLogService.async(sysLog);
 				return Result.success("login.success");
-			} else {
+			} else if (user.getStatus() == 0){
 		        SecurityUtils.getSubject().getSession(true).setAttribute("errCount", errCount);
 		        subject.logout();
-				return Result.error(5,"login.error.verify");
+				return Result.error(5,"login.error.not");
+			} else {
+				SecurityUtils.getSubject().getSession(true).setAttribute("errCount", errCount);
+				subject.logout();
+				return Result.error(5, "login.error.verify");
 			}
         } catch (IncorrectCaptchaException e) {
             //自定义的验证码错误异常
