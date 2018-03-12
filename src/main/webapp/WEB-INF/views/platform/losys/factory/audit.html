@@ -46,7 +46,7 @@ layout("/layouts/platform.html"){
                         <div>
                             <button class="btn btn-primary navbar-btn pass" data-pjax>审核通过</button>
                             <button class="btn btn-primary navbar-btn nopass"  data-pjax>审核不通过</button>
-                            <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/taobao" data-pjax>取消</a>
+                            <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/factory" data-pjax>取消</a>
                         </div>
                     </div>
                 </div>
@@ -66,13 +66,13 @@ layout("/layouts/platform.html"){
             doAudit(0);
         });
         function doAudit(status){
-            $.post('${base}/platform/losys/taobao/doAudit',{
+            $.post('${base}/platform/losys/factory/doAudit',{
                 id:'${obj.id}',
                 status:status
             },function(rep){
                 if(rep.code == 0){
                     Toast.success("操作成功！");
-                    window.location.href = "${base}/platform/losys/taobao";
+                    window.location.href = "${base}/platform/losys/factory";
                 }
             },'json');
         }

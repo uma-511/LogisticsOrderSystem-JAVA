@@ -49,9 +49,9 @@ import java.util.Map;
  * Created by wizzer on 2016/6/23.
  */
 @IocBean
-@At("/platform/losys/taobao")
+@At("/platform/losys/factory")
 @Filters({@By(type = PrivateFilter.class)})
-public class LosysTaobaoController {
+public class LosysFactoryController {
     private static final Log log = Logs.get();
     @Inject
     SysUserService userService;
@@ -61,21 +61,21 @@ public class LosysTaobaoController {
     SysUnitService unitService;
 
     @At("")
-    @Ok("beetl:/platform/losys/taobao/index.html")
+    @Ok("beetl:/platform/losys/factory/index.html")
     @RequiresAuthentication
     public void index() {
 
     }
 
     @At("/edit/?")
-    @Ok("beetl:/platform/losys/taobao/edit.html")
+    @Ok("beetl:/platform/losys/factory/edit.html")
     @RequiresAuthentication
     public Object edit(String id) {
         return userService.fetch(id);
     }
     
     @At("/updatePass/?")
-    @Ok("beetl:/platform/losys/taobao/updatePass.html")
+    @Ok("beetl:/platform/losys/factory/updatePass.html")
     @RequiresAuthentication
     public Object updatePass(String id) {
         return userService.fetch(id);
@@ -88,7 +88,7 @@ public class LosysTaobaoController {
         try {
             user.setOpBy(Strings.sNull(req.getAttribute("uid")));
             user.setOpAt((int) (System.currentTimeMillis() / 1000));
-            user.setAccountType(1);
+            user.setAccountType(2);
             userService.updateIgnoreNull(user);
             return Result.success("system.success");
         } catch (Exception e) {
@@ -97,7 +97,7 @@ public class LosysTaobaoController {
     }
     
     @At("/audit/?")
-    @Ok("beetl:/platform/losys/taobao/audit.html")
+    @Ok("beetl:/platform/losys/factory/audit.html")
     public Object audit(String id, HttpServletRequest request) {
     	Sys_user user = userService.fetch(id);
         return user;
@@ -116,9 +116,8 @@ public class LosysTaobaoController {
     	 userService.update(Chain.make("status", status), Cnd.where("id", "=", id));
         return Result.success("cw.success");
     }
-    
     /**
-     * 淘宝账号管理列表
+     * 工厂账号管理列表
      * @param loginname
      * @param nickname
      * @param length
@@ -133,7 +132,7 @@ public class LosysTaobaoController {
     @RequiresAuthentication
     public Object data(@Param("loginname") String loginname, @Param("nickname") String nickname, @Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
         Cnd cnd = Cnd.NEW();
-        cnd.and("accountType","=",1);
+        cnd.and("accountType","=",2);
         if (!Strings.isBlank(loginname))
             cnd.and("loginname", "like", "%" + loginname + "%");
         if (!Strings.isBlank(nickname))
