@@ -5,12 +5,18 @@ import cn.wizzer.common.base.Result;
 import cn.wizzer.common.filter.PrivateFilter;
 import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
+import cn.wizzer.modules.models.losys.Lo_taobao_factory;
+import cn.wizzer.modules.models.sys.Sys_api;
 import cn.wizzer.modules.models.sys.Sys_menu;
+import cn.wizzer.modules.models.sys.Sys_role;
 import cn.wizzer.modules.models.sys.Sys_unit;
 import cn.wizzer.modules.models.sys.Sys_user;
+import cn.wizzer.modules.services.losys.LosysTaobaoFactoryService;
 import cn.wizzer.modules.services.sys.SysMenuService;
 import cn.wizzer.modules.services.sys.SysUnitService;
 import cn.wizzer.modules.services.sys.SysUserService;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -29,6 +35,7 @@ import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.annotation.*;
@@ -59,7 +66,8 @@ public class LosysTaobaoController {
     SysMenuService menuService;
     @Inject
     SysUnitService unitService;
-
+    @Inject
+    LosysTaobaoFactoryService factoryService;
     @At("")
     @Ok("beetl:/platform/losys/taobao/index.html")
     @RequiresAuthentication
@@ -79,6 +87,53 @@ public class LosysTaobaoController {
     @RequiresAuthentication
     public Object updatePass(String id) {
         return userService.fetch(id);
+    }
+    
+    @At("/factory/?")
+    @Ok("beetl:/platform/losys/taobao/factory.html")
+    @RequiresAuthentication
+    public void factory(String id, HttpServletRequest req) {
+		List<Sys_user> list = userService.query(Cnd.where("accountType", "=", 2));
+		List<NutMap> factory = new ArrayList<>();
+		for (Sys_user user : list) {
+			NutMap map = new NutMap();
+			List<Lo_taobao_factory> factoryid = factoryService.dao().query(Lo_taobao_factory.class,null);
+			map.put("id", user.getId());
+			map.put("text", user.getLoginname());
+			map.put("icon", "");
+			map.put("data", "");
+			if(!factoryid.isEmpty()){
+				for (Lo_taobao_factory taobao : factoryid) {
+					if (taobao.getTaobaoid().equals(id)) {
+						map.put("state", NutMap.NEW().addv("selected", true));
+					} else {
+						map.put("state", NutMap.NEW().addv("selected", false));
+					}
+				}
+			}
+			factory.add(map);
+		}
+		req.setAttribute("user", Json.toJson(factory));
+		req.setAttribute("id", id);
+    }
+    
+    @At
+    @Ok("json")
+    public Object editFactoryDo(@Param("factoryIds") String factoryIds, @Param("taobaoid") String taobaoid, HttpServletRequest req) {
+        try {
+            String[] ids = StringUtils.split(factoryIds, ",");
+            factoryService.dao().clear("ls_taobao_factory", Cnd.where("taobaoid", "=", taobaoid));
+            for (String s : ids) {
+                if (!Strings.isEmpty(s)) {
+                	factoryService.insert("ls_taobao_factory", org.nutz.dao.Chain.make("taobaoid", taobaoid).add("factoryid", s));
+                }
+            }
+            Sys_user user = userService.fetch(taobaoid);
+            req.setAttribute("name", user.getLoginname());
+            return Result.success("system.success");
+        } catch (Exception e) {
+            return Result.error("system.error");
+        }
     }
 
     @At

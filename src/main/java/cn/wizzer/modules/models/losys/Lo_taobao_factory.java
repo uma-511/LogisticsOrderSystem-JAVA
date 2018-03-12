@@ -12,12 +12,11 @@ import org.nutz.dao.entity.annotation.Prev;
 import org.nutz.dao.entity.annotation.Table;
 
 import cn.wizzer.common.base.Model;
-@Table("ls_taobao_factory")
+@Table("lo_taobao_factory")
 public class Lo_taobao_factory extends Model implements Serializable {
 	 private static final long serialVersionUID = 1L;
 	    @Column
 	    @Name
-	    @Comment("ID")
 	    @ColDefine(type = ColType.VARCHAR, width = 32)
 	    @Prev(els = {@EL("uuid()")})
 	    private String id;

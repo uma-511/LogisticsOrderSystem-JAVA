@@ -12,7 +12,7 @@ import org.nutz.dao.entity.annotation.Prev;
 import org.nutz.dao.entity.annotation.Table;
 
 import cn.wizzer.common.base.Model;
-@Table("ls_orders")
+@Table("lo_orders")
 public class Lo_orders extends Model implements Serializable {
 	 private static final long serialVersionUID = 1L;
 	    @Column
