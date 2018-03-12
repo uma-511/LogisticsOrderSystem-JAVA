@@ -73,6 +73,13 @@ public class LosysTaobaoController {
     public Object edit(String id) {
         return userService.fetch(id);
     }
+    
+    @At("/updatePass/?")
+    @Ok("beetl:/platform/losys/taobao/updatePass.html")
+    @RequiresAuthentication
+    public Object updatePass(String id) {
+        return userService.fetch(id);
+    }
 
     @At
     @Ok("json")
@@ -81,11 +88,6 @@ public class LosysTaobaoController {
         try {
             user.setOpBy(Strings.sNull(req.getAttribute("uid")));
             user.setOpAt((int) (System.currentTimeMillis() / 1000));
-            RandomNumberGenerator rng = new SecureRandomNumberGenerator();
-            String salt = rng.nextBytes().toBase64();
-            String hashedPasswordBase64 = new Sha256Hash(user.getPassword(), salt, 1024).toBase64();
-            user.setSalt(salt);
-            user.setPassword(hashedPasswordBase64);
             user.setStatus(1);
             user.setAccountType(1);
             userService.updateIgnoreNull(user);
@@ -160,6 +162,20 @@ public class LosysTaobaoController {
             tree.add(obj);
         }
         return tree;
+    }
+    
+    @At
+    @Ok("json")
+    @RequiresAuthentication
+    public Object doChangePassword(@Param("..") Sys_user user,@Param("newPassword") String newPassword, HttpServletRequest req) {
+		RandomNumberGenerator rng = new SecureRandomNumberGenerator();
+		String salt = rng.nextBytes().toBase64();
+		String hashedPasswordBase64 = new Sha256Hash(newPassword, salt, 1024).toBase64();
+		user.setSalt(salt);
+		user.setPassword(hashedPasswordBase64);
+		userService.update(Chain.make("salt", salt).add("password", hashedPasswordBase64),
+				Cnd.where("id", "=", user.getId()));
+		return Result.success("修改成功");
     }
     
 }
