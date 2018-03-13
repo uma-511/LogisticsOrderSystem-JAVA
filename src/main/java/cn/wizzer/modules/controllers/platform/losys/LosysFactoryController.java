@@ -130,13 +130,13 @@ public class LosysFactoryController {
     @At
     @Ok("json:{locked:'password|salt',ignoreNull:false}") // 忽略password和createAt属性,忽略空属性的json输出
     @RequiresAuthentication
-    public Object data(@Param("loginname") String loginname, @Param("nickname") String nickname, @Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
+    public Object data(@Param("loginname") String loginname, @Param("shopname") String shopname, @Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
         Cnd cnd = Cnd.NEW();
         cnd.and("accountType","=",2);
         if (!Strings.isBlank(loginname))
             cnd.and("loginname", "like", "%" + loginname + "%");
-        if (!Strings.isBlank(nickname))
-            cnd.and("nickname", "like", "%" + nickname + "%");
+        if (!Strings.isBlank(shopname))
+            cnd.and("shopname", "like", "%" + shopname + "%");
         return userService.data(length, start, draw, order, columns, cnd, null);
     }
 
@@ -151,6 +151,24 @@ public class LosysFactoryController {
             }
             userService.deleteById(userId);
             req.setAttribute("loginname", user.getLoginname());
+            return Result.success("system.success");
+        } catch (Exception e) {
+            return Result.error("system.error");
+        }
+    }
+    
+    @At("/delete")
+    @Ok("json")
+    @RequiresPermissions("sys.manager.user.delete")
+    @SLog(tag = "批量删除用户", msg = "用户ID:${args[1].getAttribute('ids')}")
+    public Object deletes(@Param("ids") String[] userIds, HttpServletRequest req) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (String s : userIds) {
+                sb.append(s).append(",");
+            }
+            userService.deleteByIds(userIds);
+            req.setAttribute("ids", sb.toString());
             return Result.success("system.success");
         } catch (Exception e) {
             return Result.error("system.error");
