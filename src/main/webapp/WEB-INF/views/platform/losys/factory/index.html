@@ -19,7 +19,7 @@ layout("/layouts/platform.html"){
                 <thead>
                 <tr>
                     <th>用户名</th>
-                    <th>店铺/⼯⼚名称</th>
+                    <th>工厂名称</th>
                     <th>状态</th>
                     <th>操作</th>
             </table>
@@ -37,8 +37,8 @@ layout("/layouts/platform.html"){
                 <input type="text" id="loginname" name="loginname" onclick="this.value=''" class="form-control" placeholder="用户名" autofocus>
             </div>
             <div class="form-group">
-                <label for="nickname">姓名/昵称</label>
-                <input type="text" id="nickname" name="nickname" onclick="this.value=''" class="form-control" placeholder="姓名/昵称">
+                <label for="nickname">工厂名称</label>
+                <input type="text" id="shopname" name="shopname" onclick="this.value=''" class="form-control" placeholder="工厂名称">
             </div>
             <button id="searchBtn" type="button" class="btn btn-default">查询</button>
         </div>
@@ -131,7 +131,7 @@ layout("/layouts/platform.html"){
                 "type": "post",
                 "data": function (d) {
                     d.loginname = $('#loginname').val();
-                    d.nickname = $('#nickname').val();
+                    d.shopname = $('#shopname').val();
                 }
             },
             "order": [[0, "desc"]],
@@ -143,14 +143,24 @@ layout("/layouts/platform.html"){
             "columnDefs": [
                 {
                     "render": function (data, type, row) {
-                        return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
-                                ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
-                                '<li class="divider"></li>' +
-                                '<li><a href="${base}/platform/losys/factory/edit/' + row.id + '" data-pjax>修改信息</a></li>' +
-                                '<li><a href="javascript:;" onclick="del(\'' + row.id + '\')">删除</a></li>' +
-                                '<li><a href="${base}/platform/losys/factory/audit/'+row.id+'">审核</a></li>' +
-                                '<li><a href="${base}/platform/losys/factory/updatePass/'+row.id+'" data-toggle="modal" data-target="#homeDetail">修改密码</a></li>'+
-                                '</ul></div>';
+                    	if(row.status==1){
+	                        return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
+	                                ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
+	                                '<li class="divider"></li>' +
+	                                '<li><a href="${base}/platform/losys/factory/edit/' + row.id + '" data-pjax>修改信息</a></li>' +
+	                                '<li><a href="javascript:;" onclick="del(\'' + row.id + '\')">删除</a></li>' +
+	                                '<li><a href="${base}/platform/losys/factory/updatePass/'+row.id+'" data-toggle="modal" data-target="#homeDetail">修改密码</a></li>'+
+	                                '</ul></div>';
+                    	}else{
+                    		return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
+                            ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
+                            '<li class="divider"></li>' +
+                            '<li><a href="${base}/platform/losys/factory/edit/' + row.id + '" data-pjax>修改信息</a></li>' +
+                            '<li><a href="javascript:;" onclick="del(\'' + row.id + '\')">删除</a></li>' +
+                            '<li><a href="${base}/platform/losys/factory/audit/'+row.id+'">审核</a></li>' +
+                            '<li><a href="${base}/platform/losys/factory/updatePass/'+row.id+'" data-toggle="modal" data-target="#homeDetail">修改密码</a></li>'+
+                            '</ul></div>';
+                    	}
                     },
                     "targets": 3
                 },
