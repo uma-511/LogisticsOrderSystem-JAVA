@@ -122,7 +122,7 @@ public class LosysOrderController {
     	List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class,null);
     	 
     	// 第二步，使用j4e将数据输出到指定文件或输出流中
-    	try (OutputStream out = new FileOutputStream(Files.createFileIfNoExists2("C:/淘宝订单.xls"))) {
+    	try (OutputStream out = new FileOutputStream(Files.createFileIfNoExists2("C:/exportfile/淘宝订单.xls"))) {
     	    J4E.toExcel(out, taobao, null);  
     	}
 		return Result.success("导出C盘成功");
@@ -142,7 +142,6 @@ public class LosysOrderController {
 			InputStream in = Files.findFileAsStream(Disks.absolute(file.getPath()));
 			List<Lo_taobao_orders> people = J4E.fromExcel(in, Lo_taobao_orders.class, null);
 			// 第二步，插入数据到数据库
-			taobaoOrderService.dao().clear(Lo_taobao_orders.class);
 			taobaoOrderService.dao().insert(people);
 			List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class, null);
 			orderService.dao().clear(Lo_orders.class);

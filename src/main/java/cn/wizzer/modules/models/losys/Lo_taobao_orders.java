@@ -20,6 +20,7 @@ public class Lo_taobao_orders extends Model implements Serializable {
     @Column
     @Name
     @Comment("ID")
+    @J4EName("订单ID")
     @J4EIgnore
     @ColDefine(type = ColType.VARCHAR, width = 32)
     @Prev(els = {@EL("uuid()")})

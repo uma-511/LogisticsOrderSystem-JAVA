@@ -153,8 +153,12 @@ public class SysLoginController {
 			user.setNickname(user.getLoginname());
 			user.setStatus(2);
 			user = userService.insert(user);
-			Sys_role role=(Sys_role) roleService.query(Cnd.where("name", "=", "淘宝方"));
-			userService.insert("sys_user_role", org.nutz.dao.Chain.make("roleId", role.getId()).add("userId", user.getId()));
+			if(user.getAccountType()==1){
+				List<Sys_role> role=roleService.query(Cnd.where("name", "=", "淘宝方"));
+				for(Sys_role roleid : role){
+					userService.insert("sys_user_role", org.nutz.dao.Chain.make("roleId", roleid.getId()).add("userId", user.getId()));
+				}
+			}
 			return Result.success("system.success");
 		} catch (Exception e) {
 			return Result.error("system.error");
