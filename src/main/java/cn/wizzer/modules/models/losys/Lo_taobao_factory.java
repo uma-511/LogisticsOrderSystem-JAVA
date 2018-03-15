@@ -16,12 +16,6 @@ import cn.wizzer.common.base.Model;
 public class Lo_taobao_factory extends Model implements Serializable {
 	 private static final long serialVersionUID = 1L;
 	    @Column
-	    @Name
-	    @ColDefine(type = ColType.VARCHAR, width = 32)
-	    @Prev(els = {@EL("uuid()")})
-	    private String id;
-	    
-	    @Column
 	    @Comment("淘宝店id")
 	    @ColDefine(type = ColType.VARCHAR, width = 32)
 	    private String taobaoid;
@@ -31,14 +25,6 @@ public class Lo_taobao_factory extends Model implements Serializable {
 	    @ColDefine(type = ColType.VARCHAR, width = 32)
 	    private String factoryid;
 		
-		public String getId() {
-			return id;
-		}
-
-		public void setId(String id) {
-			this.id = id;
-		}
-
 		public String getTaobaoid() {
 			return taobaoid;
 		}

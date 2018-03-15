@@ -8,7 +8,10 @@ import cn.wizzer.common.shiro.exception.EmptyCaptchaException;
 import cn.wizzer.common.shiro.exception.IncorrectCaptchaException;
 import cn.wizzer.common.shiro.filter.AuthenticationFilter;
 import cn.wizzer.modules.models.sys.Sys_log;
+import cn.wizzer.modules.models.sys.Sys_role;
+import cn.wizzer.modules.models.sys.Sys_unit;
 import cn.wizzer.modules.models.sys.Sys_user;
+import cn.wizzer.modules.services.sys.SysRoleService;
 import cn.wizzer.modules.services.sys.SysUserService;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.shiro.SecurityUtils;
@@ -50,6 +53,8 @@ public class SysLoginController {
     SysUserService userService;
     @Inject
     SLogService sLogService;
+    @Inject
+    SysRoleService roleService;
 
     @At("")
     @Ok("re")
@@ -148,6 +153,8 @@ public class SysLoginController {
 			user.setNickname(user.getLoginname());
 			user.setStatus(2);
 			user = userService.insert(user);
+			Sys_role role=(Sys_role) roleService.query(Cnd.where("name", "=", "淘宝方"));
+			userService.insert("sys_user_role", org.nutz.dao.Chain.make("roleId", role.getId()).add("userId", user.getId()));
 			return Result.success("system.success");
 		} catch (Exception e) {
 			return Result.error("system.error");

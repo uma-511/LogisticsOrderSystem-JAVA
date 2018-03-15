@@ -1,0 +1,180 @@
+<%
+layout("/layouts/platform.html"){
+%>
+<section class="content-wrap bg-white">
+    <header class="header navbar bg-white shadow">
+        <div class="btn-group tool-button" id="addorder">
+             <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/order/add" data-pjax><i class="ti-plus"></i>新建订单</a>
+        </div>
+        <div class="pull-right offscreen-right">
+            <button class="btn btn-primary navbar-btn" onclick="exportFile()" id="exportfile"><i
+                    class="fa fa-sliders"></i> 导出
+            </button>
+            <button class="btn btn-primary navbar-btn" onclick="document.getElementById('xx').click();" id="file"><i
+                    class="fa fa-sliders" ></i> 导入
+            </button>
+            <input type="file" name="xx" id="xx" value="" style="display:none" onchange="importFile(this)"/>
+            
+        </div>
+    </header>
+    <div class=panel-body style="padding-top: 50px;">
+        <div class="table-responsive no-border">
+            <input id="unitid" type="hidden">
+            <table class="table table-bordered table-striped mg-t datatable">
+                <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>旺旺号</th>
+                    <th>收件人</th>
+                    <th>固话</th>
+                    <th>收件手机</th>
+                    <th>收件详细地址</th>
+                    <th>托寄物型号</th>
+                    <th>尺寸（长宽高）</th>
+                    <th>托寄物件数</th>
+                    <th>颜色</th>
+                    <th>选择发货物流</th>
+            </table>
+        </div>
+    </div>
+</section>
+<!-- 用户详情 -->
+<div id="dialogUserDetail" class="modal fade bs-modal-sm" tabindex="-3" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+<div id="dialogUserRightDetail" class="modal fade bs-modal-sm" tabindex="-3" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+
+<script language="JavaScript">
+    var datatable;
+    function initDatatable() {
+        datatable = $('.datatable').DataTable({
+            "dom": '<"toolbar">frtip',
+            "searching":false,
+            "processing": false,
+            "serverSide": true,
+            "select": true,
+            "ordering": true,
+            "language": {
+                "url": "${base}/assets/plugins/datatables/cn.json"
+            },
+            "preDrawCallback": function () {
+                sublime.showLoadingbar($(".main-content"));
+            },
+            "drawCallback": function () {
+                sublime.closeLoadingbar($(".main-content"));
+            },
+            "ajax": {
+                "url": "${base}/platform/losys/order/data",
+                "type": "post",
+                "data": function (d) {
+                }
+            },
+            "order": [[0, "desc"]],
+            "columns": [
+                {"data": "orderDate", "bSortable": true},
+                {"data": "account", "bSortable": true},
+                {"data": "recipient", "bSortable": true},
+                {"data": "fixedTelephone", "bSortable": true},
+                {"data": "mobilePhone", "bSortable": true},
+                {"data": "address", "bSortable": true},
+                {"data": "mailingModel", "bSortable": true},
+                {"data": "size", "bSortable": true},
+                {"data": "quantity", "bSortable": true},
+                {"data": "color", "bSortable": true},
+                {"data": "Logistics", "bSortable": true},
+            ],
+            "columnDefs": [
+            	{
+	                "render": function (data, type, row) {
+	                    if (data) {
+	                        return moment(parseInt(data)).format("YYYY-MM-DD");
+	                    }
+	                    return '';
+	                },
+	                "targets": 0
+	            }
+               
+            ]
+        });
+        datatable.on('click', 'tr', function () {
+            $(this).toggleClass('selected');
+        });
+        $("#searchBtn").on('click', function () {
+            datatable.ajax.reload();
+        });
+    }
+    function exportFile(){
+    	$.post("${base}/platform/losys/order/exportFile", {}, function (data) {
+            if (data.code == 0) {
+            	Toast.success(data.msg);
+            } else {
+                Toast.error(data.msg);
+            }
+            //重置按钮状态，关闭提示框
+            dialog.modal("hide");
+        }, "json");
+    }
+    
+    function importFile(e) {
+    	if (!window.File && !window.FileList && !window.FileReader && !window.Blob) {
+    		document.write('您的浏览器不支持File Api');
+    	}
+    	e = e || window.event;
+    	var liId = $(e.target).attr("id");
+    	var fd = new FormData();
+    	fd.append("file", $("#xx")[0].files[0]);
+        var fileurl ="${base}/platform/losys/order/importFile";
+    	$.ajax({
+    		type : "POST",
+    		contentType : false, // 必须false才会避开jQuery对 formdata 的默认处理 ,
+    								// XMLHttpRequest会对 formdata 进行正确的处理
+    		processData : false, // 必须false才会自动加上正确的Content-Type
+            url : fileurl,
+    		data : fd,
+    		success : function(data) {
+    			console.log(data);
+    			Toast.success(data.msg);
+    			datatable.ajax.reload(null,false);
+    		},
+    		error : function(msg) {
+    			console.log(msg);
+    		}
+    	});
+    }
+    $(document).ready(function () {
+        initDatatable();
+        $("#dialogUserDetail").on("hidden.bs.modal", function () {
+            $(this).removeData("bs.modal");
+        });
+        $("#dialogUserRightDetail").on("hidden.bs.modal", function () {
+            $(this).removeData("bs.modal");
+        });
+        $("#dialogPaasword").on("hidden.bs.modal", function () {
+            $(this).removeData("bs.modal");
+        });
+        $('#homeDetail').on('hidden.bs.modal',function(){
+            $(this).removeData("bs.modal");
+        });
+        var name="${@shiro.getPrincipalProperty('nickname')}";
+        var id="${@shiro.getPrincipalProperty('id')}";
+        console.log(id);
+        if(name=="超级管理员"){
+        	$("#file").hide();
+        }else{
+        	$("#addorder").hide();
+        	$("#exportfile").hide();
+        }
+    });
+
+</script>
+<%}%>
