@@ -19,11 +19,13 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
 import org.nutz.dao.*;
+import org.nutz.dao.sql.Sql;
 import org.nutz.integration.json4excel.J4E;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
 import org.nutz.lang.util.Disks;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.adaptor.WhaleAdaptor;
@@ -45,9 +47,9 @@ import java.util.List;
  * Created by wizzer on 2016/6/23.
  */
 @IocBean
-@At("/platform/losys/order")
+@At("/platform/losys/taobao/order")
 @Filters({@By(type = PrivateFilter.class)})
-public class LosysOrderController {
+public class LosysTaobaoOrderController {
     private static final Log log = Logs.get();
     @Inject
     SysUserService userService;
@@ -63,14 +65,14 @@ public class LosysOrderController {
     LosysOrderService orderService;
     
     @At("")
-    @Ok("beetl:/platform/losys/order/index.html")
+    @Ok("beetl:/platform/losys/taobao/order/index.html")
     @RequiresAuthentication
     public void index() {
 
     }
     
     @At
-    @Ok("beetl:/platform/losys/order/add.html")
+    @Ok("beetl:/platform/losys/taobao/order/add.html")
     @RequiresAuthentication
     public void add() {
     	
@@ -89,6 +91,7 @@ public class LosysOrderController {
 			Lo_orders order = new Lo_orders();
 			order.setTbId(orders.getId());
 			order.setTaobaoId(user.getId());
+			order.setOrderStatus(1);
 			orderService.insert(order);
 			return Result.success("system.success");
 		} catch (Exception e) {
@@ -111,8 +114,17 @@ public class LosysOrderController {
     @Ok("json:{locked:'password|salt',ignoreNull:false}") // 忽略password和createAt属性,忽略空属性的json输出
     @RequiresAuthentication
     public Object data(@Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
-        Cnd cnd = Cnd.NEW();
-        return taobaoOrderService.data(length, start, draw, order, columns, cnd, null);
+    	String col="orderDate";//默认
+     	String dir="asc";
+    	if (order != null && order.size() > 0) {
+            for (DataTableOrder orders : order) {
+            	DataTableColumn c = columns.get(orders.getColumn());
+                col=Sqls.escapeSqlFieldValue(c.getData()).toString();
+                dir=orders.getDir();
+            }
+        }
+    	 Sql sql = taobaoOrderService.getMessageList(col,dir);
+         return taobaoOrderService.data(length, start, draw, sql, sql);
     }
     
     @At("/exportFile")
@@ -144,11 +156,11 @@ public class LosysOrderController {
 			// 第二步，插入数据到数据库
 			taobaoOrderService.dao().insert(people);
 			List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class, null);
-			orderService.dao().clear(Lo_orders.class);
 			for (Lo_taobao_orders taobaoOrder : taobao) {
 				Lo_orders orders = new Lo_orders();
 				orders.setTbId(taobaoOrder.getId());
 				orders.setTaobaoId(user.getId());
+				orders.setOrderStatus(1);
 				orderService.insert(orders);
 			}
 			return Result.success("导入成功");

@@ -4,7 +4,7 @@ layout("/layouts/platform.html"){
 <section class="content-wrap bg-white">
     <header class="header navbar bg-white shadow">
         <div class="btn-group tool-button" id="addorder">
-             <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/order/add" data-pjax><i class="ti-plus"></i>新建订单</a>
+             <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/taobao/order/add" data-pjax><i class="ti-plus"></i>新建订单</a>
         </div>
         <div class="pull-right offscreen-right">
             <button class="btn btn-primary navbar-btn" onclick="exportFile()" id="exportfile"><i
@@ -34,6 +34,7 @@ layout("/layouts/platform.html"){
                     <th>托寄物件数</th>
                     <th>颜色</th>
                     <th>选择发货物流</th>
+                    <th>订单状态</th>
             </table>
         </div>
     </div>
@@ -74,24 +75,25 @@ layout("/layouts/platform.html"){
                 sublime.closeLoadingbar($(".main-content"));
             },
             "ajax": {
-                "url": "${base}/platform/losys/order/data",
+                "url": "${base}/platform/losys/taobao/order/data",
                 "type": "post",
                 "data": function (d) {
                 }
             },
             "order": [[0, "desc"]],
             "columns": [
-                {"data": "orderDate", "bSortable": true},
+                {"data": "orderdate", "bSortable": true},
                 {"data": "account", "bSortable": true},
                 {"data": "recipient", "bSortable": true},
-                {"data": "fixedTelephone", "bSortable": true},
-                {"data": "mobilePhone", "bSortable": true},
+                {"data": "fixedtelephone", "bSortable": true},
+                {"data": "mobilephone", "bSortable": true},
                 {"data": "address", "bSortable": true},
-                {"data": "mailingModel", "bSortable": true},
+                {"data": "mailingmodel", "bSortable": true},
                 {"data": "size", "bSortable": true},
                 {"data": "quantity", "bSortable": true},
                 {"data": "color", "bSortable": true},
-                {"data": "Logistics", "bSortable": true},
+                {"data": "logistics", "bSortable": true},
+                {"data": "orderstatus", "bSortable": true},
             ],
             "columnDefs": [
             	{
@@ -102,6 +104,25 @@ layout("/layouts/platform.html"){
 	                    return '';
 	                },
 	                "targets": 0
+	            },
+	            {
+	                "render": function (data, type, row) {
+	                    if (row.orderstatus==1) {
+	                        return "已发布";
+	                    }else if(row.orderstatus==2){
+	                    	return '已确认（有货）';
+	                    }else if(row.orderstatus==3){
+	                    	return '已确认（无货）';
+	                    }else if(row.orderstatus==4){
+	                    	return '待揽件';
+	                    }else if(row.orderstatus==5){
+	                    	return '已揽件';
+	                    }else if(row.orderstatus==6){
+	                    	return '已关闭';
+	                    }
+	                    return '无';
+	                },
+	                "targets": 11
 	            }
                
             ]
@@ -114,7 +135,7 @@ layout("/layouts/platform.html"){
         });
     }
     function exportFile(){
-    	$.post("${base}/platform/losys/order/exportFile", {}, function (data) {
+    	$.post("${base}/platform/losys/taobao/order/exportFile", {}, function (data) {
             if (data.code == 0) {
             	Toast.success(data.msg);
             } else {
@@ -133,7 +154,7 @@ layout("/layouts/platform.html"){
     	var liId = $(e.target).attr("id");
     	var fd = new FormData();
     	fd.append("file", $("#xx")[0].files[0]);
-        var fileurl ="${base}/platform/losys/order/importFile";
+        var fileurl ="${base}/platform/losys/taobao/order/importFile";
     	$.ajax({
     		type : "POST",
     		contentType : false, // 必须false才会避开jQuery对 formdata 的默认处理 ,

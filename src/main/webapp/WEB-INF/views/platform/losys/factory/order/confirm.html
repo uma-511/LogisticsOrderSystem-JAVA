@@ -1,0 +1,62 @@
+<% for(items in obj){ %>
+<div class="modal-body no-p">
+    <div class="row">
+        <div class="col-xs-12">
+            <section class="panel panel-primary no-b">
+                <header class="panel-heading clearfix brtl brtr">
+                    <div class="overflow-hidden">
+                        <a href="javascript:;" class="h4 show no-m pt5">确认订单</a>
+                    </div>
+                </header>
+                <div class="form-group" style="padding-top:10px;padding-bottom:25px;">
+                <label for="remark" class="col-sm-3 control-label" style="text-align: right;padding-top:5px;">确认订单：</label>
+                   <div class="radio">
+                                   <label><input type="radio" id="orderOne" name="orderStatus" value="2" checked="" >有货</label>
+                                   <label> <input type="radio" id="orderTwo" name="orderStatus" value="3" >无货</label>
+                    </div>
+                </div>
+                <div class="form-group" style="padding-top:10px;padding-bottom:25px;">
+                    <label for="remark" class="col-sm-3 control-label" style="text-align: right;padding-top:5px;">备注：</label>
+                    <div class="col-sm-8">
+                        <input type="text" id="remark" value="" class="form-control" name="remark" data-parsley-required="true">
+                    </div>
+                </div>
+                
+            </section>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-success " >确认并通知揽件</button>
+    <button type="button" class="btn btn-danger " >确认</button>
+    <button type="button" class="btn btn-default " data-dismiss="modal" onclick="$('#remark').val('')">返回</button>
+</div>
+<script>
+    $(function(){
+        $(".btn-success").on('click',function(){
+            doAudit(4);
+        });
+        $(".btn-danger").on('click',function(){
+            doAudit($("input[name='orderStatus']:checked").val());
+        });
+        $('#orderOne').click(function () { 
+        	$(".btn-success").show();
+        }); 
+        $('#orderTwo').click(function () { 
+        	$(".btn-success").hide();
+        });
+        function doAudit(status){
+            $.post('${base}/platform/losys/factory/order/doAudit',{
+                id:'${items.id}',
+                status:status,
+                remark:$('#remark').val()
+            },function(rep){
+                if(rep.code == 0){
+                    Toast.success("操作成功！");
+                    location.reload();
+                }
+            },'json');
+        }
+    });
+</script>
+<%}%>

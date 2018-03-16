@@ -93,7 +93,7 @@ public class LosysTaobaoController {
     @Ok("beetl:/platform/losys/taobao/factory.html")
     @RequiresAuthentication
     public void factory(String id, HttpServletRequest req) {
-		List<Sys_user> list = userService.query(Cnd.where("accountType", "=", 2));
+		List<Sys_user> list = userService.query(Cnd.where("accountType", "=", 2).and("status","=",1));
 		List<NutMap> factory = new ArrayList<>();
 		for (Sys_user user : list) {
 			NutMap map = new NutMap();
