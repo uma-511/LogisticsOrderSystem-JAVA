@@ -24,7 +24,7 @@ public class Lo_area extends Model implements Serializable {
     
     @Column
     @Comment("父级ID")
-    @ColDefine(type = ColType.INT)
+    @ColDefine(type = ColType.VARCHAR)
     private String pid;
     
     @Column
