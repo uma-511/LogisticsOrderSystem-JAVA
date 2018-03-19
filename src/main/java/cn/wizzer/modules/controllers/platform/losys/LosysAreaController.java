@@ -90,7 +90,12 @@ public class LosysAreaController {
     @RequiresPermissions("area.manage.edit")
     public Object edit(String id,HttpServletRequest req) {
     	Lo_area area = areaService.fetch(id);
+    	if (area.getPid() != null) {
+    		Lo_area area2 = areaService.fetch(area.getPid());
+    		req.setAttribute("areaP", area2);
+		}
     	req.setAttribute("area", area);
+    	
     	return area;
     }
     
