@@ -3,7 +3,7 @@ layout("/layouts/platform.html"){
 %>
 <header class="header navbar bg-white shadow">
     <div class="btn-group tool-button">
-        <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/area" data-pjax><i class="ti-angle-left"></i> 返回</a>
+        <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/area" data-pjax id="goback"><i class="ti-angle-left" ></i> 返回</a>
     </div>
 </header>
 
@@ -19,7 +19,7 @@ layout("/layouts/platform.html"){
 
                             <div class="col-sm-8">
                                 <div class="input-group">
-                                    <input id="parentId" type="text" class="form-control" placeholder="不选择默认为顶级菜单" disabled
+                                    <input id="parentId" type="text" class="form-control" placeholder="不选择默认为顶级区域" disabled
                                            value="<%if(!isEmpty(obj)){%>${obj.name}<%}%>"/>
 
 			                             		<span class="input-group-btn">
@@ -143,14 +143,14 @@ layout("/layouts/platform.html"){
             success: function (data, statusText, xhr, form) {
                 if (data.code==0) {
                     Toast.success(data.msg);
-                /*     setTimeout(function () {
+                   setTimeout(function () {
                         $("#goback").trigger("click");
-                    }, 1000); */
+                    }, 1000); 
                     //刷新父级菜单
-                    $.jstree.reference("#jsTreeParentUnit").refresh();
+                    /* $.jstree.reference("#jsTreeParentUnit").refresh();
                     var parentName = $("#unitAddForm #parentId").val();
                     form.resetForm();
-                    $("#unitAddForm #parentId").val(parentName);
+                    $("#unitAddForm #parentId").val(parentName); */
                 } else {
                     Toast.error(data.msg);
                 }
