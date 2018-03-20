@@ -6,6 +6,7 @@ import cn.wizzer.common.filter.PrivateFilter;
 import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
 import cn.wizzer.modules.models.losys.Lo_orders;
+import cn.wizzer.modules.models.losys.Lo_taobao_factory;
 import cn.wizzer.modules.models.losys.Lo_taobao_orders;
 import cn.wizzer.modules.models.sys.Sys_user;
 import cn.wizzer.modules.services.losys.LosysOrderService;
@@ -15,15 +16,19 @@ import cn.wizzer.modules.services.sys.SysMenuService;
 import cn.wizzer.modules.services.sys.SysUnitService;
 import cn.wizzer.modules.services.sys.SysUserService;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
 import org.nutz.dao.*;
+import org.nutz.dao.Chain;
 import org.nutz.dao.sql.Sql;
 import org.nutz.integration.json4excel.J4E;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.json.Json;
 import org.nutz.lang.Files;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -41,6 +46,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,7 +64,7 @@ public class LosysTaobaoOrderController {
     @Inject
     SysUnitService unitService;
     @Inject
-    LosysTaobaoFactoryService factoryService;
+    LosysTaobaoFactoryService taobaoFactoryService;
     @Inject
     LosysTaobaoOrderService taobaoOrderService;
     @Inject
@@ -87,6 +93,7 @@ public class LosysTaobaoOrderController {
 			Sys_user user = (Sys_user) subject.getPrincipal();
 
 			orders.setOrderDate(System.currentTimeMillis());
+			orders.setLogistics("顺丰");
 			taobaoOrderService.insert(orders);
 			Lo_orders order = new Lo_orders();
 			order.setTbId(orders.getId());
@@ -98,7 +105,46 @@ public class LosysTaobaoOrderController {
 			return Result.error("system.error");
 		}
     }
+    /**
+     * 指派工厂
+     * @param id
+     * @param req
+     */
+    @At("/appoint/?")
+    @Ok("beetl:/platform/losys/taobao/order/appoint.html")
+    @RequiresAuthentication
+    public void factory(String id, HttpServletRequest req) {
+    	Subject subject = SecurityUtils.getSubject();
+    	Sys_user user = (Sys_user) subject.getPrincipal();
+    	List<Lo_taobao_factory> common=taobaoFactoryService.query(Cnd.where("taobaoid", "=", user.getId()));
+    	List<NutMap> factory = new ArrayList<>();
+    	if(!common.isEmpty()){
+    		for(Lo_taobao_factory communal:common){
+    			NutMap map = new NutMap();
+    			List<Sys_user> list=userService.query(Cnd.where("id", "=", communal.getFactoryid()));
+    			for(Sys_user user2 :list){
+    				map.put("id", user2.getId());
+    				map.put("text", user2.getLoginname());
+    				map.put("icon", "");
+    				map.put("data", "");
+    				factory.add(map);
+    			}
+    		}
+    	}
+    	req.setAttribute("user", Json.toJson(factory));
+    	req.setAttribute("id", id);
+    }
 
+    @At
+    @Ok("json")
+    public Object editFactoryDo(@Param("factoryid") String factoryid,@Param("tbId") String tbid, HttpServletRequest req) {
+        try {
+        	orderService.update(Chain.make("factoryId", factoryid), Cnd.where("tbId", "=", tbid));
+            return Result.success("system.success");
+        } catch (Exception e) {
+            return Result.error("system.error");
+        }
+    }
     /**
      * 淘宝订单管理列表
      * @param loginname

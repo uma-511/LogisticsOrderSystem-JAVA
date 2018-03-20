@@ -51,5 +51,12 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 				Sql sql=Sqls.create("select t.*,t.id as orderid,o.orderStatus from lo_taobao_orders t inner JOIN lo_orders o on t.id=o.tbId order by " + col + " "+ dir);
 		return sql.setCallback(Sqls.callback.str());
 	}
+	
+	public Sql getMessageList(String factoryid) {
+		// TODO Auto-generated method stub
+				Sql sql=Sqls.create("select t.*,d.orderStatus from lo_taobao_orders t INNER JOIN lo_orders d ON t.id=d.tbId where d.factoryId=@factoryid ");
+				sql.params().set("factoryid", factoryid);
+		return sql.setCallback(Sqls.callback.str());
+	}
 
 }

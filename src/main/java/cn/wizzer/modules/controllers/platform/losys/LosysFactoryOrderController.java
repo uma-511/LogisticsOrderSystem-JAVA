@@ -92,6 +92,31 @@ public class LosysFactoryOrderController {
         return Result.success("cw.success");
     }
     /**
+     * 通知揽件
+     * @param id
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    @At("/parts/?")
+   	@Ok("json")
+   	public Object parts(String id) throws FileNotFoundException, IOException {
+    	orderService.update(Chain.make("orderStatus", 4), Cnd.where("tbId", "=", id));
+   		return Result.success("cw.success");
+
+   	}
+    /**
+     * 查看订单状态
+     * @param id
+     * @return
+     */
+    @At("/detail/?")
+    @Ok("beetl:/platform/losys/factory/order/detail.html")
+    @RequiresAuthentication
+    public Object detail(String id) {
+        return orderService.query(Cnd.where("tbId", "=", id));
+    }
+    /**
      * 工厂订单管理列表
      * @param loginname
      * @param nickname
@@ -106,17 +131,10 @@ public class LosysFactoryOrderController {
     @Ok("json:{locked:'password|salt',ignoreNull:false}") // 忽略password和createAt属性,忽略空属性的json输出
     @RequiresAuthentication
     public Object data(@Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
-    	String col="orderDate";//默认
-     	String dir="asc";
-    	if (order != null && order.size() > 0) {
-            for (DataTableOrder orders : order) {
-            	DataTableColumn c = columns.get(orders.getColumn());
-                col=Sqls.escapeSqlFieldValue(c.getData()).toString();
-                dir=orders.getDir();
-            }
-        }
-    	 Sql sql = taobaoOrderService.getMessageList(col,dir);
-         return taobaoOrderService.data(length, start, draw, sql, sql);
+		Subject subject = SecurityUtils.getSubject();
+		Sys_user user = (Sys_user) subject.getPrincipal();
+		Sql sql = taobaoOrderService.getMessageList(user.getId());
+		return taobaoOrderService.data(length, start, draw, sql, sql);
     }
     
     @At("/exportFile")

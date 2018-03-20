@@ -34,7 +34,8 @@ layout("/layouts/platform.html"){
                             <label for="note" class="col-sm-2 control-label">固话</label>
 
                             <div class="col-sm-8">
-                                <input type="text" id="fixedTelephone" class="form-control" name="fixedTelephone" placeholder="固话">
+                                <input type="text" id="fixedTelephone" class="form-control" name="fixedTelephone" placeholder="固话"
+                                data-parsley-pattern="([0-9]*[0-9][0-9]*)$" maxlength="11">
                             </div>
                         </div>
                         <div class="form-group">
@@ -42,7 +43,7 @@ layout("/layouts/platform.html"){
 
                             <div class="col-sm-8">
                                 <input type="text" id="mobilePhone" name="mobilePhone" class="form-control" data-parsley-required="true"
-                                 placeholder="收件手机">
+                                 placeholder="收件手机" data-parsley-pattern="([0-9]*[0-9][0-9]*)$" maxlength="11">
                             </div>
                         </div>
                         <div class="form-group">
@@ -74,7 +75,7 @@ layout("/layouts/platform.html"){
 
                             <div class="col-sm-8">
                                 <input type="text" id="quantity" name="quantity" class="form-control" data-parsley-required="true"
-                                 placeholder="托寄物件数">
+                                 placeholder="托寄物件数" data-parsley-pattern="([0-9]*)$">
                             </div>
                         </div>
                         <div class="form-group">
@@ -83,14 +84,6 @@ layout("/layouts/platform.html"){
                             <div class="col-sm-8">
                                 <input type="text" id="color" name="color" class="form-control"
                                  placeholder="颜色">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="address" class="col-sm-2 control-label">选择发货物流</label>
-
-                            <div class="col-sm-8"> 
-                                <input type="text" id="Logistics" name="Logistics" class="form-control" data-parsley-required="true"
-                                 placeholder="选择发货物流">
                             </div>
                         </div>
                     </div>
