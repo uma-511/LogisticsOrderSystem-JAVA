@@ -25,8 +25,8 @@ import org.nutz.integration.json4excel.J4E;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
+import org.nutz.lang.Strings;
 import org.nutz.lang.util.Disks;
-import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.adaptor.WhaleAdaptor;
@@ -34,7 +34,6 @@ import org.nutz.mvc.annotation.*;
 
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -126,7 +125,7 @@ public class LosysFactoryOrderController {
         try {
         	tOrders.setOpBy(Strings.sNull(req.getAttribute("uid")));
         	tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
-        	tOrders.setOrderDate(Calendar.getInstance().getTime());
+        	tOrders.setOrderDate(System.currentTimeMillis());
             taobaoOrderService.updateIgnoreNull(tOrders);
             orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()), Cnd.where("tbId", "=", tOrders.getId()));
             return Result.success("system.success");

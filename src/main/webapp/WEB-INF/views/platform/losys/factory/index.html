@@ -172,9 +172,9 @@ layout("/layouts/platform.html"){
                     "render": function (data, type, row) {
                     		if(row.status==1){
                     			return "审核通过";
-                    		}else if(row.status=="2"){
+                    		}else if(row.status==2){
                     			return "待审核";
-                    		}else if(row.status=="0"){
+                    		}else if(row.status==0){
                     			return "审核不通过";
                     		}
                     },
