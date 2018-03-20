@@ -113,13 +113,13 @@ layout("/layouts/platform.html"){
 	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/factory/order/parts/' + row.orderid + '" data-toggle="modal" data-target="#homeDetail">揽件</a></li>' +
+                            '<li><a href="${base}/platform/losys/factory/order/parts/' + row.orderid + '" data-pjax>揽件</a></li>' +
                             '</ul></div>';
 	            		}else if(row.orderstatus==5){
 	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/factory/order/detail' + row.orderid + '" data-pjax data-toggle="modal" data-target="#orderDetail">查看订单状态</a></li>' +
+                            '<li><a href="${base}/platform/losys/factory/order/detail/' + row.orderid + '" data-pjax>查看订单状态</a></li>' +
                             '</ul></div>';
 	            		}
                     },

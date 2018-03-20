@@ -8,6 +8,7 @@ import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Comment;
 import org.nutz.dao.entity.annotation.EL;
 import org.nutz.dao.entity.annotation.Name;
+import org.nutz.dao.entity.annotation.One;
 import org.nutz.dao.entity.annotation.Prev;
 import org.nutz.dao.entity.annotation.Table;
 import org.nutz.integration.json4excel.annotation.J4EIgnore;
@@ -25,6 +26,9 @@ public class Lo_taobao_orders extends Model implements Serializable {
     @ColDefine(type = ColType.VARCHAR, width = 32)
     @Prev(els = {@EL("uuid()")})
     private String id;
+    
+    @One(field = "id")
+    private Lo_orders orders;
     
     @Column
     @Comment("日期")
@@ -186,6 +190,14 @@ public class Lo_taobao_orders extends Model implements Serializable {
 
 	public void setLogistics(String logistics) {
 		Logistics = logistics;
+	}
+
+	public Lo_orders getOrders() {
+		return orders;
+	}
+
+	public void setOrders(Lo_orders orders) {
+		this.orders = orders;
 	}
     
     

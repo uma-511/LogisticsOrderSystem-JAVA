@@ -6,6 +6,40 @@ layout("/layouts/platform.html"){
         <div class="btn-group tool-button" id="addorder">
              <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/taobao/order/add" data-pjax><i class="ti-plus"></i>新建订单</a>
         </div>
+        <!-- <div class="input-group date form_datetime " style="width:150px;float:left;padding-left: 5px;padding-right: 5px"
+             data-date-format="dd MM yyyy" data-link-field="beginDate">
+            <input class="form-control" type='text'
+                   id="beginDate" name="beginDate" value='${today!}'
+                   onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')||\'%y-%M-%d\'}'})"/>
+        </div>
+        <div class="input-group date form_datetime " style="width:150px;float:left;padding-left: 5px;padding-right: 5px"
+             data-date-format="dd MM yyyy" data-link-field="endDate">
+            <input class="form-control" type='text'
+                   id='endDate' name='endDate' value='${today!}'
+                   onFocus="var date=limitMonthDate(2);WdatePicker({minDate:'#F{$dp.$D(\'beginDate\')||\'${month!}-01\'}',maxDate:date})"/>
+        </div> -->
+        <div class="btn-group tool-button">
+			<div class="input-group"
+				style="width: 250px; float: left; padding-left: 5px; padding-right: 5px">
+				<span class="input-group-addon">淘宝单号搜索</span> <input
+					class="form-control" type='text' id='keyword' />
+			</div>
+		</div>
+	     <div class="btn-group tool-button" style="padding-left: 10px;">
+			<div class="input-group"
+				style="width: 250px; float: left; padding-left: 5px; padding-right: 5px">
+				<span class="input-group-addon">订单状态</span> <select id="status"
+					class="form-control" onchange="search()">
+					<option value="">全部</option>
+					<option value="1">已发布</option>
+					<option value="2">已确认（有货）</option>
+					<option value="3">已确认（无货）</option>
+					<option value="4">待揽件</option>
+					<option value="5">已揽件</option>
+					<option value="6">已关闭</option>
+				</select>
+			</div>
+		</div>
         <div class="pull-right offscreen-right">
             <button class="btn btn-primary navbar-btn" onclick="exportFile()" id="exportfile"><i
                     class="fa fa-sliders"></i> 导出
@@ -14,7 +48,8 @@ layout("/layouts/platform.html"){
                     class="fa fa-sliders" ></i> 导入
             </button>
             <input type="file" name="xx" id="xx" value="" style="display:none" onchange="importFile(this)"/>
-            
+            <div class="btn-group tool-button">
+    </div>
         </div>
     </header>
     <div class=panel-body style="padding-top: 50px;">
@@ -79,6 +114,10 @@ layout("/layouts/platform.html"){
                 "url": "${base}/platform/losys/taobao/order/data",
                 "type": "post",
                 "data": function (d) {
+                	 /* d.beginDate = $("#beginDate").val();
+                     d.endDate = $("#endDate").val();
+                     d.keyword = $("#keyword").val();
+                     d.status = $("#status").val(); */
                 }
             },
             "order": [[0, "desc"]],
@@ -127,29 +166,18 @@ layout("/layouts/platform.html"){
 	            },
 	            {
 	            	"render": function (data, type, row) {
-	            		if(row.orderstatus==1){
-                    		return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
+	            		if(row.orderstatus==5){
+	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
                             '<li><a href="${base}/platform/losys/taobao/order/appoint/' + row.orderid + '" data-pjax>指派工厂</a></li>' +
-                            '</ul></div>';
-	            		}else if(row.orderstatus==2){
-	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
-                            ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
-                            '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/factory/order/parts/' + row.orderid + '" data-toggle="modal" data-target="#homeDetail">揽件</a></li>' +
-                            '</ul></div>';
-	            		}else if(row.orderstatus==5){
-	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
-                            ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
-                            '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/factory/order/detail' + row.orderid + '" data-pjax data-toggle="modal" data-target="#orderDetail">查看订单状态</a></li>' +
+                            '<li><a href="${base}/platform/losys/taobao/order/detail/' + row.orderid + '" data-pjax>查看订单信息</a></li>' +
                             '</ul></div>';
 	            		}else{
 	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/factory/order/detail' + row.orderid + '" data-pjax data-toggle="modal" data-target="#orderDetail">查看订单状态</a></li>' +
+                            '<li><a href="${base}/platform/losys/taobao/order/appoint/' + row.orderid + '" data-pjax>指派工厂</a></li>' +
                             '</ul></div>';
 	            		}
                     },
@@ -176,7 +204,34 @@ layout("/layouts/platform.html"){
             dialog.modal("hide");
         }, "json");
     }
-    
+    /* //限制开始和结束时间为同一个月
+    function limitMonthDate(e) {
+        var DateString;
+        if (e == 2) {
+            var beginDate = $dp.$("beginDate").value;
+            if (beginDate != "" && beginDate != null) {
+                var limitDate = new Date(beginDate);
+                limitDate.setDate(new Date(limitDate.getFullYear(), limitDate
+                        .getMonth() + 1, 0).getDate()); //获取此月份的天数
+                DateString = limitDate.getFullYear() + '-'
+                    + (limitDate.getMonth() + 1) + '-'
+                    + limitDate.getDate();
+                return DateString;
+            }
+        }
+        if (e == 1) {
+            var endDate = $dp.$("endDate").value;
+            if (endDate != "" && endDate != null) {
+                var limitDate = new Date(endDate);
+                limitDate.setDate("1"); //设置闲置时间为月初
+                DateString = limitDate.getFullYear() + '-'
+                    + (limitDate.getMonth() + 1) + '-'
+                    + limitDate.getDate();
+                return DateString;
+            }
+        }
+
+    } */
     function importFile(e) {
     	if (!window.File && !window.FileList && !window.FileReader && !window.Blob) {
     		document.write('您的浏览器不支持File Api');
@@ -202,6 +257,9 @@ layout("/layouts/platform.html"){
     			console.log(msg);
     		}
     	});
+    }
+    function search() {
+        datatable.ajax.reload();
     }
     $(document).ready(function () {
         initDatatable();

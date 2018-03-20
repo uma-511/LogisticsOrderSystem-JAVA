@@ -111,10 +111,28 @@ public class LosysFactoryOrderController {
      * @return
      */
     @At("/detail/?")
-    @Ok("beetl:/platform/losys/factory/order/detail.html")
+    @Ok("beetl:/platform/losys/taobao/order/detail.html")
     @RequiresAuthentication
-    public Object detail(String id) {
-        return orderService.query(Cnd.where("tbId", "=", id));
+    public Object detail(String id, HttpServletRequest req) {
+    	List<Lo_orders> orders=orderService.query(Cnd.where("tbId", "=", id));
+    	req.setAttribute("orders", orders.get(0));
+        return taobaoOrderService.fetch(id);
+    }
+    
+    @At
+    @Ok("json")
+    @SLog(tag = "修改用户", msg = "")
+    public Object editDo(@Param("..") Lo_taobao_orders tOrders,@Param("..")Lo_orders orders, HttpServletRequest req) {
+        try {
+        	tOrders.setOpBy(Strings.sNull(req.getAttribute("uid")));
+        	tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
+        	tOrders.setOrderDate(Calendar.getInstance().getTime());
+            taobaoOrderService.updateIgnoreNull(tOrders);
+            orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()), Cnd.where("tbId", "=", tOrders.getId()));
+            return Result.success("system.success");
+        } catch (Exception e) {
+            return Result.error("system.error");
+        }
     }
     /**
      * 工厂订单管理列表
