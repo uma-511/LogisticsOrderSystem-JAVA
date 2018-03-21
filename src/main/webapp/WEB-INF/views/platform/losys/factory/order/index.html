@@ -3,6 +3,65 @@ layout("/layouts/platform.html"){
 %>
 <section class="content-wrap bg-white">
     <header class="header navbar bg-white shadow">
+    <script language="JavaScript" type="text/javascript"
+			src="${base}/assets/plugins/My97DatePicker/WdatePicker.js"></script>
+    <div class="btn-group tool-button">
+			<div class="input-group date form_datetime "
+				style="width: 150px; float: left; padding-left: 5px; padding-right: 5px"
+				data-date-format="dd MM yyyy" data-link-field="beginDate">
+				<input class="form-control" type='text' id="beginDate"
+					name="beginDate" value='${today!}'
+					onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')||\'%y-%M-%d\'}'})" />
+			</div>
+			<div class="input-group date form_datetime "
+				style="width: 150px; float: left; padding-left: 5px; padding-right: 5px"
+				data-date-format="dd MM yyyy" data-link-field="endDate">
+				<input class="form-control" type='text' id='endDate' name='endDate'
+					value='${today!}'
+					onFocus="var date=limitMonthDate(2);WdatePicker({minDate:'#F{$dp.$D(\'beginDate\')||\'${month!}-01\'}',maxDate:date})" />
+			</div>
+		</div>
+		<div class="btn-group tool-button">
+			<button class="btn btn-primary navbar-btn" onclick="search()">查询</button>
+		</div>
+		<div class="btn-group tool-button" style="padding-left: 10px;">
+			<div class="input-group"
+				style="width: 250px; float: left; padding-left: 5px; padding-right: 5px">
+				<span class="input-group-addon">订单状态</span> <select id="status"
+					class="form-control" onchange="search()">
+					<option value="">全部</option>
+					<option value="1">已发布</option>
+					<option value="2">已确认（有货）</option>
+					<option value="3">已确认（无货）</option>
+					<option value="4">待揽件</option>
+					<option value="5">已揽件</option>
+					<option value="6">已关闭</option>
+				</select>
+			</div>
+		</div>
+		<div class="btn-group tool-button" style="padding-left: 10px;" id="taobao">
+			<div class="input-group"
+				style="width: 250px; float: left; padding-left: 5px; padding-right: 5px">
+				<span class="input-group-addon">淘宝店主</span> <select id="name"
+					class="form-control" onchange="search()">
+					<option value="">全部</option>
+					<% for(items in obj){%>
+					   <option value="${items.id}">${items.loginname}</option>
+					<%}%>
+				</select>
+			</div>
+		</div>
+		<div class="btn-group tool-button" style="padding-left: 10px;" id="payfor">
+			<div class="input-group"
+				style="width: 250px; float: left; padding-left: 5px; padding-right: 5px">
+				<span class="input-group-addon">支付状态</span> <select id="pay"
+					class="form-control" onchange="search()">
+					<option value="">全部</option>
+					<option value="0">未支付</option>
+					<option value="1">已支付</option>
+				</select>
+			</div>
+		</div>
         <div class="pull-right offscreen-right">
             <button class="btn btn-primary navbar-btn" onclick="exportFile()" id="exportfile"><i
                     class="fa fa-sliders"></i> 导出
@@ -75,7 +134,12 @@ layout("/layouts/platform.html"){
                 "url": "${base}/platform/losys/factory/order/data",
                 "type": "post",
                 "data": function (d) {
-                }
+               	    d.beginDate = $("#beginDate").val();
+                    d.endDate = $("#endDate").val();
+                    d.status = $("#status").val(); 
+                    d.name = $("#name").val(); 
+                    d.pay = $("#pay").val(); 
+               }
             },
             "order": [[0, "desc"]],
             "columns": [
@@ -135,6 +199,37 @@ layout("/layouts/platform.html"){
             datatable.ajax.reload();
         });
     }
+    //限制开始和结束时间为同一个月
+    function limitMonthDate(e) {
+        var DateString;
+        if (e == 2) {
+            var beginDate = $dp.$("beginDate").value;
+            if (beginDate != "" && beginDate != null) {
+                var limitDate = new Date(beginDate);
+                limitDate.setDate(new Date(limitDate.getFullYear(), limitDate
+                        .getMonth() + 1, 0).getDate()); //获取此月份的天数
+                DateString = limitDate.getFullYear() + '-'
+                    + (limitDate.getMonth() + 1) + '-'
+                    + limitDate.getDate();
+                return DateString;
+            }
+        }
+        if (e == 1) {
+            var endDate = $dp.$("endDate").value;
+            if (endDate != "" && endDate != null) {
+                var limitDate = new Date(endDate);
+                limitDate.setDate("1"); //设置闲置时间为月初
+                DateString = limitDate.getFullYear() + '-'
+                    + (limitDate.getMonth() + 1) + '-'
+                    + limitDate.getDate();
+                return DateString;
+            }
+        }
+
+    }
+    function search() {
+        datatable.ajax.reload();
+    }
     function exportFile(){
     	$.post("${base}/platform/losys/taobao/order/exportFile", {}, function (data) {
             if (data.code == 0) {
@@ -177,13 +272,11 @@ layout("/layouts/platform.html"){
             $(this).removeData("bs.modal");
         });
         var name="${@shiro.getPrincipalProperty('nickname')}";
-        var id="${@shiro.getPrincipalProperty('id')}";
-        console.log(id);
         if(name=="超级管理员"){
         	$("#file").hide();
         }else{
-        	$("#addorder").hide();
-        	$("#exportfile").hide();
+        	$("#taobao").hide();
+        	$("#payfor").hide();
         }
     });
 

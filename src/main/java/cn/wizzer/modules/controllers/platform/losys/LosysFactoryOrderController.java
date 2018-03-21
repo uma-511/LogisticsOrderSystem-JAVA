@@ -5,6 +5,7 @@ import cn.wizzer.common.base.Result;
 import cn.wizzer.common.filter.PrivateFilter;
 import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
+import cn.wizzer.common.util.DateUtil;
 import cn.wizzer.modules.models.losys.Lo_orders;
 import cn.wizzer.modules.models.losys.Lo_taobao_orders;
 import cn.wizzer.modules.models.sys.Sys_user;
@@ -26,6 +27,7 @@ import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.lang.util.Disks;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
@@ -41,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,8 +70,8 @@ public class LosysFactoryOrderController {
     @At("")
     @Ok("beetl:/platform/losys/factory/order/index.html")
     @RequiresAuthentication
-    public void index() {
-
+    public Object index() {
+    	return userService.query(Cnd.where("accountType", "=", 1));
     }
     
     @At("/confirm/?")
@@ -144,14 +147,34 @@ public class LosysFactoryOrderController {
      * @param columns
      * @return
      */
+    
     @At
     @Ok("json:{locked:'password|salt',ignoreNull:false}") // 忽略password和createAt属性,忽略空属性的json输出
     @RequiresAuthentication
-    public Object data(@Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
-		Subject subject = SecurityUtils.getSubject();
-		Sys_user user = (Sys_user) subject.getPrincipal();
-		Sql sql = taobaoOrderService.getMessageList(user.getId());
-		return taobaoOrderService.data(length, start, draw, sql, sql);
+    public Object data(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("status") String status, @Param("name") String name,@Param("pay") String pay,
+    		@Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
+    	int beginTime=0;
+    	int endTime=0;
+    	Sql sql;
+    	String tableName = Times.format("yyyyMM", new Date());
+        if (Strings.isNotBlank(beginDate)) {
+            tableName = Times.format("yyyyMM", Times.D(beginDate + " 00:00:00"));
+            beginTime = DateUtil.getTime(beginDate + " 00:00:00");
+        }
+        if (Strings.isNotBlank(endDate)) {
+        	endTime = DateUtil.getTime(endDate + " 23:59:59");
+        }
+    	String col="orderDate";//默认
+     	String dir="asc";
+    	if (order != null && order.size() > 0) {
+            for (DataTableOrder orders : order) {
+            	DataTableColumn c = columns.get(orders.getColumn());
+                col=Sqls.escapeSqlFieldValue(c.getData()).toString();
+                dir=orders.getDir();
+            }
+        }
+    	sql = taobaoOrderService.getMessageList(beginTime,endTime,status,name,pay);
+ 		return taobaoOrderService.data(length, start, draw, sql, sql);
     }
     
     @At("/exportFile")

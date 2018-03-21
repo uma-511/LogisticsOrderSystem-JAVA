@@ -5,6 +5,7 @@ import cn.wizzer.common.base.Result;
 import cn.wizzer.common.filter.PrivateFilter;
 import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
+import cn.wizzer.common.util.DateUtil;
 import cn.wizzer.modules.models.losys.Lo_orders;
 import cn.wizzer.modules.models.losys.Lo_taobao_factory;
 import cn.wizzer.modules.models.losys.Lo_taobao_orders;
@@ -16,7 +17,6 @@ import cn.wizzer.modules.services.sys.SysMenuService;
 import cn.wizzer.modules.services.sys.SysUnitService;
 import cn.wizzer.modules.services.sys.SysUserService;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
@@ -29,6 +29,7 @@ import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
 import org.nutz.lang.Files;
 import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.lang.util.Disks;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -73,8 +75,8 @@ public class LosysTaobaoOrderController {
     @At("")
     @Ok("beetl:/platform/losys/taobao/order/index.html")
     @RequiresAuthentication
-    public void index() {
-
+    public Object index() {
+    	return userService.query(Cnd.where("accountType", "=", 1));
     }
     
     @At
@@ -100,7 +102,7 @@ public class LosysTaobaoOrderController {
         try {
         	tOrders.setOpBy(Strings.sNull(req.getAttribute("uid")));
         	tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
-        	tOrders.setOrderDate(System.currentTimeMillis());
+        	tOrders.setOrderDate((int) (System.currentTimeMillis() / 1000));
             taobaoOrderService.updateIgnoreNull(tOrders);
             orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()), Cnd.where("tbId", "=", tOrders.getId()));
             return Result.success("system.success");
@@ -117,7 +119,7 @@ public class LosysTaobaoOrderController {
 			Subject subject = SecurityUtils.getSubject();
 			Sys_user user = (Sys_user) subject.getPrincipal();
 
-			orders.setOrderDate(System.currentTimeMillis());
+			orders.setOrderDate((int) (System.currentTimeMillis() / 1000));
 			orders.setLogistics("顺丰");
 			taobaoOrderService.insert(orders);
 			Lo_orders order = new Lo_orders();
@@ -152,6 +154,12 @@ public class LosysTaobaoOrderController {
     				map.put("text", user2.getLoginname());
     				map.put("icon", "");
     				map.put("data", "");
+    				List<Lo_orders> order=orderService.query(Cnd.where("tbId", "=", id));
+    				if(order.get(0).getFactoryId()!=null){
+    					if(order.get(0).getFactoryId().equals(user2.getId())){
+    						map.put("state", NutMap.NEW().addv("selected", true));
+    					}
+    				}
     				factory.add(map);
     			}
     		}
@@ -184,7 +192,18 @@ public class LosysTaobaoOrderController {
     @At
     @Ok("json:{locked:'password|salt',ignoreNull:false}") // 忽略password和createAt属性,忽略空属性的json输出
     @RequiresAuthentication
-    public Object data(@Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
+    public Object data(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("status") String status, @Param("name") String name,@Param("pay") String pay,
+    		@Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
+    	int beginTime=0;
+    	int endTime=0;
+    	String tableName = Times.format("yyyyMM", new Date());
+        if (Strings.isNotBlank(beginDate)) {
+            tableName = Times.format("yyyyMM", Times.D(beginDate + " 00:00:00"));
+            beginTime = DateUtil.getTime(beginDate + " 00:00:00");
+        }
+        if (Strings.isNotBlank(endDate)) {
+        	endTime = DateUtil.getTime(endDate + " 23:59:59");
+        }
     	String col="orderDate";//默认
      	String dir="asc";
     	if (order != null && order.size() > 0) {
@@ -194,7 +213,7 @@ public class LosysTaobaoOrderController {
                 dir=orders.getDir();
             }
         }
-    	 Sql sql = taobaoOrderService.getMessageList(col,dir);
+    	 Sql sql = taobaoOrderService.getMessageList(col,dir,beginTime,endTime,status,name,pay);
          return taobaoOrderService.data(length, start, draw, sql, sql);
     }
     

@@ -27,9 +27,6 @@ public class Lo_taobao_orders extends Model implements Serializable {
     @Prev(els = {@EL("uuid()")})
     private String id;
     
-    @One(field = "id")
-    private Lo_orders orders;
-    
     @Column
     @Comment("日期")
     @J4EName("日期")
@@ -190,14 +187,6 @@ public class Lo_taobao_orders extends Model implements Serializable {
 
 	public void setLogistics(String logistics) {
 		Logistics = logistics;
-	}
-
-	public Lo_orders getOrders() {
-		return orders;
-	}
-
-	public void setOrders(Lo_orders orders) {
-		this.orders = orders;
 	}
     
     
