@@ -24,7 +24,8 @@ layout("/layouts/platform.html"){
 
                             <div class="col-sm-8">
                                 <input type="tel" id="phone" class="form-control" name="phone" data-parsley-required="true"
-                                       placeholder="联系方式" data-parsley-pattern="([0-9]*[0-9][0-9]*)$" value="${obj.phone!}">
+                                       placeholder="联系方式" data-parsley-pattern="(^[0-9]{3,4}\-[0-9]{3,8}$)|(^[0-9]{3,8}$)|(^\([0-9]{3,4}\)[0-9]{3,8}$)|(^0{0,1}13[0-9]{9}$)" 
+                                       value="${obj.phone!}" maxlength="14">
                             </div>
                         </div>
                         <div class="form-group">
@@ -32,7 +33,7 @@ layout("/layouts/platform.html"){
 
                             <div class="col-sm-8">
                                 <input type="text" id="shopname" name="shopname" value="${obj.shopname!}"
-                                       class="form-control" placeholder="店铺/⼯⼚名称">
+                                       class="form-control" placeholder="店铺/⼯⼚名称" maxlength="30">
 
                             </div>
                         </div>

@@ -38,12 +38,12 @@ public class Sys_user extends Model implements Serializable {
 
     @Column
     @Comment("昵称")
-    @ColDefine(type = ColType.VARCHAR, width = 100)
+    @ColDefine(type = ColType.VARCHAR, width = 30)
     private String nickname;
     
     @Column
     @Comment("联系方式")
-    @ColDefine(type = ColType.VARCHAR, width = 11)
+    @ColDefine(type = ColType.VARCHAR, width = 14)
     private String phone;
     
     @Column

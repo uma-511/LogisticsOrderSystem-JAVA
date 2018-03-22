@@ -51,7 +51,7 @@
                                 <span>用户名：</span>
                                 <input type="text" id="loginname" name="loginname" value="" required
                                        class="form-control input-lg mb25"
-                                       placeholder="${msg['login.username']}">
+                                       placeholder="${msg['login.username']}" maxlength="30">
                             </div>
                             <div class="form-group">
                                 <span> 密码：</span>
@@ -65,16 +65,15 @@
                             </div>
                             <div class="form-group">
                                 <span>联系方式：</span>
-                                <input type="tel" id="phone" name="phone" value="" required data-parsley-pattern="([0-9]*[0-9][0-9]*)$"
+                                <input type="tel" id="phone" name="phone" value="" required data-parsley-pattern="(^[0-9]{3,4}\-[0-9]{3,8}$)|(^[0-9]{3,8}$)|(^\([0-9]{3,4}\)[0-9]{3,8}$)|(^0{0,1}13[0-9]{9}$)"
                                        class="form-control input-lg mb25"
-                                       placeholder="联系方式">
+                                       placeholder="联系方式" maxlength="14">
                             </div>
                              <div class="form-group" id="business">
                                 <span>店铺/⼯⼚名称：</span>
                                 <input type="text" id="shopname" name="shopname" value="" required
                                        class="form-control input-lg mb25"
-                                       placeholder="店铺/⼯⼚名称">
-                                <ul class="parsley-errors-list filled" id="parsley-id-6" style="display:none;"><li class="parsley-required">此企业（单位、组织）已被注册</li></ul>
+                                       placeholder="店铺/⼯⼚名称" maxlength="30">
                             </div>
                             <div class="form-group">
                                 <span>角色类型：</span>
