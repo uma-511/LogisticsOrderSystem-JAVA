@@ -36,6 +36,7 @@ import org.nutz.log.Logs;
 import org.nutz.mvc.adaptor.WhaleAdaptor;
 import org.nutz.mvc.annotation.*;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
@@ -168,6 +169,54 @@ public class SysLoginController {
 		} catch (Exception e) {
 			return Result.error("system.error");
 		}
+	}
+	
+	/**
+	 * 验证用户名是否存在
+	 * 
+	 * @param theme
+	 * @param req
+	 */
+	@At("/validLoginname")
+	@Ok("json:full")
+	@AdaptBy(type = WhaleAdaptor.class)
+	public Object validLoginname(@Param("loginname") String loginname, HttpServletRequest req) {
+		if (!Strings.isEmpty(loginname)) {
+			Subject subject = SecurityUtils.getSubject();
+			if (subject != null) {
+				List<Sys_user> lname = userService.query(Cnd.where("loginname", "=", loginname));
+				if (lname.isEmpty()) {
+					return Result.success("system.success");
+				} else {
+					return Result.error("system.error");
+				}
+			}
+		}
+		return req;
+	}
+	
+	/**
+	 * 验证淘宝/工厂名称是否存在
+	 * 
+	 * @param theme
+	 * @param req
+	 */
+	@At("/validShopname")
+	@Ok("json:full")
+	@AdaptBy(type = WhaleAdaptor.class)
+	public Object validShopname(@Param("shopname") String shopname, HttpServletRequest req) {
+		if (!Strings.isEmpty(shopname)) {
+			Subject subject = SecurityUtils.getSubject();
+			if (subject != null) {
+				List<Sys_user> sname = userService.query(Cnd.where("shopname", "=", shopname));
+				if (sname.isEmpty()) {
+					return Result.success("system.success");
+				} else {
+					return Result.error("system.error");
+				}
+			}
+		}
+		return req;
 	}
     /**
      * 登陆验证

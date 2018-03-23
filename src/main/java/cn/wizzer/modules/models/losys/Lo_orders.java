@@ -83,7 +83,7 @@ public class Lo_orders extends Model implements Serializable {
 	    private String packagePhoto;
 	    
 	    @Column
-	    @Comment("订单状态 1:已发布 2:已确认（有货） 3:已确认（无货） 4:待揽件 5:已揽件 6:已关闭")
+	    @Comment("订单状态 0:未发布 1:已发布 2:已确认（有货） 3:已确认（无货） 4:待揽件 5:已揽件 6:已关闭")
 	    @ColDefine(type = ColType.INT)
 	    private int orderStatus;
 	    

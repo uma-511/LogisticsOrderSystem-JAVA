@@ -70,7 +70,8 @@ public class LosysFactoryOrderController {
     @At("")
     @Ok("beetl:/platform/losys/factory/order/index.html")
     @RequiresAuthentication
-    public Object index() {
+    public Object index(HttpServletRequest req) {
+    	req.setAttribute("today", DateUtil.getDate());
     	return userService.query(Cnd.where("accountType", "=", 1));
     }
     

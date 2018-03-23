@@ -147,16 +147,15 @@ layout("/layouts/platform.html"){
                     		return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/taobao/edit/' + row.id + '" data-pjax>修改信息</a></li>' +
+                            '<li><a href="${base}/platform/losys/factory/edit/' + row.id + '" data-pjax>修改信息</a></li>' +
                             '<li><a href="javascript:;" onclick="del(\'' + row.id + '\')">删除</a></li>' +
-                            '<li><a href="${base}/platform/losys/taobao/updatePass/'+row.id+'" data-toggle="modal" data-target="#homeDetail">修改密码</a></li>'+
-                            '<li><a href="${base}/platform/losys/taobao/factory/' + row.id + '" data-pjax>分配工厂</a></li>' +
+                            '<li><a href="${base}/platform/losys/factory/updatePass/'+row.id+'" data-toggle="modal" data-target="#homeDetail">修改密码</a></li>'+
                             '</ul></div>';
                     	}else if(row.status==2){
 	                        return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
 	                                ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
 	                                '<li class="divider"></li>' +
-	                                '<li><a href="${base}/platform/losys/taobao/audit/'+row.id+'">审核</a></li>' +
+	                                '<li><a href="${base}/platform/losys/factory/audit/'+row.id+'">审核</a></li>' +
 	                                '</ul></div>';
                     	}else if(row.status==0){
 	                        return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +

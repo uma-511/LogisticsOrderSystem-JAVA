@@ -37,24 +37,25 @@ import java.util.List;
 /**
  * Created by wizzer on 2016/8/11.
  */
-@IocBean(args = {"refer:dao"})
+@IocBean(args = { "refer:dao" })
 public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
-    private static final Log log = Logs.get();
-    
-    @Inject
-    LosysTaobaoOrderService taobaoOrderService;
-    @Inject
-    LosysOrderService orderService;
+	private static final Log log = Logs.get();
 
-    public LosysTaobaoOrderService(Dao dao) {
-        super(dao);
-    }
+	@Inject
+	LosysTaobaoOrderService taobaoOrderService;
+	@Inject
+	LosysOrderService orderService;
 
-	public Sql getMessageList(String col, String dir,int beginTime, int endTime, String status, String name, String pay) {
+	public LosysTaobaoOrderService(Dao dao) {
+		super(dao);
+	}
+
+	public Sql getMessageList(String col, String dir, int beginTime, int endTime, String status, String name,
+			String pay) {
 		// TODO Auto-generated method stub
 		Subject subject = SecurityUtils.getSubject();
-    	Sys_user user = (Sys_user) subject.getPrincipal();
-		String sqlstr = "select t.*,t.id as orderid,o.orderStatus from lo_taobao_orders t inner JOIN lo_orders o on t.id=o.tbId where 1=1 ";
+		Sys_user user = (Sys_user) subject.getPrincipal();
+		String sqlstr = "select t.*,t.id as orderid,o.orderStatus,o.factoryId from lo_taobao_orders t inner JOIN lo_orders o on t.id=o.tbId where 1=1 ";
 		if (!status.isEmpty()) {
 			sqlstr += "and o.orderStatus=@status ";
 		}
@@ -82,38 +83,37 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		sql.params().set("pay", pay);
 		return sql.setCallback(Sqls.callback.records());
 	}
-	
+
 	public Sql getMessageList(int beginTime, int endTime, String status, String name, String pay) {
 		// TODO Auto-generated method stub
 		Subject subject = SecurityUtils.getSubject();
-    	Sys_user user = (Sys_user) subject.getPrincipal();
-		       String sqlstr="select t.*,t.id as orderid,o.orderStatus from lo_taobao_orders t INNER JOIN lo_orders o ON t.id=o.tbId where o.factoryId is not null ";
-				if (!status.isEmpty()) {
-					sqlstr += "and o.orderStatus=@status ";
-				}
-				if (beginTime != 0) {
-					sqlstr += "and t.orderDate>@beginTime ";
-				}
-				if (endTime != 0) {
-					sqlstr += "and t.orderDate<@endTime ";
-				}
-				if (!user.getLoginname().equals("superadmin")) {
-					sqlstr += "and o.taobaoId=@userid and o.factoryId=@factoryid";
-				}
-				if (!name.isEmpty()) {
-					sqlstr += "and o.taobaoId=@name ";
-				}
-				if (!pay.isEmpty()) {
-					sqlstr += "and o.payStatus=@pay ";
-				}
-				Sql sql = Sqls.create(sqlstr);
-				sql.params().set("status", status);
-				sql.params().set("beginTime", beginTime);
-				sql.params().set("endTime", endTime);
-				sql.params().set("userid", user.getId());
-				sql.params().set("name", name);
-				sql.params().set("pay", pay);
-				sql.params().set("factoryid", user.getId());
+		Sys_user user = (Sys_user) subject.getPrincipal();
+		String sqlstr = "select t.*,t.id as orderid,o.orderStatus from lo_taobao_orders t INNER JOIN lo_orders o ON t.id=o.tbId where 1=1 ";
+		if (!status.isEmpty()) {
+			sqlstr += "and o.orderStatus=@status ";
+		}
+		if (beginTime != 0) {
+			sqlstr += "and t.orderDate>@beginTime ";
+		}
+		if (endTime != 0) {
+			sqlstr += "and t.orderDate<@endTime ";
+		}
+		if (!user.getLoginname().equals("superadmin")) {
+			sqlstr += "and o.factoryId=@factoryid";
+		}
+		if (!name.isEmpty()) {
+			sqlstr += "and o.taobaoId=@name ";
+		}
+		if (!pay.isEmpty()) {
+			sqlstr += "and o.payStatus=@pay ";
+		}
+		Sql sql = Sqls.create(sqlstr);
+		sql.params().set("status", status);
+		sql.params().set("beginTime", beginTime);
+		sql.params().set("endTime", endTime);
+		sql.params().set("name", name);
+		sql.params().set("pay", pay);
+		sql.params().set("factoryid", user.getId());
 		return sql.setCallback(Sqls.callback.records());
 	}
 

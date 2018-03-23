@@ -17,6 +17,10 @@ import cn.wizzer.modules.services.sys.SysMenuService;
 import cn.wizzer.modules.services.sys.SysUnitService;
 import cn.wizzer.modules.services.sys.SysUserService;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
@@ -37,8 +41,8 @@ import org.nutz.log.Logs;
 import org.nutz.mvc.adaptor.WhaleAdaptor;
 import org.nutz.mvc.annotation.*;
 
-
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import java.io.File;
@@ -56,65 +60,67 @@ import java.util.List;
  */
 @IocBean
 @At("/platform/losys/taobao/order")
-@Filters({@By(type = PrivateFilter.class)})
+@Filters({ @By(type = PrivateFilter.class) })
 public class LosysTaobaoOrderController {
-    private static final Log log = Logs.get();
-    @Inject
-    SysUserService userService;
-    @Inject
-    SysMenuService menuService;
-    @Inject
-    SysUnitService unitService;
-    @Inject
-    LosysTaobaoFactoryService taobaoFactoryService;
-    @Inject
-    LosysTaobaoOrderService taobaoOrderService;
-    @Inject
-    LosysOrderService orderService;
-    
-    @At("")
-    @Ok("beetl:/platform/losys/taobao/order/index.html")
-    @RequiresAuthentication
-    public Object index() {
-    	return userService.query(Cnd.where("accountType", "=", 1));
-    }
-    
-    @At
-    @Ok("beetl:/platform/losys/taobao/order/add.html")
-    @RequiresAuthentication
-    public void add() {
-    	
-    }
+	private static final Log log = Logs.get();
+	@Inject
+	SysUserService userService;
+	@Inject
+	SysMenuService menuService;
+	@Inject
+	SysUnitService unitService;
+	@Inject
+	LosysTaobaoFactoryService taobaoFactoryService;
+	@Inject
+	LosysTaobaoOrderService taobaoOrderService;
+	@Inject
+	LosysOrderService orderService;
 
-    @At("/detail/?")
-    @Ok("beetl:/platform/losys/taobao/order/detail.html")
-    @RequiresAuthentication
-    public Object detail(String id, HttpServletRequest req) {
-    	List<Lo_orders> orders=orderService.query(Cnd.where("tbId", "=", id));
-    	req.setAttribute("orders", orders.get(0));
-        return taobaoOrderService.fetch(id);
-    }
-    
-    @At
-    @Ok("json")
-    @SLog(tag = "修改用户", msg = "")
-    public Object editDo(@Param("..") Lo_taobao_orders tOrders,@Param("..")Lo_orders orders, HttpServletRequest req) {
-        try {
-        	tOrders.setOpBy(Strings.sNull(req.getAttribute("uid")));
-        	tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
-        	tOrders.setOrderDate((int) (System.currentTimeMillis() / 1000));
-            taobaoOrderService.updateIgnoreNull(tOrders);
-            orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()), Cnd.where("tbId", "=", tOrders.getId()));
-            return Result.success("system.success");
-        } catch (Exception e) {
-            return Result.error("system.error");
-        }
-    }
-    
-    @At
-    @Ok("json")
-    @SLog(tag = "新建订单", msg = "")
-    public Object addDo(@Param("..") Lo_taobao_orders orders, HttpServletRequest req,HttpSession session) {
+	@At("")
+	@Ok("beetl:/platform/losys/taobao/order/index.html")
+	@RequiresAuthentication
+	public Object index(HttpServletRequest req) {
+		req.setAttribute("today", DateUtil.getDate());
+		return userService.query(Cnd.where("accountType", "=", 1));
+	}
+
+	@At
+	@Ok("beetl:/platform/losys/taobao/order/add.html")
+	@RequiresAuthentication
+	public void add() {
+
+	}
+
+	@At("/detail/?")
+	@Ok("beetl:/platform/losys/taobao/order/detail.html")
+	@RequiresAuthentication
+	public Object detail(String id, HttpServletRequest req) {
+		List<Lo_orders> orders = orderService.query(Cnd.where("tbId", "=", id));
+		req.setAttribute("orders", orders.get(0));
+		return taobaoOrderService.fetch(id);
+	}
+
+	@At
+	@Ok("json")
+	@SLog(tag = "修改用户", msg = "")
+	public Object editDo(@Param("..") Lo_taobao_orders tOrders, @Param("..") Lo_orders orders, HttpServletRequest req) {
+		try {
+			tOrders.setOpBy(Strings.sNull(req.getAttribute("uid")));
+			tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
+			tOrders.setOrderDate((int) (System.currentTimeMillis() / 1000));
+			taobaoOrderService.updateIgnoreNull(tOrders);
+			orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()),
+					Cnd.where("tbId", "=", tOrders.getId()));
+			return Result.success("system.success");
+		} catch (Exception e) {
+			return Result.error("system.error");
+		}
+	}
+
+	@At
+	@Ok("json")
+	@SLog(tag = "新建订单", msg = "")
+	public Object addDo(@Param("..") Lo_taobao_orders orders, HttpServletRequest req, HttpSession session) {
 		try {
 			Subject subject = SecurityUtils.getSubject();
 			Sys_user user = (Sys_user) subject.getPrincipal();
@@ -125,117 +131,132 @@ public class LosysTaobaoOrderController {
 			Lo_orders order = new Lo_orders();
 			order.setTbId(orders.getId());
 			order.setTaobaoId(user.getId());
-			order.setOrderStatus(1);
 			orderService.insert(order);
 			return Result.success("system.success");
 		} catch (Exception e) {
 			return Result.error("system.error");
 		}
-    }
-    /**
-     * 指派工厂
-     * @param id
-     * @param req
-     */
-    @At("/appoint/?")
-    @Ok("beetl:/platform/losys/taobao/order/appoint.html")
-    @RequiresAuthentication
-    public void factory(String id, HttpServletRequest req) {
-    	Subject subject = SecurityUtils.getSubject();
-    	Sys_user user = (Sys_user) subject.getPrincipal();
-    	List<Lo_taobao_factory> common=taobaoFactoryService.query(Cnd.where("taobaoid", "=", user.getId()));
-    	List<NutMap> factory = new ArrayList<>();
-    	if(!common.isEmpty()){
-    		for(Lo_taobao_factory communal:common){
-    			NutMap map = new NutMap();
-    			List<Sys_user> list=userService.query(Cnd.where("id", "=", communal.getFactoryid()));
-    			for(Sys_user user2 :list){
-    				map.put("id", user2.getId());
-    				map.put("text", user2.getLoginname());
-    				map.put("icon", "");
-    				map.put("data", "");
-    				List<Lo_orders> order=orderService.query(Cnd.where("tbId", "=", id));
-    				if(order.get(0).getFactoryId()!=null){
-    					if(order.get(0).getFactoryId().equals(user2.getId())){
-    						map.put("state", NutMap.NEW().addv("selected", true));
-    					}
-    				}
-    				factory.add(map);
-    			}
-    		}
-    	}
-    	req.setAttribute("user", Json.toJson(factory));
-    	req.setAttribute("id", id);
-    }
-
-    @At
-    @Ok("json")
-    public Object editFactoryDo(@Param("factoryid") String factoryid,@Param("tbId") String tbid, HttpServletRequest req) {
-        try {
-        	orderService.update(Chain.make("factoryId", factoryid), Cnd.where("tbId", "=", tbid));
-            return Result.success("system.success");
-        } catch (Exception e) {
-            return Result.error("system.error");
-        }
-    }
-    /**
-     * 淘宝订单管理列表
-     * @param loginname
-     * @param nickname
-     * @param length
-     * @param start
-     * @param draw
-     * @param order
-     * @param columns
-     * @return
-     */
-    @At
-    @Ok("json:{locked:'password|salt',ignoreNull:false}") // 忽略password和createAt属性,忽略空属性的json输出
-    @RequiresAuthentication
-    public Object data(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("status") String status, @Param("name") String name,@Param("pay") String pay,
-    		@Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
-    	int beginTime=0;
-    	int endTime=0;
-    	String tableName = Times.format("yyyyMM", new Date());
-        if (Strings.isNotBlank(beginDate)) {
-            tableName = Times.format("yyyyMM", Times.D(beginDate + " 00:00:00"));
-            beginTime = DateUtil.getTime(beginDate + " 00:00:00");
-        }
-        if (Strings.isNotBlank(endDate)) {
-        	endTime = DateUtil.getTime(endDate + " 23:59:59");
-        }
-    	String col="orderDate";//默认
-     	String dir="asc";
-    	if (order != null && order.size() > 0) {
-            for (DataTableOrder orders : order) {
-            	DataTableColumn c = columns.get(orders.getColumn());
-                col=Sqls.escapeSqlFieldValue(c.getData()).toString();
-                dir=orders.getDir();
-            }
-        }
-    	 Sql sql = taobaoOrderService.getMessageList(col,dir,beginTime,endTime,status,name,pay);
-         return taobaoOrderService.data(length, start, draw, sql, sql);
-    }
-    
-    @At("/exportFile")
-	@Ok("json")
-	public Object exportFile(HttpServletRequest req) throws FileNotFoundException, IOException {
-    	// 第一步，查询数据得到一个数据集合
-    	List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class,null);
-    	 
-    	// 第二步，使用j4e将数据输出到指定文件或输出流中
-    	try (OutputStream out = new FileOutputStream(Files.createFileIfNoExists2("C:/exportfile/淘宝订单.xls"))) {
-    	    J4E.toExcel(out, taobao, null);  
-    	}
-		return Result.success("导出C盘成功");
-
 	}
-    
-    
-    @At("/importFile")
+
+	/**
+	 * 指派工厂
+	 * 
+	 * @param id
+	 * @param req
+	 */
+	@At("/appoint/?")
+	@Ok("beetl:/platform/losys/taobao/order/appoint.html")
+	@RequiresAuthentication
+	public void factory(String id, HttpServletRequest req) {
+		Subject subject = SecurityUtils.getSubject();
+		Sys_user user = (Sys_user) subject.getPrincipal();
+		List<Lo_taobao_factory> common = taobaoFactoryService.query(Cnd.where("taobaoid", "=", user.getId()));
+		List<NutMap> factory = new ArrayList<>();
+		if (!common.isEmpty()) {
+			for (Lo_taobao_factory communal : common) {
+				NutMap map = new NutMap();
+				List<Sys_user> list = userService.query(Cnd.where("id", "=", communal.getFactoryid()));
+				for (Sys_user user2 : list) {
+					map.put("id", user2.getId());
+					map.put("text", user2.getLoginname());
+					map.put("icon", "");
+					map.put("data", "");
+					List<Lo_orders> order = orderService.query(Cnd.where("tbId", "=", id));
+					if (order.get(0).getFactoryId() != null) {
+						if (order.get(0).getFactoryId().equals(user2.getId())) {
+							map.put("state", NutMap.NEW().addv("selected", true));
+						}
+					}
+					factory.add(map);
+				}
+			}
+		}
+		req.setAttribute("user", Json.toJson(factory));
+		req.setAttribute("id", id);
+	}
+
+	@At
+	@Ok("json")
+	public Object editFactoryDo(@Param("factoryid") String factoryid, @Param("tbId") String tbid,
+			HttpServletRequest req) {
+		try {
+			orderService.update(Chain.make("factoryId", factoryid).add("orderStatus", 1), Cnd.where("tbId", "=", tbid));
+			return Result.success("system.success");
+		} catch (Exception e) {
+			return Result.error("system.error");
+		}
+	}
+
+	/**
+	 * 淘宝订单管理列表
+	 * 
+	 * @param loginname
+	 * @param nickname
+	 * @param length
+	 * @param start
+	 * @param draw
+	 * @param order
+	 * @param columns
+	 * @return
+	 */
+	@At
+	@Ok("json:{locked:'password|salt',ignoreNull:false}") // 忽略password和createAt属性,忽略空属性的json输出
+	@RequiresAuthentication
+	public Object data(@Param("beginDate") String beginDate, @Param("endDate") String endDate,
+			@Param("status") String status, @Param("name") String name, @Param("pay") String pay,
+			@Param("length") int length, @Param("start") int start, @Param("draw") int draw,
+			@Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
+		int beginTime = 0;
+		int endTime = 0;
+		String tableName = Times.format("yyyyMM", new Date());
+		if (Strings.isNotBlank(beginDate)) {
+			tableName = Times.format("yyyyMM", Times.D(beginDate + " 00:00:00"));
+			beginTime = DateUtil.getTime(beginDate + " 00:00:00");
+		}
+		if (Strings.isNotBlank(endDate)) {
+			endTime = DateUtil.getTime(endDate + " 23:59:59");
+		}
+		String col = "orderDate";// 默认
+		String dir = "asc";
+		if (order != null && order.size() > 0) {
+			for (DataTableOrder orders : order) {
+				DataTableColumn c = columns.get(orders.getColumn());
+				col = Sqls.escapeSqlFieldValue(c.getData()).toString();
+				dir = orders.getDir();
+			}
+		}
+		Sql sql = taobaoOrderService.getMessageList(col, dir, beginTime, endTime, status, name, pay);
+		return taobaoOrderService.data(length, start, draw, sql, sql);
+	}
+
+	@At("/exportFile")
+	@Ok("json")
+	public Object exportFile(HttpServletRequest req, HttpServletResponse resp)
+			throws FileNotFoundException, IOException {
+		// 第一步，查询数据得到一个数据集合
+		List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class, null);
+		// 第二步，使用j4e将数据输出到指定文件或输出流中
+		OutputStream out = new FileOutputStream(Files.createFileIfNoExists2("C:/exportfile/淘宝订单.xls"));
+		J4E.toExcel(out, taobao, null);
+		// OutputStream out = resp.getOutputStream();
+		HSSFWorkbook workbook = new HSSFWorkbook();
+		// poi
+		resp.addHeader("content-type", "application/shlnd.ms-excel;charset=utf-8");
+		resp.addHeader("content-disposition", "attachment; filename=淘宝订单.xls");
+
+		Sheet sheet = workbook.createSheet("信息");
+		Row row = sheet.createRow(0);
+		Cell cell = row.createCell(0);
+		// Set value to new value
+		cell.setCellValue("wendal.net");
+		workbook.write(out);
+		return Result.success("导出成功");
+	}
+
+	@At("/importFile")
 	@Ok("json")
 	@AdaptBy(type = WhaleAdaptor.class)
-	public Object importFile(@Param("file")File file) {
+	public Object importFile(@Param("file") File file) {
 		try {
 			Subject subject = SecurityUtils.getSubject();
 			Sys_user user = (Sys_user) subject.getPrincipal();
@@ -250,7 +271,6 @@ public class LosysTaobaoOrderController {
 				Lo_orders orders = new Lo_orders();
 				orders.setTbId(taobaoOrder.getId());
 				orders.setTaobaoId(user.getId());
-				orders.setOrderStatus(1);
 				orderService.insert(orders);
 			}
 			return Result.success("导入成功");
@@ -259,5 +279,5 @@ public class LosysTaobaoOrderController {
 		}
 
 	}
-    
+
 }

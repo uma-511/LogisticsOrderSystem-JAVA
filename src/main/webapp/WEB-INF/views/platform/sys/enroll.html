@@ -52,6 +52,7 @@
                                 <input type="text" id="loginname" name="loginname" value="" required
                                        class="form-control input-lg mb25"
                                        placeholder="${msg['login.username']}" maxlength="30">
+                                        <ul class="parsley-errors-list filled" id="parsley-id-6" style="display:none;"><li class="parsley-required">此用户名已被注册</li></ul>
                             </div>
                             <div class="form-group">
                                 <span> 密码：</span>
@@ -70,10 +71,11 @@
                                        placeholder="联系方式" maxlength="14">
                             </div>
                              <div class="form-group" id="business">
-                                <span>店铺/⼯⼚名称：</span>
+                                <span>淘宝/⼯⼚名称：</span>
                                 <input type="text" id="shopname" name="shopname" value="" required
                                        class="form-control input-lg mb25"
-                                       placeholder="店铺/⼯⼚名称" maxlength="30">
+                                       placeholder="淘宝/⼯⼚名称" maxlength="30">
+                                       <ul class="parsley-errors-list filled" id="parsley-id-7" style="display:none;"><li class="parsley-required">此淘宝/⼯⼚名称已被注册</li></ul>
                             </div>
                             <div class="form-group">
                                 <span>角色类型：</span>
@@ -117,7 +119,47 @@ $(document).ready(function () {
 		window.location.href = "${base!}/platform/login";
 	});
 	$("#next").on("click",function(){
-	    $('#bindForm').submit();
+		var urlLoginname = "${base!}/platform/login/validLoginname";
+		var urlShopname = "${base!}/platform/login/validShopname";
+		var dataLoginname = {loginname:$("#loginname").val()};
+		var dataShopname = {shopname:$("#shopname").val()};
+		if($("#loginname").val()!=""){
+			$.ajax({
+				type : "POST",
+				url : urlLoginname,
+				data : dataLoginname,
+				datatype : "json",
+				success : function(result) {
+					if (result.code == 0) {
+						$("#parsley-id-6").hide();
+						 $("#loginname").removeClass("parsley-error");
+						if($("#shopname").val()!=""){
+							$.ajax({
+								type : "POST",
+								url : urlShopname,
+								data : dataShopname,
+								datatype : "json",
+								success : function(result) {
+									if (result.code == 0) {
+										 $('#bindForm').submit();
+									}else{
+										 $("#parsley-id-7").show();
+										 $("#shopname").addClass("parsley-error");
+									}
+								}
+							});
+						}else{
+							$('#bindForm').submit();
+						}
+					}else{
+						 $("#parsley-id-6").show();
+						 $("#loginname").addClass("parsley-error");
+					}
+				}
+			});
+		}else{
+	        $('#bindForm').submit();
+		}
     });
 	$("#back").on("click",function(){
         window.location.href = "${base!}/platform/login";

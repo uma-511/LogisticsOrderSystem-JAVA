@@ -30,7 +30,7 @@ public class Lo_taobao_orders extends Model implements Serializable {
     @Column
     @Comment("日期")
     @J4EName("日期")
-    @ColDefine(type = ColType.INT, width = 32)
+    @ColDefine(type = ColType.DATETIME, width = 32)
     private long orderDate;
     
     @Column

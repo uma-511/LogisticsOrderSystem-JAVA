@@ -77,7 +77,7 @@ layout("/layouts/platform.html"){
 				<i class="fa fa-sliders"></i> 导入
 			</button>
 			<input type="file" name="xx" id="xx" value="" style="display: none"
-				onchange="importFile(this)" />
+				onchange="importFile(this)" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
 			<div class="btn-group tool-button"></div>
 		</div>
 	</header>
@@ -169,7 +169,7 @@ layout("/layouts/platform.html"){
             	{
 	                "render": function (data, type, row) {
 	                    if (data) {
-	                        return moment(parseInt(data)).format("YYYY-MM-DD");
+	                        return moment(parseInt(data*1000)).format("YYYY-MM-DD");
 	                    }
 	                    return '';
 	                },
@@ -190,25 +190,27 @@ layout("/layouts/platform.html"){
 	                    }else if(row.orderstatus==6){
 	                    	return '已关闭';
 	                    }
-	                    return '无';
+	                    return '未发布';
 	                },
 	                "targets": 11
 	            },
 	            {
 	            	"render": function (data, type, row) {
-	            		if(row.orderstatus==4){
+	            		if(row.orderstatus==4 && row.factoryid==null){
 	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/taobao/order/appoint/' + row.orderid + '" data-pjax>指派工厂</a></li>' +
+                            '<li class="appoint"><a href="${base}/platform/losys/taobao/order/appoint/' + row.orderid + '" data-pjax>指派工厂</a></li>' +
                             '<li><a href="${base}/platform/losys/taobao/order/detail/' + row.orderid + '" data-pjax>查看订单信息</a></li>' +
                             '</ul></div>';
-	            		}else{
+	            		}else if(row.factoryid==null){
 	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/taobao/order/appoint/' + row.orderid + '" data-pjax>指派工厂</a></li>' +
+                            '<li class="appoint"><a href="${base}/platform/losys/taobao/order/appoint/' + row.orderid + '" data-pjax>指派工厂</a></li>' +
                             '</ul></div>';
+	            		}else{
+	            			return '';
 	            		}
                     },
 	                "targets": 12
@@ -268,6 +270,11 @@ layout("/layouts/platform.html"){
     	}
     	e = e || window.event;
     	var liId = $(e.target).attr("id");
+    	var suffix = $("#xx")[0].files[0].name.split(".")[1]
+        if(suffix != 'xls' && suffix !='xlsx'){
+        	Toast.error("请导入后缀为xlsx,xls的文件!");
+            return;
+        }
     	var fd = new FormData();
     	fd.append("file", $("#xx")[0].files[0]);
         var fileurl ="${base}/platform/losys/taobao/order/importFile";
@@ -310,6 +317,7 @@ layout("/layouts/platform.html"){
         console.log(id);
         if(name=="超级管理员"){
         	$("#file").hide();
+        	$(".appoint").hide();
         }else{
         	$("#taobao").hide();
         	$("#payfor").hide();
