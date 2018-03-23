@@ -60,8 +60,14 @@ INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `
 INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('8516193b41b3400cbee3b3c4065ba20f', '9eb55277fea945cea9a2f731cdce0f43', '0008000200040001', '删除价格分组', NULL, 'data', '', '', '', '0', '0', 'logisticsGroup.manage.delete', NULL, '86', '0', '2fe0e8025f2f45d7bb373786c305a0d5', '1521617143', '0');
 /* updateSysMenu30 */
 INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('4fe20a4bdf6542979fe8eb11e2c67f40', '09bcf60e897041a98c238abb6b369850', '00080002', '价格分组管理', NULL, 'menu', '', '', '', '1', '0', 'logisticsGroup', NULL, '81', '1', '2fe0e8025f2f45d7bb373786c305a0d5', '1521617089', '0');
-/* updateSysMenu31 */
+/* updateSysMenu32 */
 INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('9eb55277fea945cea9a2f731cdce0f43', '4fe20a4bdf6542979fe8eb11e2c67f40', '000800020004', '价格分组管理', NULL, 'menu', '/platform/losys/logisticsGroup', '', '', '1', '0', 'logisticsGroup.manage', NULL, '85', '1', '2fe0e8025f2f45d7bb373786c305a0d5', '1521617073', '0');
+/* updateSysMenu33 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('fba0a4ba1ed24376ad95b17fcddf8ba8', 'a0b509d67bdf4f6a9dd8cd81029eacbe', '000900010001', '区域价格管理', NULL, 'menu', '/platform/losys/areaPrice', '', '', '1', '0', 'areaPrice.manage.index', NULL, '91', '0', 'b4e8e8f08eec4a0e93aec681f9baf4ac', '1521796056', '0');
+/* updateSysMenu34 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('a0b509d67bdf4f6a9dd8cd81029eacbe', 'ba031174cea54c109eabce95717d65cc', '00090001', '区域价格管理', NULL, 'menu', '', '', '', '1', '0', 'areaPrice.manage', NULL, '90', '1', 'b4e8e8f08eec4a0e93aec681f9baf4ac', '1521795977', '0');
+/* updateSysMenu35 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('ba031174cea54c109eabce95717d65cc', '', '0009', '区域价格管理', NULL, 'menu', '', '', '', '1', '0', 'areaPrice', NULL, '89', '1', 'b4e8e8f08eec4a0e93aec681f9baf4ac', '1521795938', '0');
 
 
 /* insertTeamtalkMenu9 */ 
