@@ -1,0 +1,114 @@
+<%
+layout("/layouts/platform.html"){
+%>
+<header class="header navbar bg-white shadow">
+    <!-- 左按钮区 -->
+    <div class="btn-group tool-button">
+        <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/logisticsGroup" data-pjax id="goback"><i class="ti-angle-left"></i> 返回</a>
+    </div>
+    <div class="pull-right">
+        <div class="btn-group tool-button">
+            <button class="btn btn-primary navbar-btn" onclick="complete()"><i class="ti-share"></i> 设置分组价钱</button>
+        </div>
+    </div>
+</header>
+<div class="content-wrap">
+    <div class="wrapper" style="min-height: 500px;">
+        <div class="row mb15">
+            <div class="col-lg-12">
+                <form id="addRoleForm" class="form-horizontal stepy" method="post" action="${base}/platform/losys/taobao/factory">
+                    <input type="hidden" id="factoryIds" name="factoryIds"/>
+
+                    <div class="form-group no-b">
+                        <div class="col-sm-8">
+                            <div class="panel">
+                            	<br>
+                            	<div class="form-group">
+	                            	<label for="name" class="col-sm-2 control-label">分组名称</label>
+	
+	                            	<div class="col-sm-8">
+	                                <input type="text" id="name" class="form-control" name="name" data-parsley-required="true" id="name" value="${group.name!}"
+	                                       placeholder="分组名称">
+	                                <input type="hidden" id="id" value="${group.id!}">
+                            		</div>
+                        		</div>
+                            	
+                            	
+                                <div class="panel-heading no-b">
+                                    <h5>选择<b>物流公司</b></h5>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="jsTreeMenu"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="panel">
+                                <div class="panel-heading no-b">
+                                    <h5><b>描述</b></h5>
+                                </div>
+                                <div id="menuDescript" class="panel-body">
+                                    <div class='alert alert-info'>请勾选需要分组的公司</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script language="JavaScript">
+    var jsTreeMenu;
+    $(function () {
+        jsTreeMenu = $("#jsTreeMenu").jstree({
+                    plugins: ["wholerow", "checkbox"],
+                    core: {
+                        data: ${logistics!},
+                        multiple:false
+        			},
+                checkbox: {
+                    three_state: false,
+                    cascade: 'down'
+        }
+    }).on("hover_node.jstree", function (e, data) {
+        if (data.node.data)
+            $("#menuDescript").text(data.node.data);
+    }).on("dehover_node.jstree", function (e, data) {
+        $("#menuDescript").html("<div class='alert alert-info'>请勾选需要分组的公司</div>");//清空菜单描述
+    }).bind("loaded.jstree", function (e, data) {
+        //立即加载树下所有节点
+
+    });
+    });
+    function each(node, tree, nodes) {
+        var p = tree.get_parent(node);
+        if (p.length > 1) {
+            if (nodes&&p&&nodes.indexOf(p)<0)
+                nodes.push(p);
+            each(p, tree, nodes);
+        }
+    }
+    function complete() {
+    	var groupName = $("#name").val();
+    	var groupid = $("#id").val();
+    	if(groupName.trim()==""){
+    		Toast.warning("请输入分组名称");
+    		return
+    	}
+        var tree = $.jstree.reference("#jsTreeMenu");
+        var ids = tree.get_selected();
+        //查询所选节点的所有父节点
+        for (var i = 0; i < ids.length; i++) {
+            var node = ids[i];
+            each(node, tree, ids);
+        }
+        if (ids.length > 0) {
+          /*  $.post("${base}/platform/losys/logisticsGroup/setPrice", {logistics: ids.toString(), groupName: groupName});  */
+       window.location.href = "${base}/platform/losys/logisticsGroup/editPrice/"+ids.toString()+"/" + groupName + "/" + groupid;
+    } else {
+        Toast.warning("请先选择物流公司！");
+    }
+    }
+</script>
+<%}%>

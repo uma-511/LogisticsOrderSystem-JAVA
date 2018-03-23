@@ -20,10 +20,10 @@ public class Lo_logistics_group extends Model implements Serializable {
     @Name
     @Comment("ID")
     @ColDefine(type = ColType.VARCHAR, width = 32)
-    @Prev(els = {@EL("uuid()")})
     private String id;
     
-    @Column
+    
+	@Column
 	@Comment("物流公司id")
 	@ColDefine(type = ColType.VARCHAR, width = 32)
 	private String logisticsId;
@@ -56,4 +56,5 @@ public class Lo_logistics_group extends Model implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 }

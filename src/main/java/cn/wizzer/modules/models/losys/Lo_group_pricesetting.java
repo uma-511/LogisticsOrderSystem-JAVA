@@ -21,12 +21,6 @@ public class Lo_group_pricesetting extends Model implements Serializable {
     private int id;
     
 	@Column
-	@Comment("分组Id")
-	@ColDefine(type = ColType.VARCHAR, width = 32)
-    @Prev(els = {@EL("uuid()")})
-	private String groupId;
-
-	@Column
 	@Comment("运算符   大于：> 小于：< 等于：= 小于等于：<= 大于等于：>= 最高：max 最低：min")
 	@ColDefine(type = ColType.VARCHAR, width = 4)
 	private String operator;
@@ -46,13 +40,6 @@ public class Lo_group_pricesetting extends Model implements Serializable {
 	@ColDefine(type = ColType.VARCHAR, width = 10)
 	private String min;
 
-	public String getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
-	}
 
 	public String getOperator() {
 		return operator;
