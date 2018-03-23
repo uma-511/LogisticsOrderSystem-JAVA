@@ -226,15 +226,7 @@ layout("/layouts/platform.html"){
         });
     }
     function exportFile(){
-    	$.post("${base}/platform/losys/taobao/order/exportFile", {}, function (data) {
-            if (data.code == 0) {
-            	Toast.success(data.msg);
-            } else {
-                Toast.error(data.msg);
-            }
-            //重置按钮状态，关闭提示框
-            dialog.modal("hide");
-        }, "json");
+    	window.location.href="${base}/platform/losys/taobao/order/exportFile";
     }
      //限制开始和结束时间为同一个月
     function limitMonthDate(e) {

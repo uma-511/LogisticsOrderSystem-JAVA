@@ -41,6 +41,8 @@ import org.nutz.log.Logs;
 import org.nutz.mvc.adaptor.WhaleAdaptor;
 import org.nutz.mvc.annotation.*;
 
+import com.mysql.jdbc.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -51,6 +53,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -230,27 +234,17 @@ public class LosysTaobaoOrderController {
 	}
 
 	@At("/exportFile")
-	@Ok("json")
-	public Object exportFile(HttpServletRequest req, HttpServletResponse resp)
+	@Ok("void")
+	public void exportFile(HttpServletRequest req, HttpServletResponse resp)
 			throws FileNotFoundException, IOException {
 		// 第一步，查询数据得到一个数据集合
 		List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class, null);
-		// 第二步，使用j4e将数据输出到指定文件或输出流中
-		OutputStream out = new FileOutputStream(Files.createFileIfNoExists2("C:/exportfile/淘宝订单.xls"));
-		J4E.toExcel(out, taobao, null);
-		// OutputStream out = resp.getOutputStream();
-		HSSFWorkbook workbook = new HSSFWorkbook();
-		// poi
+		String filename = URLEncoder.encode("淘宝订单.xls", "UTF-8");
 		resp.addHeader("content-type", "application/shlnd.ms-excel;charset=utf-8");
-		resp.addHeader("content-disposition", "attachment; filename=淘宝订单.xls");
-
-		Sheet sheet = workbook.createSheet("信息");
-		Row row = sheet.createRow(0);
-		Cell cell = row.createCell(0);
-		// Set value to new value
-		cell.setCellValue("wendal.net");
-		workbook.write(out);
-		return Result.success("导出成功");
+		resp.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+		OutputStream out = resp.getOutputStream();
+		// poi
+		J4E.toExcel(out, taobao, null);
 	}
 
 	@At("/importFile")
