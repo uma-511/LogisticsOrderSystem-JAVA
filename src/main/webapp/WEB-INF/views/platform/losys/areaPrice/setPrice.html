@@ -3,12 +3,12 @@ layout("/layouts/platform.html"){
 %>
 <header class="header navbar bg-white shadow">
     <!-- 左按钮区 -->
-    <!-- <div class="btn-group tool-button">
-        <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/logisticsGroup" data-pjax id="goback"><i class="ti-angle-left"></i> 返回</a>
-    </div> -->
+    <div class="btn-group tool-button">
+        <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/areaPrice" data-pjax id="goback"><i class="ti-angle-left"></i> 返回</a>
+    </div>
     <div class="pull-right">
         <div class="btn-group tool-button">
-            <button class="btn btn-primary navbar-btn" onclick="complete()"><i class="ti-share"></i> 设置区域价格</button>
+            <button class="btn btn-primary navbar-btn" onclick="complete()"><i class="ti-share"></i> 保存</button>
         </div>
     </div>
 </header>
@@ -17,32 +17,14 @@ layout("/layouts/platform.html"){
         <div class="row mb15">
             <div class="col-lg-12">
                 <form id="addRoleForm" class="form-horizontal stepy" method="post" action="${base}/platform/losys/taobao/factory">
-                    <input type="hidden" id="factoryIds" name="factoryIds"/>
-
+                    <input type="hidden" id="logisticsId" name="logisticsId" value="${logisticsId!}" />
+                    <input type="hidden" id="ids" name="ids" value="${ids!}" />
                     <div class="form-group no-b">
                         <div class="col-sm-8">
+                        
                             <div class="panel">
-                            	<br>
-                            	<div class="form-group">
-	                            	<label for="name" class="col-sm-2 control-label">选择公司</label>
-	
-	                            	<div class="col-sm-8">
-	                                <select id="logisticsId" name="logisticsId" class="form-control" >
-	                                		<option value="" ></option>  
-						        		<% for(logistics in obj){ %>
-						        			<% if(logisticsId == logistics.id) {%>
-										     <option value=${logistics.id!} selected="selected">${logistics.name!}</option>
-										    <%}else if(logisticsId != logistics.id) {%>  
-										     <option value=${logistics.id!} >${logistics.name!}</option>
-										    <%}%>
-										<%}%>	
-						        	</select>
-                            		</div>
-                        		</div>
-                            	
-                            	
                                 <div class="panel-heading no-b">
-                                    <h5>选择<b>区域</b></h5>
+                                    <h5>选择<b>价格</b></h5>
                                 </div>
                                 <div class="panel-body">
                                     <div id="jsTreeMenu"></div>
@@ -55,7 +37,7 @@ layout("/layouts/platform.html"){
                                     <h5><b>描述</b></h5>
                                 </div>
                                 <div id="menuDescript" class="panel-body">
-                                    <div class='alert alert-info'>请勾选区域</div>
+                                    <div class='alert alert-info'>请勾选价格</div>
                                 </div>
                             </div>
                         </div>
@@ -71,17 +53,18 @@ layout("/layouts/platform.html"){
         jsTreeMenu = $("#jsTreeMenu").jstree({
                     plugins: ["wholerow", "checkbox"],
                     core: {
-                        data: ${area!}
+                        data: ${price!}
         			},
                 checkbox: {
                     three_state: false,
-                    cascade: 'down'
+                    cascade: 'down',
+                    
         }
     }).on("hover_node.jstree", function (e, data) {
         if (data.node.data)
             $("#menuDescript").text(data.node.data);
     }).on("dehover_node.jstree", function (e, data) {
-        $("#menuDescript").html("<div class='alert alert-info'>请勾选区域</div>");//清空菜单描述
+        $("#menuDescript").html("<div class='alert alert-info'>请勾选价格</div>");//清空菜单描述
     }).bind("loaded.jstree", function (e, data) {
         //立即加载树下所有节点
 
@@ -97,10 +80,7 @@ layout("/layouts/platform.html"){
     }
     function complete() {
     	var logisticsId = $("#logisticsId").val();
-    	if(logisticsId.trim()==""){
-    		Toast.warning("请选择物流公司");
-    		return
-    	}
+    	var areaIds = $("#ids").val();
         var tree = $.jstree.reference("#jsTreeMenu");
         var ids = tree.get_selected();
         //查询所选节点的所有父节点
@@ -109,27 +89,19 @@ layout("/layouts/platform.html"){
             each(node, tree, ids);
         }
         if (ids.length > 0) {
-          /*  $.post("${base}/platform/losys/logisticsGroup/setPrice", {logistics: ids.toString(), groupName: groupName});  */
-       window.location.href = "${base}/platform/losys/areaPrice/setPrice/"+ids.toString()+"/" + logisticsId;
+            $.post("${base}/platform/losys/areaPrice/editPriceDo", {ids: ids.toString(), logisticsId: logisticsId, areaIds: areaIds}, function (data) {
+            if (data.code == 0) {
+                Toast.success(data.msg);
+                setTimeout(function () {
+                    $("#goback").trigger("click");
+                }, 1000);
+            } else {
+                Toast.error(data.msg);
+            }
+        }, "json");
     } else {
-        Toast.warning("请先选择区域！");
+        Toast.warning("请先选择价格！");
     }
     }
-    
-    function select() {
-    	/* $.post("${base}/platform/losys/areaPrice/data", {logisticsId: $("#logisticsId").val()}, function (data) {
-    		 console.log(data)
-    		/*  $("#jsTreeMenu").jstree({
-				    "core" : {
-				        "data" : ${area!}
-				    }
-				}); */
-    	/* 	 $("#jsTreeMenu").jstree().settings.core.data =  data;
-    		 $("#jsTreeMenu").jstree().refresh(true);
-    		
-    	});  */ 
-    	window.location.href = "${base}/platform/losys/areaPrice/data/"+$("#logisticsId").val();
-    	
-	}
 </script>
 <%}%>
