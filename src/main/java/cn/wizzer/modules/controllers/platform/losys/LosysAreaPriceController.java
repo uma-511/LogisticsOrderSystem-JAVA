@@ -1,16 +1,14 @@
 package cn.wizzer.modules.controllers.platform.losys;
 
 
+import cn.wizzer.common.base.Result;
 import cn.wizzer.common.filter.PrivateFilter;
-import cn.wizzer.common.page.DataTableColumn;
-import cn.wizzer.common.page.DataTableOrder;
 import cn.wizzer.modules.models.losys.Lo_area;
 import cn.wizzer.modules.models.losys.Lo_area_price;
-import cn.wizzer.modules.models.losys.Lo_logistics;
-import cn.wizzer.modules.models.sys.Sys_menu;
-import cn.wizzer.modules.models.sys.Sys_unit;
+import cn.wizzer.modules.models.losys.Lo_group_pricesetting;
 import cn.wizzer.modules.services.losys.LosysAreaPriceService;
 import cn.wizzer.modules.services.losys.LosysAreaService;
+import cn.wizzer.modules.services.losys.LosysGroupPricesettingService;
 import cn.wizzer.modules.services.losys.LosysLogisticsService;
 
 import java.util.ArrayList;
@@ -33,14 +31,14 @@ import org.nutz.dao.sql.Sql;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
-import org.nutz.lang.Files;
+
 import org.nutz.lang.Strings;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
-import org.nutz.mvc.adaptor.WhaleAdaptor;
+
 import org.nutz.mvc.annotation.*;
-import com.mysql.fabric.xmlrpc.base.Data;
+
 
 
 
@@ -56,6 +54,8 @@ public class LosysAreaPriceController {
     private LosysLogisticsService logisticsService;
     @Inject
     private LosysAreaService areaService;
+    @Inject
+    private LosysGroupPricesettingService groupPriceService;
 
     /**
      * 首页
@@ -79,9 +79,8 @@ public class LosysAreaPriceController {
     }
     
     /**
-     * 查询数据
+     * 选择物流公司显示数据
      */
-    
     @At("/data/?")
     @Ok("beetl:/platform/losys/areaPrice/index.html")
     @RequiresAuthentication
@@ -109,4 +108,65 @@ public class LosysAreaPriceController {
         return logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
     }
     
+    /**
+     * 访问设置价格页面
+     */
+    @At("/setPrice/?/?")
+    @Ok("beetl:/platform/losys/areaPrice/setPrice.html")
+    public void editPrice(String ids,String logisticsId, HttpServletRequest req) {
+    	String[] id = ids.split(",");
+    	
+    	List<Lo_area_price> list2 = null;
+    	if (id.length == 1) {
+    		list2 = areaPriceService.query(Cnd.where("logisticsId", "=", logisticsId).and("areaId", "=", ids).asc("opAt"));
+		}else {
+			list2 = areaPriceService.query(Cnd.where("logisticsId", "=", logisticsId).asc("opAt"));
+		}
+    	List<Lo_group_pricesetting> list = groupPriceService.query(Cnd.where("1", "=", "1").asc("opAt"));
+        List<Map<String, Object>> tree = new ArrayList<>();
+        for (Lo_group_pricesetting group : list) {
+            Map<String, Object> obj = new HashMap<>();
+            obj.put("id", group.getId());
+            obj.put("text", "运算符："+ group.getOperator() + "  重量：" + group.getWeight() + "  价钱：" + group.getPrice() + "  低消：" + group.getMin());
+            
+            if (id.length == 1) {
+            	if (list2.size()>0) {
+    				for (Lo_area_price map : list2) {
+    					if (map.getGroupId().equals(String.valueOf(group.getId()))) {
+    						obj.put("state", NutMap.NEW().addv("selected", true));
+    					}
+    				}
+    			}
+			}
+            tree.add(obj);
+        }
+        req.setAttribute("price", Json.toJson(tree));
+        req.setAttribute("logisticsId", logisticsId);
+        req.setAttribute("ids", ids);
+    }
+    
+    /**
+     * 设置价格
+     */
+	@At
+    @Ok("json")
+    public Object editPriceDo(@Param("ids") String ids,@Param("logisticsId") String logisticsId, @Param("areaIds") String areaIds, HttpServletRequest req) {
+        try {
+        	String[] priceId = ids.split(",");
+        	String[] areaId = areaIds.split(",");
+        	Lo_area_price areaPrice = new Lo_area_price();
+        	for (String string : areaId) {
+				areaPriceService.clear(Cnd.where("logisticsId", "=", logisticsId).and("areaId", "=", string));
+				for (String p : priceId) {
+	        		areaPrice.setAreaId(string);
+	        		areaPrice.setGroupId(p);
+	        		areaPrice.setLogisticsId(logisticsId);
+					areaPriceService.insert(areaPrice);
+				}
+			}
+            return Result.success("system.success");
+        } catch (Exception e) {
+            return Result.error("system.error");
+        }
+    }
 }
