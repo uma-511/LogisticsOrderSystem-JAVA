@@ -6,7 +6,10 @@ import org.nutz.dao.entity.annotation.ColDefine;
 import org.nutz.dao.entity.annotation.ColType;
 import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Comment;
+import org.nutz.dao.entity.annotation.EL;
 import org.nutz.dao.entity.annotation.Id;
+import org.nutz.dao.entity.annotation.Name;
+import org.nutz.dao.entity.annotation.Prev;
 import org.nutz.dao.entity.annotation.Table;
 
 import cn.wizzer.common.base.Model;
@@ -14,8 +17,12 @@ import cn.wizzer.common.base.Model;
 @Comment("保价管理设置")
 public class Lo_insurance_pricesetting extends Model implements Serializable {
 	private static final long serialVersionUID = 1L;
-	@Id
-    private int id;
+	@Column
+	@Name
+	@Comment("ID")
+	@ColDefine(type = ColType.VARCHAR, width = 32)
+	@Prev(els = { @EL("uuid()") })
+	private String id;
 
 	@Column
 	@Comment("保价ID")
@@ -42,11 +49,12 @@ public class Lo_insurance_pricesetting extends Model implements Serializable {
 	@ColDefine(type = ColType.VARCHAR, width = 10)
 	private String value;
     
-	public int getId() {
+
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

@@ -1,0 +1,171 @@
+<%
+layout("/layouts/platform.html"){
+%>
+<header class="header navbar bg-white shadow">
+    <div class="btn-group tool-button">
+        <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/insurance" id="goback" data-pjax><i class="ti-angle-left"></i> 返回</a>
+    </div>
+</header>
+
+<div class="content-wrap">
+    <div class="wrapper" style="min-height:500px;">
+        <section class="panel panel-form">
+            <form id="addForm" role="form" class="form-horizontal parsley-form" data-parsley-validate
+                  action="${base}/platform/losys/insurance/editDo" method="post">
+                  <input type="hidden" name="id" id="id"  value="<%if(!isEmpty(obj)){%>${obj.id}<%}%>">
+                <div class="row mb10">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">运算符</label>
+
+                            <div class="col-sm-8">
+						        <select id="operator" name="operator" class="form-control">
+							        <option value=">">大于</option>
+						            <option value="<">小于</option>
+						            <option value=">=">大于等于</option>
+						            <option value="<=">小于等于</option>
+						            <option value="=">等于</option>
+						        </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">保价</label>
+
+                            <div class="col-sm-8">
+                                <input type="text" id="insurance" class="form-control" name="insurance" data-parsley-required="true"
+                                 data-parsley-pattern="^(([0-9]+\.[0-9]*[0-9][0-9]*)|([0-9]*[0-9][0-9]*\.[0-9]+)|([0-9]*[0-9][0-9]*))$"
+                                     value="${obj.insurance!}"  placeholder="保价">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">收费</label>
+
+                            <div class="col-sm-8">
+                                <input type="text" id="value" class="form-control" name="value" data-parsley-required="true"
+                                      value="${obj.value!}" placeholder="收费">
+                                      
+                            </div>
+                        </div>
+                        <div class="form-group">
+                        	<label for="site_icp" class="col-sm-2 control-label">收费类型</label>
+                            <div class="col-sm-8">
+						        <select id="type" name="type" class="form-control">
+									<option value="2" >百分比</option>
+						            <option value="1" >固定金额</option>
+						        </select>
+					        </div>
+                       </div>
+                       <div class="form-group">
+                       		<label for="site_icp" class="col-sm-2 control-label">物流公司</label>
+                           	<div class="col-sm-8">
+					        <select id="logistics" name="logistics" class="form-control">
+						           <% for(items in logisticsList){%>
+						             <% if(items.name == logistics.name){%>
+									   <option value="${items.id}" selected="selected">${items.name}</option>
+									<%}else{%>
+									    <option value="${items.id}">${items.name}</option>
+									<%}}%>
+					        </select>
+					        <input type="hidden" id="insuranceId" class="form-control" name="insuranceId" 
+                                      value="${logistics.id!}" >
+					        </div>
+                    	</div>
+                    </div>
+                </div>
+                <div class="col-lg-3"></div>
+                <div class="col-lg-6">
+                    <div class="form-group text-center">
+                        <label></label>
+
+                        <div>
+                            <button class="btn btn-primary btn-block btn-lg btn-parsley" data-loading-text="正在提交...">提 交</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+    </div>
+</div>
+<script language="JavaScript">
+	function clearFile() {
+	    $("#imgs").html("");
+	    $("#queue").html("");
+	    $("#img").val("");
+	    
+	}
+	
+
+    $(document).ready(function () {
+    	$("#operator").val("${obj.operator!}")
+    	//$("#logistics").text("${logistics.name!}")
+    	$("#type").val("${obj.type!}")
+    	var ue;
+    	setTimeout(function () {
+            ue= new baidu.editor.ui.Editor();
+            ue.render('detail');
+        },500);
+    	
+    	 $('#file_upload').uploadifive({
+             'auto': true,
+             'multi': false,
+             'width': '100%',
+             'height': '35',
+             'buttonText': '请选择图片',
+             'fileType': 'image/jpg,image/jpeg,image/png',
+             'fileSizeLimit': 1024,
+             'queueSizeLimit': 1,
+             'formData': {},
+             'queueID': 'queue',
+             'uploadScript': '${base}/open/file/upload/image',
+             'onUploadComplete': function (file, data) {
+                 data = JSON.parse(data);
+                 if (data.code == 0) {
+                     Toast.success(data.msg);
+                     $("#imgs").html("<img src='" + data.data + "' style='width:150px;'>");
+                     $("#img").val(data.data);
+                 } else {
+                     clearFile();
+                     Toast.error(data.msg);
+                 }
+             },
+             'onDrop': function (file, fileDropCount) {
+                 clearFile();
+             },
+             'onClearQueue': function (queue) {
+                 clearFile();
+             },
+             'onCancel': function () {
+                 clearFile();
+             }
+         });
+    	
+    	 $('#logistics').change(function(){  
+    	　　　　　　var p1=$(this).children('option:selected').val();//这就是selected的值  
+    	　　　　　　$("#insuranceId").val(p1);
+    	 }) 
+        $('#addForm').ajaxForm({
+            dataType: 'json',
+            beforeSubmit: function (arr, form, options) {
+            	$("#insuranceId").val($("#logistics").val());
+                form.find("button:submit").button("loading");
+            },
+            success: function (data, statusText, xhr, form) {
+                if (data.code == 0) {
+                    Toast.success(data.msg);
+                    /* //刷新父级菜单
+                    form.resetForm(); */
+                    setTimeout(function () {
+                        $("#goback").trigger("click");
+                    }, 1000);
+                } else {
+                    Toast.error(data.msg);
+                }
+                form.find("button:submit").button("reset");
+            }
+        });
+    });
+</script>
+
+
+<%}%>

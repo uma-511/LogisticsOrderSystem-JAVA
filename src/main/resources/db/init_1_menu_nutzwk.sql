@@ -68,6 +68,18 @@ INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `
 INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('a0b509d67bdf4f6a9dd8cd81029eacbe', 'ba031174cea54c109eabce95717d65cc', '00090001', '区域价格管理', NULL, 'menu', '', '', '', '1', '0', 'areaPrice.manage', NULL, '90', '1', 'b4e8e8f08eec4a0e93aec681f9baf4ac', '1521795977', '0');
 /* updateSysMenu35 */
 INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('ba031174cea54c109eabce95717d65cc', '', '0009', '区域价格管理', NULL, 'menu', '', '', '', '1', '0', 'areaPrice', NULL, '89', '1', 'b4e8e8f08eec4a0e93aec681f9baf4ac', '1521795938', '0');
+/* updateSysMenu36 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('3cae9d26980840da9ba5e3ec0e56672e', '', '0009', '保价管理', NULL, 'menu', '', '', '', '1', '0', 'support', NULL, '81', '1', '335eb54dc9a540178e6ff9119143f36e', '1522029321', '0');
+/* updateSysMenu37 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('f38ecf4dcc744d81b890667947d04548', '3cae9d26980840da9ba5e3ec0e56672e', '00090001', '保价管理', NULL, 'menu', '', '', '', '1', '0', 'support.price', NULL, '82', '1', '335eb54dc9a540178e6ff9119143f36e', '1522029420', '0');
+/* updateSysMenu38 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('e0982c79b0654e0c8ba15f5cb346b791', 'f38ecf4dcc744d81b890667947d04548', '000900010001', '保价管理', NULL, 'menu', '/platform/losys/insurance', '', '', '1', '0', 'support.price.list', NULL, '83', '0', '335eb54dc9a540178e6ff9119143f36e', '1522029584', '0');
+/* updateSysMenu39 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('296988a573cb4a21b618563fc0c96028', 'e0982c79b0654e0c8ba15f5cb346b791', '0009000100010001', '删除保价', NULL, 'data', '', '', '', '0', '0', 'support.price.delete', NULL, '84', '0', '335eb54dc9a540178e6ff9119143f36e', '1522031681', '0');
+/* updateSysMenu40 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('eccaced8971f4699a5445dc42d5f4b50', 'e0982c79b0654e0c8ba15f5cb346b791', '0009000100010002', '添加保价', NULL, 'data', '', '', '', '0', '0', 'support.price.add', NULL, '85', '0', '335eb54dc9a540178e6ff9119143f36e', '1522031779', '0');
+/* updateSysMenu41 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('f29e136612544b0ba23d69ded99cefa3', 'e0982c79b0654e0c8ba15f5cb346b791', '0009000100010003', '修改保价', NULL, 'data', '', '', '', '0', '0', 'support.price.edit', NULL, '86', '0', '335eb54dc9a540178e6ff9119143f36e', '1522031853', '0');
 
 
 /* insertTeamtalkMenu9 */ 
