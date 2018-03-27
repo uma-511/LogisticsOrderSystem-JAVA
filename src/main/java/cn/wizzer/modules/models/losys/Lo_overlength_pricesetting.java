@@ -7,15 +7,19 @@ import org.nutz.dao.entity.annotation.ColType;
 import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Comment;
 import org.nutz.dao.entity.annotation.Id;
+import org.nutz.dao.entity.annotation.PK;
 import org.nutz.dao.entity.annotation.Table;
 
 import cn.wizzer.common.base.Model;
 @Table(value = "lo_overlength_pricesetting")
+@PK("id")
 @Comment("超长价格设置")
 public class Lo_overlength_pricesetting extends Model implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-    @Id
+    @Column
+    @Comment("ID")
+    @ColDefine(type = ColType.INT, auto=true)
     private int id;
 
 	@Column
