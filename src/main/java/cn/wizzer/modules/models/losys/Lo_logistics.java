@@ -29,12 +29,12 @@ public class Lo_logistics extends Model implements Serializable {
     private String name;
     
     @Column
-    @Comment("体积变量")
+    @Comment("体积变量 ")
     @ColDefine(type = ColType.VARCHAR, width = 10)
     private String size;
     
     @Column
-    @Comment("比较变量")
+    @Comment("比较变量 *0.75或者+25")
     @ColDefine(type = ColType.VARCHAR, width = 10)
     private String compare;
     
