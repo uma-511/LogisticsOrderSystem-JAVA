@@ -12,6 +12,7 @@ import cn.wizzer.modules.models.losys.Lo_group_pricesetting;
 import cn.wizzer.modules.models.losys.Lo_insurance;
 import cn.wizzer.modules.models.losys.Lo_insurance_pricesetting;
 import cn.wizzer.modules.models.losys.Lo_logistics;
+import cn.wizzer.modules.models.losys.Lo_overlength_pricesetting;
 import cn.wizzer.modules.models.sys.Sys_menu;
 import cn.wizzer.modules.models.sys.Sys_unit;
 import cn.wizzer.modules.services.losys.LosysAreaService;
@@ -19,6 +20,7 @@ import cn.wizzer.modules.services.losys.LosysGroupPricesettingService;
 import cn.wizzer.modules.services.losys.LosysInsurancePricesettingService;
 import cn.wizzer.modules.services.losys.LosysInsuranceService;
 import cn.wizzer.modules.services.losys.LosysLogisticsService;
+import cn.wizzer.modules.services.losys.LosysOverLengthPricesettingService;
 import cn.wizzer.modules.services.sys.SysMenuService;
 import cn.wizzer.modules.services.sys.SysUnitService;
 import cn.wizzer.modules.services.sys.SysUserService;
@@ -73,6 +75,9 @@ public class LosysFreightController {
     LosysInsuranceService insuranceService;
     @Inject
     private LosysInsurancePricesettingService insurancePricesettingService;
+    @Inject
+    private LosysOverLengthPricesettingService overLengthService;
+
 
 //    /**
 //     * 访问运费查询模块首页
@@ -114,6 +119,149 @@ public class LosysFreightController {
 		System.out.println(expression + " = " + result);
 		return result;
 
+	}
+    
+    
+    /**
+     * 超长计算
+     * @param longs 长
+     * @param height 宽 
+     * @param width 高
+     * @param weight 重量
+     * @param logisticsId
+     * @return 
+     */
+	public double overLengthPrice(double longs, double height, double width, double weight, String logisticsId) {
+		double money = 0;
+		try {
+			int overLengthCount =0;
+			Lo_logistics logistics = logisticsService.fetch(logisticsId);
+			//该公司是否收超长费用
+			if(logistics.getCalType().equals("2")) {
+				//统计超长边数
+				if(longs > Double.parseDouble(logistics.getValue())) {
+					overLengthCount += 1;
+				}else if (height > Double.parseDouble(logistics.getValue())) {
+					overLengthCount += 1;
+				}else if (width > Double.parseDouble(logistics.getValue())) {
+					overLengthCount += 1;
+				}
+				//比较是否收取超长费用
+				if(overLengthCount >= Integer.parseInt(logistics.getQuantity())) {
+					Lo_overlength_pricesetting overlength = overLengthService.fetch(Cnd.where("logisticsId", "=", logisticsId));
+					//参考值是否为0，0代表统一金额/统一百分比收费，不为0 比较参考值大小 
+					if(overlength.getCalKey().equals("0")) {
+						//是否固定金额
+						if(overlength.getType().equals("1")) {
+							money = Double.parseDouble(overlength.getCalValue());
+						}else {
+						//百分比收费	
+							money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+						}
+					}else {
+						if (overlength.getOperator().equals(">")) {
+							if (weight > Double.parseDouble(overlength.getCalKey())) {								
+									//是否固定金额
+									if(overlength.getType().equals("1")) {
+										money = Double.parseDouble(overlength.getCalValue());
+									}else {
+									//百分比收费	
+										money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+									}
+							}else {
+								//是否固定金额
+								if(overlength.getType().equals("1")) {
+									money = Double.parseDouble(overlength.getCalValue());
+								}else {
+								//百分比收费	
+									money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+								}
+							}
+
+						}else if (overlength.getOperator().equals("<")) {
+							if (weight < Double.parseDouble(overlength.getCalKey())) {								
+								//是否固定金额
+								if(overlength.getType().equals("1")) {
+									money = Double.parseDouble(overlength.getCalValue());
+								}else {
+								//百分比收费	
+									money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+								}
+							}else {
+								//是否固定金额
+								if(overlength.getType().equals("1")) {
+									money = Double.parseDouble(overlength.getCalValue());
+								}else {
+								//百分比收费	
+									money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+								}
+							}	
+						}else if (overlength.getOperator().equals("=")) {
+							if (weight == Double.parseDouble(overlength.getCalKey())) {								
+								//是否固定金额
+								if(overlength.getType().equals("1")) {
+									money = Double.parseDouble(overlength.getCalValue());
+								}else {
+								//百分比收费	
+									money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+								}
+							}else {
+								//是否固定金额
+								if(overlength.getType().equals("1")) {
+									money = Double.parseDouble(overlength.getCalValue());
+								}else {
+								//百分比收费	
+									money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+								}
+							}
+						}else if (overlength.getOperator().equals(">=")) {
+							if (weight >= Double.parseDouble(overlength.getCalKey())) {								
+								//是否固定金额
+								if(overlength.getType().equals("1")) {
+									money = Double.parseDouble(overlength.getCalValue());
+								}else {
+								//百分比收费	
+									money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+								}
+							}else {
+								//是否固定金额
+								if(overlength.getType().equals("1")) {
+									money = Double.parseDouble(overlength.getCalValue());
+								}else {
+								//百分比收费	
+									money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+								}
+							}
+						}else if (overlength.getOperator().equals("<=")) {
+							if (weight <= Double.parseDouble(overlength.getCalKey())) {								
+								//是否固定金额
+								if(overlength.getType().equals("1")) {
+									money = Double.parseDouble(overlength.getCalValue());
+								}else {
+								//百分比收费	
+									money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+								}
+							}else {
+								//是否固定金额
+								if(overlength.getType().equals("1")) {
+									money = Double.parseDouble(overlength.getCalValue());
+								}else {
+								//百分比收费	
+									money = weight * (Double.parseDouble(overlength.getCalValue())/100);
+								}
+							}
+						}
+					}	
+				}else {
+					return 0;
+				}
+			}else {
+				return 0;
+			}
+		} catch (Exception e) {
+			
+		}
+		return money;
 	}
     
 }
