@@ -204,4 +204,6 @@ public class LosysInsurancePricesettingController {
 		return insurancePricesettingService.data(length, start, draw, sql, sql);
         
     }
+    
+    
 }

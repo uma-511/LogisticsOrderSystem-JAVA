@@ -77,7 +77,8 @@ public class LosysFreightController {
     private LosysInsurancePricesettingService insurancePricesettingService;
     @Inject
     private LosysOverLengthPricesettingService overLengthService;
-
+    @Inject
+    private LosysGroupPricesettingService groupPricesettingService;
 
 //    /**
 //     * 访问运费查询模块首页
@@ -94,32 +95,111 @@ public class LosysFreightController {
      * @param logistics
      * @return
      */
+//    @At("")
+//    @Ok("beetl:/platform/losys/freight/add.html")
+    @RequiresAuthentication
+	public Object insurance(String insurance,String logistics) {//100
+    	try{
+    		insurance="90";
+    		int num=Integer.parseInt(insurance);
+    		String expression="";
+    		List<Lo_insurance_pricesetting> list=insurancePricesettingService.query();
+    		for(Lo_insurance_pricesetting price:list){
+    			int cost=Integer.parseInt(price.getInsurance());
+    			double value=Double.parseDouble(price.getValue());
+    			if(price.getOperator().equals(">") && num>cost){
+    				expression =String.valueOf(num*value);
+    			}else if(price.getOperator().equals("<") && num<cost){
+    				expression =String.valueOf(num*value);
+    			}else if(price.getOperator().equals(">=") && num>=cost){
+    				expression =String.valueOf(num*value);
+    			}else if(price.getOperator().equals("<=") && num<=cost){
+    				expression =String.valueOf(num*value);
+    			}else{
+    				expression =String.valueOf(num*value);
+    			}
+    		}
+    		double result = Calculator.conversion(expression);
+    		System.out.println(expression + " = " + result);
+    		return result;
+    	}catch (Exception e) {
+    		return 0;
+    	}
+
+	}
+    /**
+     * 运费计算
+     * @param last
+     * @param width
+     * @param height
+     * @param weight
+     * @param logistics
+     * @return
+     */
     @At("")
     @Ok("beetl:/platform/losys/freight/add.html")
     @RequiresAuthentication
-	public Object insurance(String insurance,String logistics) {//100
-    	insurance="90";
-		int num=Integer.parseInt(insurance);
-		String expression="";
-		List<Lo_insurance_pricesetting> list=insurancePricesettingService.query();
-		for(Lo_insurance_pricesetting price:list){
-			int cost=Integer.parseInt(price.getInsurance());
-			double value=Double.parseDouble(price.getValue());
-			if(price.getOperator().equals(">") && num>cost){
-				expression =String.valueOf(num*value);
-			}else if(price.getOperator().equals("<") && num<cost){
-				expression =String.valueOf(num*value);
-			}else if(price.getOperator().equals(">=") && num>=cost){
-				expression =String.valueOf(num*value);
-			}else if(price.getOperator().equals("<=") && num<=cost){
-				expression =String.valueOf(num*value);
-			}
-		}
-		double result = Calculator.conversion(expression);
-		System.out.println(expression + " = " + result);
-		return result;
-
+	public Object freight(String last,String width,String height,String weight,String logistics) {//100
+    	try{
+    		//last="10";width="10";height="10";weight="30";
+        	double wei=Double.parseDouble(weight);
+    		Lo_logistics company=logisticsService.fetch(logistics);
+    		List<Lo_group_pricesetting> list=groupPricesettingService.query();
+    		for(Lo_group_pricesetting heft:list){
+    			int cost=Integer.parseInt(heft.getWeight());
+    			// 判断不同重量的计费方法
+    			if(heft.getOperator().equals(">") && wei>cost){
+    				return calculation(last,width,height,company.getSize(),heft.getPrice(),company.getCompare(),heft.getWeight(),heft.getMin());
+    			}else if(heft.getOperator().equals("<") && wei<cost){
+    				return calculation(last,width,height,company.getSize(),heft.getPrice(),company.getCompare(),heft.getWeight(),heft.getMin());
+    			}else if(heft.getOperator().equals(">=") && wei>=cost){
+    				return calculation(last,width,height,company.getSize(),heft.getPrice(),company.getCompare(),heft.getWeight(),heft.getMin());
+    			}else if(heft.getOperator().equals("<=") && wei<=cost){
+    				return calculation(last,width,height,company.getSize(),heft.getPrice(),company.getCompare(),heft.getWeight(),heft.getMin());
+    			}else{
+    				return calculation(last,width,height,company.getSize(),heft.getPrice(),company.getCompare(),heft.getWeight(),heft.getMin());
+    			}
+    		}
+    		return 0;
+    	}catch (Exception e) {
+    		return 0;
+    	}
 	}
+    /**
+     * 计算步骤
+     * @param last
+     * @param width
+     * @param height
+     * @param size
+     * @param price
+     * @param compare
+     * @param weight
+     * @param min
+     * @return
+     */
+    public Object calculation(String last, String width, String height, String size, String price, String compare, String weight, String min){
+    	try{
+    		String expression="";
+    		String rgex="";
+    		expression =last+"*"+width+"*"+height+"/"+size+"*"+price+""+compare;
+    		if(min.isEmpty()){
+    			rgex=weight+"*"+price+""+compare;
+    		}else{
+    			rgex=min+""+compare;
+    		}
+    		double result = Calculator.conversion(expression);
+    		double rgexs = Calculator.conversion(rgex);
+    		System.out.println(expression + " = " + result);
+    		System.out.println(rgex + " = " + rgexs);
+    		if(result>rgexs){
+    			return result;
+    		}else{
+    			return rgexs;
+    		}
+    	}catch (Exception e) {
+    		return 0;
+    	}
+    }
     
     
     /**

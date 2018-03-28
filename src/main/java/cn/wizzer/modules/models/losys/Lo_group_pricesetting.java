@@ -21,7 +21,7 @@ public class Lo_group_pricesetting extends Model implements Serializable {
     private int id;
     
 	@Column
-	@Comment("运算符   大于：> 小于：< 等于：= 小于等于：<= 大于等于：>= 最高：max 最低：min")
+	@Comment("运算符   大于：> 小于：< 等于：= 小于等于：<= 大于等于：>=")
 	@ColDefine(type = ColType.VARCHAR, width = 4)
 	private String operator;
 

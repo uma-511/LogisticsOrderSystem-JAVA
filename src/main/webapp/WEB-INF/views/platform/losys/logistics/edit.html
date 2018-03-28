@@ -12,9 +12,12 @@ layout("/layouts/platform.html"){
         <section class="panel panel-form">
             <form id="addForm" role="form" class="form-horizontal parsley-form" data-parsley-validate
                   action="${base}/platform/losys/logistics/editDo" method="post">
-                  <input type="hidden" name="id" id="id"  value="<%if(!isEmpty(logistics)){%>${logistics.id}<%}%>">
+                  		<input type="hidden" name="id" id="id"  value="<%if(!isEmpty(logistics)){%>${logistics.id}<%}%>">
                     	<input type="hidden" name="delFlag" id="delFlag"  value="<%if(!isEmpty(logistics)){%>${logistics.delFlag}<%}%>">
                     	<input type="hidden" name="opAt" id="opAt" value="<%if(!isEmpty(logistics)){%>${logistics.opAt}<%}%>">
+                    	<input type="hidden" name="size" id="size"  value="<%if(!isEmpty(logistics)){%>${logistics.size}<%}%>">
+                    	<input type="hidden" name="compare" id="compare"  value="<%if(!isEmpty(logistics)){%>${logistics.compare}<%}%>">
+                    	<input type="hidden" name="formula" id="formula" value="<%if(!isEmpty(logistics)){%>${logistics.formula}<%}%>">
                 <div class="row mb10">
                     <div class="col-lg-12">
                         <div class="form-group">
