@@ -80,12 +80,18 @@ INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `
 INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('eccaced8971f4699a5445dc42d5f4b50', 'e0982c79b0654e0c8ba15f5cb346b791', '0010000100010002', '添加保价', NULL, 'data', '', '', '', '0', '0', 'support.price.add', NULL, '85', '0', '335eb54dc9a540178e6ff9119143f36e', '1522031779', '0');
 /* updateSysMenu41 */
 INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('f29e136612544b0ba23d69ded99cefa3', 'e0982c79b0654e0c8ba15f5cb346b791', '0010000100010003', '修改保价', NULL, 'data', '', '', '', '0', '0', 'support.price.edit', NULL, '86', '0', '335eb54dc9a540178e6ff9119143f36e', '1522031853', '0');
-
+/* updateSysMenu42 */
 INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('e9801a2177ae408da466c5206fa11889', '', '0011', '运费查询 ', NULL, 'menu', '', '', '', '1', '0', 'freight', NULL, '92', '1', '3803af43a2a14c8b93bac2ab1153d5db', '1522118070', '0');
-
+/* updateSysMenu43 */
 INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('db40fe0e4e694976ba55210694ac815c', 'e9801a2177ae408da466c5206fa11889', '00110001', '运费查询 ', NULL, 'menu', '', '', '', '1', '0', 'freight.coat', NULL, '93', '1', '3803af43a2a14c8b93bac2ab1153d5db', '1522118242', '0');
-
+/* updateSysMenu44 */
 INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('5796842a631b410f807393ca10cdc43a', 'db40fe0e4e694976ba55210694ac815c', '001100010001', '运费查询', NULL, 'menu', '/platform/losys/freight', '', '', '1', '0', 'freight.coat.index', NULL, '94', '0', '3803af43a2a14c8b93bac2ab1153d5db', '1522118305', '0');
+/* updateSysMenu45 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('3e4043dcaeaa462c868f7bcbcc2b662b', '6ab41eb314134512baeb13c7eb98729b', '001200010001', '超长管理', NULL, 'menu', '/platform/losys/overLength', '', '', '1', '0', 'overLength.manage.index', NULL, '94', '0', 'b4e8e8f08eec4a0e93aec681f9baf4ac', '1522116355', '0');
+/* updateSysMenu46 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('6ab41eb314134512baeb13c7eb98729b', 'bf6cefc67f3e4c399a977ef43728c2e8', '00120001', '超长管理', NULL, 'menu', '', '', '', '1', '0', 'overLength.manage', NULL, '93', '1', 'b4e8e8f08eec4a0e93aec681f9baf4ac', '1522116316', '0');
+/* updateSysMenu47 */
+INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `type`, `href`, `target`, `icon`, `isShow`, `disabled`, `permission`, `note`, `location`, `hasChildren`, `opBy`, `opAt`, `delFlag`) VALUES ('bf6cefc67f3e4c399a977ef43728c2e8', '', '0012', '超长管理', NULL, 'menu', '', '', '', '1', '0', 'overLength', NULL, '92', '1', 'b4e8e8f08eec4a0e93aec681f9baf4ac', '1522116279', '0');
 
 /* insertTeamtalkMenu9 */ 
 INSERT INTO sys_role_menu(roleId,menuId) SELECT (select id from sys_role where name='淘宝方') as roleid,id as menuid FROM sys_menu WHERE 
