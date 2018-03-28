@@ -74,30 +74,42 @@ public class LosysFreightController {
     @Inject
     private LosysInsurancePricesettingService insurancePricesettingService;
 
+//    /**
+//     * 访问运费查询模块首页
+//     */
+//    @At("")
+//    @Ok("beetl:/platform/losys/freight/index.html")
+//    @RequiresAuthentication
+//    public void index(HttpServletRequest req) {
+//    	
+//    }
     /**
-     * 访问运费查询模块首页
+     * 保价计算
+     * @param insurance
+     * @param logistics
+     * @return
      */
     @At("")
-    @Ok("beetl:/platform/losys/freight/index.html")
+    @Ok("beetl:/platform/losys/freight/add.html")
     @RequiresAuthentication
-    public void index(HttpServletRequest req) {
-    	
-    }
-    
 	public Object insurance(String insurance,String logistics) {//100
+    	insurance="90";
 		int num=Integer.parseInt(insurance);
-		int n = 0;
+		String expression="";
 		List<Lo_insurance_pricesetting> list=insurancePricesettingService.query();
 		for(Lo_insurance_pricesetting price:list){
 			int cost=Integer.parseInt(price.getInsurance());
-			int value=Integer.parseInt(price.getValue());
-			if(price.getOperator().equals(">") && num>=cost){
-				n=num*value;
+			double value=Double.parseDouble(price.getValue());
+			if(price.getOperator().equals(">") && num>cost){
+				expression =String.valueOf(num*value);
 			}else if(price.getOperator().equals("<") && num<cost){
-				n=num*value;
+				expression =String.valueOf(num*value);
+			}else if(price.getOperator().equals(">=") && num>=cost){
+				expression =String.valueOf(num*value);
+			}else if(price.getOperator().equals("<=") && num<=cost){
+				expression =String.valueOf(num*value);
 			}
 		}
-		String expression =String.valueOf(n);
 		double result = Calculator.conversion(expression);
 		System.out.println(expression + " = " + result);
 		return result;
