@@ -36,6 +36,7 @@ import org.nutz.mvc.annotation.*;
 
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,6 +44,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 
@@ -179,17 +181,17 @@ public class LosysFactoryOrderController {
     }
     
     @At("/exportFile")
-	@Ok("json")
-	public Object exportFile(HttpServletRequest req) throws FileNotFoundException, IOException {
-    	// 第一步，查询数据得到一个数据集合
-    	List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class,null);
-    	 
-    	// 第二步，使用j4e将数据输出到指定文件或输出流中
-    	try (OutputStream out = new FileOutputStream(Files.createFileIfNoExists2("C:/exportfile/淘宝订单.xls"))) {
-    	    J4E.toExcel(out, taobao, null);  
-    	}
-		return Result.success("导出C盘成功");
-
+	@Ok("void")
+	public void exportFile(HttpServletRequest req, HttpServletResponse resp)
+			throws FileNotFoundException, IOException {
+		// 第一步，查询数据得到一个数据集合
+		List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class, null);
+		String filename = URLEncoder.encode("淘宝订单.xls", "UTF-8");
+		resp.addHeader("content-type", "application/shlnd.ms-excel;charset=utf-8");
+		resp.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+		OutputStream out = resp.getOutputStream();
+		// poi
+		J4E.toExcel(out, taobao, null);
 	}
     
     
@@ -206,13 +208,11 @@ public class LosysFactoryOrderController {
 			List<Lo_taobao_orders> people = J4E.fromExcel(in, Lo_taobao_orders.class, null);
 			// 第二步，插入数据到数据库
 			taobaoOrderService.dao().insert(people);
-			List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class, null);
-			for (Lo_taobao_orders taobaoOrder : taobao) {
-				Lo_orders orders = new Lo_orders();
-				orders.setTbId(taobaoOrder.getId());
-				orders.setTaobaoId(user.getId());
-				orders.setOrderStatus(1);
-				orderService.insert(orders);
+			for(Lo_taobao_orders orders:people){
+				Lo_orders order = new Lo_orders();
+				order.setTbId(orders.getId());
+				order.setTaobaoId(user.getId());
+				orderService.insert(order);
 			}
 			return Result.success("导入成功");
 		} catch (Exception e) {

@@ -260,12 +260,11 @@ public class LosysTaobaoOrderController {
 			List<Lo_taobao_orders> people = J4E.fromExcel(in, Lo_taobao_orders.class, null);
 			// 第二步，插入数据到数据库
 			taobaoOrderService.dao().insert(people);
-			List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class, null);
-			for (Lo_taobao_orders taobaoOrder : taobao) {
-				Lo_orders orders = new Lo_orders();
-				orders.setTbId(taobaoOrder.getId());
-				orders.setTaobaoId(user.getId());
-				orderService.insert(orders);
+			for(Lo_taobao_orders orders:people){
+				Lo_orders order = new Lo_orders();
+				order.setTbId(orders.getId());
+				order.setTaobaoId(user.getId());
+				orderService.insert(order);
 			}
 			return Result.success("导入成功");
 		} catch (Exception e) {
