@@ -185,13 +185,25 @@ public class LosysFactoryOrderController {
 	public void exportFile(HttpServletRequest req, HttpServletResponse resp)
 			throws FileNotFoundException, IOException {
 		// 第一步，查询数据得到一个数据集合
-		List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class, null);
-		String filename = URLEncoder.encode("淘宝订单.xls", "UTF-8");
-		resp.addHeader("content-type", "application/shlnd.ms-excel;charset=utf-8");
-		resp.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-		OutputStream out = resp.getOutputStream();
-		// poi
-		J4E.toExcel(out, taobao, null);
+    	Subject subject = SecurityUtils.getSubject();
+		if (subject != null) {
+			Sys_user user = (Sys_user) subject.getPrincipal();
+			List<Lo_taobao_orders> taobao = null;
+			if (user.getLoginname().equals("superadmin")) {
+				taobao = taobaoOrderService.query();
+			} else {
+				List<Lo_orders> orders = orderService.query(Cnd.where("taobaoId", "=", user.getId()));
+				for (Lo_orders order : orders) {
+					taobao = taobaoOrderService.query(Cnd.where("id", "=", order.getTbId()));
+				}
+			}
+			String filename = URLEncoder.encode("淘宝订单.xls", "UTF-8");
+			resp.addHeader("content-type", "application/shlnd.ms-excel;charset=utf-8");
+			resp.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+			OutputStream out = resp.getOutputStream();
+			// poi
+			J4E.toExcel(out, taobao, null);
+		}
 	}
     
     

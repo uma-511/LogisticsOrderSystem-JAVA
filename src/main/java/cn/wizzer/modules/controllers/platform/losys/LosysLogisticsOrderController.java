@@ -63,9 +63,9 @@ import java.util.List;
  * Created by wizzer on 2016/6/23.
  */
 @IocBean
-@At("/platform/losys/taobao/order")
+@At("/platform/losys/logistics/order")
 @Filters({ @By(type = PrivateFilter.class) })
-public class LosysTaobaoOrderController {
+public class LosysLogisticsOrderController {
 	private static final Log log = Logs.get();
 	@Inject
 	SysUserService userService;
@@ -81,7 +81,7 @@ public class LosysTaobaoOrderController {
 	LosysOrderService orderService;
 
 	@At("")
-	@Ok("beetl:/platform/losys/taobao/order/index.html")
+	@Ok("beetl:/platform/losys/logistics/order/index.html")
 	@RequiresAuthentication
 	public Object index(HttpServletRequest req) {
 		req.setAttribute("today", DateUtil.getDate());
@@ -89,14 +89,14 @@ public class LosysTaobaoOrderController {
 	}
 
 	@At
-	@Ok("beetl:/platform/losys/taobao/order/add.html")
+	@Ok("beetl:/platform/losys/logistics/order/add.html")
 	@RequiresAuthentication
 	public void add() {
 
 	}
 
 	@At("/detail/?")
-	@Ok("beetl:/platform/losys/taobao/order/detail.html")
+	@Ok("beetl:/platform/losys/logistics/order/detail.html")
 	@RequiresAuthentication
 	public Object detail(String id, HttpServletRequest req) {
 		List<Lo_orders> orders = orderService.query(Cnd.where("tbId", "=", id));
@@ -104,100 +104,8 @@ public class LosysTaobaoOrderController {
 		return taobaoOrderService.fetch(id);
 	}
 
-	@At
-	@Ok("json")
-	@SLog(tag = "修改用户", msg = "")
-	public Object editDo(@Param("..") Lo_taobao_orders tOrders, @Param("..") Lo_orders orders, HttpServletRequest req) {
-		try {
-			tOrders.setOpBy(Strings.sNull(req.getAttribute("uid")));
-			tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
-			tOrders.setOrderDate((int) (System.currentTimeMillis() / 1000));
-			taobaoOrderService.updateIgnoreNull(tOrders);
-			orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()),
-					Cnd.where("tbId", "=", tOrders.getId()));
-			return Result.success("system.success");
-		} catch (Exception e) {
-			return Result.error("system.error");
-		}
-	}
-
-	@At
-	@Ok("json")
-	@SLog(tag = "新建订单", msg = "")
-	public Object addDo(@Param("..") Lo_taobao_orders orders, HttpServletRequest req, HttpSession session) {
-		try {
-			Subject subject = SecurityUtils.getSubject();
-			if (subject != null) {
-				Sys_user user = (Sys_user) subject.getPrincipal();
-
-				orders.setOrderDate((int) (System.currentTimeMillis() / 1000));
-				orders.setLogistics("顺丰");
-				taobaoOrderService.insert(orders);
-				Lo_orders order = new Lo_orders();
-				order.setTbId(orders.getId());
-				order.setTaobaoId(user.getId());
-				orderService.insert(order);
-				return Result.success("system.success");
-			}
-			return Result.error("system.error");
-		} catch (Exception e) {
-			return Result.error("system.error");
-		}
-	}
-
 	/**
-	 * 指派工厂
-	 * 
-	 * @param id
-	 * @param req
-	 */
-	@At("/appoint/?")
-	@Ok("beetl:/platform/losys/taobao/order/appoint.html")
-	@RequiresAuthentication
-	public void factory(String id, HttpServletRequest req) {
-		Subject subject = SecurityUtils.getSubject();
-		if (subject != null) {
-			Sys_user user = (Sys_user) subject.getPrincipal();
-			List<Lo_taobao_factory> common = taobaoFactoryService.query(Cnd.where("taobaoid", "=", user.getId()));
-			List<NutMap> factory = new ArrayList<>();
-			if (!common.isEmpty()) {
-				for (Lo_taobao_factory communal : common) {
-					NutMap map = new NutMap();
-					List<Sys_user> list = userService.query(Cnd.where("id", "=", communal.getFactoryid()));
-					for (Sys_user user2 : list) {
-						map.put("id", user2.getId());
-						map.put("text", user2.getLoginname());
-						map.put("icon", "");
-						map.put("data", "");
-						List<Lo_orders> order = orderService.query(Cnd.where("tbId", "=", id));
-						if (order.get(0).getFactoryId() != null) {
-							if (order.get(0).getFactoryId().equals(user2.getId())) {
-								map.put("state", NutMap.NEW().addv("selected", true));
-							}
-						}
-						factory.add(map);
-					}
-				}
-			}
-			req.setAttribute("user", Json.toJson(factory));
-			req.setAttribute("id", id);
-		}
-	}
-
-	@At
-	@Ok("json")
-	public Object editFactoryDo(@Param("factoryid") String factoryid, @Param("tbId") String tbid,
-			HttpServletRequest req) {
-		try {
-			orderService.update(Chain.make("factoryId", factoryid).add("orderStatus", 1), Cnd.where("tbId", "=", tbid));
-			return Result.success("system.success");
-		} catch (Exception e) {
-			return Result.error("system.error");
-		}
-	}
-
-	/**
-	 * 淘宝订单管理列表
+	 * 物流订单管理列表
 	 * 
 	 * @param loginname
 	 * @param nickname

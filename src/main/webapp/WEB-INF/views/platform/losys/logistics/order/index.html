@@ -2,10 +2,15 @@
 layout("/layouts/platform.html"){
 %>
 <section class="content-wrap bg-white">
-    <header class="header navbar bg-white shadow">
-    <script language="JavaScript" type="text/javascript"
+	<header class="header navbar bg-white shadow">
+		<script language="JavaScript" type="text/javascript"
 			src="${base}/assets/plugins/My97DatePicker/WdatePicker.js"></script>
-    <div class="btn-group tool-button">
+		<div class="btn-group tool-button" id="addorder">
+			<a class="btn btn-primary navbar-btn"
+				href="${base}/platform/losys/logistics/order/add" data-pjax><i
+				class="ti-plus"></i>新建订单</a>
+		</div>
+		<div class="btn-group tool-button">
 			<div class="input-group date form_datetime "
 				style="width: 150px; float: left; padding-left: 5px; padding-right: 5px"
 				data-date-format="dd MM yyyy" data-link-field="beginDate">
@@ -43,11 +48,11 @@ layout("/layouts/platform.html"){
 		<div class="btn-group tool-button" style="padding-left: 10px;" id="taobao">
 			<div class="input-group"
 				style="width: 250px; float: left; padding-left: 5px; padding-right: 5px">
-				<span class="input-group-addon">淘宝店主</span> <select id="name"
+				    <span class="input-group-addon">淘宝店主</span> <select id="name"
 					class="form-control" onchange="search()">
 					<option value="">全部</option>
 					<% for(items in obj){%>
-					   <option value="${items.id}">${items.loginname}</option>
+					    <option value="${items.id}">${items.loginname}</option>
 					<%}%>
 				</select>
 			</div>
@@ -63,39 +68,42 @@ layout("/layouts/platform.html"){
 				</select>
 			</div>
 		</div>
-        <div class="pull-right offscreen-right">
-            <button class="btn btn-primary navbar-btn" onclick="exportFile()" id="exportfile"><i
-                    class="fa fa-sliders"></i> 导出
-            </button>
-            <button class="btn btn-primary navbar-btn" onclick="document.getElementById('xx').click();" id="file"><i
-                    class="fa fa-sliders" ></i> 导入
-            </button>
-            <input type="file" name="xx" id="xx" value="" style="display: none"
+		<div class="pull-right offscreen-right">
+			<button class="btn btn-primary navbar-btn" onclick="exportFile()"
+				id="exportfile">
+				<i class="fa fa-sliders"></i> 导出
+			</button>
+			<button class="btn btn-primary navbar-btn"
+				onclick="document.getElementById('xx').click();" id="file">
+				<i class="fa fa-sliders"></i> 导入
+			</button>
+			<input type="file" name="xx" id="xx" value="" style="display: none"
 				onchange="importFile(this)" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
-            
-        </div>
-    </header>
-    <div class=panel-body style="padding-top: 50px;">
-        <div class="table-responsive no-border">
-            <input id="unitid" type="hidden">
-            <table class="table table-bordered table-striped mg-t datatable">
-                <thead>
-                <tr>
-                    <th>日期</th>
-                    <th>旺旺号</th>
-                    <th>收件人</th>
-                    <th>固话</th>
-                    <th>收件手机</th>
-                    <th>收件详细地址</th>
-                    <th>托寄物型号</th>
-                    <th>尺寸（长宽高）</th>
-                    <th>托寄物件数</th>
-                    <th>颜色</th>
-                    <th>选择发货物流</th>
-                    <th>操作</th>
-            </table>
-        </div>
-    </div>
+			<div class="btn-group tool-button"></div>
+		</div>
+	</header>
+	<div class=panel-body style="padding-top: 50px;">
+		<div class="table-responsive no-border">
+			<input id="unitid" type="hidden">
+			<table class="table table-bordered table-striped mg-t datatable">
+				<thead>
+					<tr>
+						<th>日期</th>
+						<th>旺旺号</th>
+						<th>收件人</th>
+						<th>固话</th>
+						<th>收件手机</th>
+						<th>收件详细地址</th>
+						<th>托寄物型号</th>
+						<th>尺寸（长宽高）</th>
+						<th>托寄物件数</th>
+						<th>颜色</th>
+						<th>选择发货物流</th>
+						<th>订单状态</th>
+						<th>操作</th>
+			</table>
+		</div>
+	</div>
 </section>
 <!-- 用户详情 -->
 <div id="dialogUserDetail" class="modal fade bs-modal-sm" tabindex="-3" role="dialog" aria-hidden="true">
@@ -133,15 +141,15 @@ layout("/layouts/platform.html"){
                 sublime.closeLoadingbar($(".main-content"));
             },
             "ajax": {
-                "url": "${base}/platform/losys/factory/order/data",
+                "url": "${base}/platform/losys/logistics/order/data",
                 "type": "post",
                 "data": function (d) {
-               	    d.beginDate = $("#beginDate").val();
-                    d.endDate = $("#endDate").val();
-                    d.status = $("#status").val(); 
-                    d.name = $("#name").val(); 
-                    d.pay = $("#pay").val(); 
-               }
+                	 d.beginDate = $("#beginDate").val();
+                     d.endDate = $("#endDate").val();
+                     d.status = $("#status").val(); 
+                     d.name = $("#name").val(); 
+                     d.pay = $("#pay").val(); 
+                }
             },
             "order": [[0, "desc"]],
             "columns": [
@@ -156,6 +164,7 @@ layout("/layouts/platform.html"){
                 {"data": "quantity", "bSortable": true},
                 {"data": "color", "bSortable": true},
                 {"data": "logistics", "bSortable": true},
+                {"data": "orderstatus", "bSortable": true},
             ],
             "columnDefs": [
             	{
@@ -168,30 +177,37 @@ layout("/layouts/platform.html"){
 	                "targets": 0
 	            },
 	            {
-	            	"render": function (data, type, row) {
-	            		 var name="${@shiro.getPrincipalProperty('nickname')}";
-	            		if(row.orderstatus==1 && name!="超级管理员"){
-                    		return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
-                            ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
-                            '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/factory/order/confirm/' + row.orderid + '" data-toggle="modal" data-target="#homeDetail">确认订单</a></li>' +
-                            '</ul></div>';
-	            		}else if(row.orderstatus==2 && name!="超级管理员"){
-	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
-                            ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
-                            '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/factory/order/parts/' + row.orderid + '" data-pjax>揽件</a></li>' +
-                            '</ul></div>';
-	            		}else if(row.orderstatus==5 && name=="超级管理员"){
-	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
-                            ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
-                            '<li class="divider"></li>' +
-                            '<li><a href="${base}/platform/losys/factory/order/detail/' + row.orderid + '" data-pjax>查看订单状态</a></li>' +
-                            '</ul></div>';
-	            		}
-	            		return '';
-                    },
+	                "render": function (data, type, row) {
+	                    if (row.orderstatus==1) {
+	                        return "已发布";
+	                    }else if(row.orderstatus==2){
+	                    	return '已确认（有货）';
+	                    }else if(row.orderstatus==3){
+	                    	return '已确认（无货）';
+	                    }else if(row.orderstatus==4){
+	                    	return '待揽件';
+	                    }else if(row.orderstatus==5){
+	                    	return '已揽件';
+	                    }else if(row.orderstatus==6){
+	                    	return '已关闭';
+	                    }
+	                    return '未发布';
+	                },
 	                "targets": 11
+	            },
+	            {
+	            	"render": function (data, type, row) {
+	            		if(row.orderstatus==4){
+	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
+                            ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
+                            '<li class="divider"></li>' +
+                            '<li><a href="${base}/platform/losys/logistics/order/detail/' + row.orderid + '" data-pjax>查看订单信息</a></li>' +
+                            '</ul></div>';
+	            		}else{
+	            			return '';
+	            		}
+                    },
+	                "targets": 12
 	            }
                
             ]
@@ -203,7 +219,10 @@ layout("/layouts/platform.html"){
             datatable.ajax.reload();
         });
     }
-    //限制开始和结束时间为同一个月
+    function exportFile(){
+    	window.location.href="${base}/platform/losys/logistics/order/exportFile";
+    }
+     //限制开始和结束时间为同一个月
     function limitMonthDate(e) {
         var DateString;
         if (e == 2) {
@@ -231,19 +250,6 @@ layout("/layouts/platform.html"){
         }
 
     }
-    function search() {
-        datatable.ajax.reload();
-    }
-    function exportFile(){
-    	$.post("${base}/platform/losys/taobao/order/exportFile", {}, function (data) {
-            if (data.code == 0) {
-            	Toast.success(data.msg);
-            } else {
-                Toast.error(data.msg);
-            }
-        }, "json");
-    }
-    
     function importFile(e) {
     	if (!window.File && !window.FileList && !window.FileReader && !window.Blob) {
     		document.write('您的浏览器不支持File Api');
@@ -257,7 +263,7 @@ layout("/layouts/platform.html"){
         }
     	var fd = new FormData();
     	fd.append("file", $("#xx")[0].files[0]);
-        var fileurl ="${base}/platform/losys/taobao/order/importFile";
+        var fileurl ="${base}/platform/losys/logistics/order/importFile";
     	$.ajax({
     		type : "POST",
     		contentType : false, // 必须false才会避开jQuery对 formdata 的默认处理 ,
@@ -275,18 +281,34 @@ layout("/layouts/platform.html"){
     		}
     	});
     }
+    function search() {
+        datatable.ajax.reload();
+    }
     $(document).ready(function () {
         initDatatable();
+        $("#dialogUserDetail").on("hidden.bs.modal", function () {
+            $(this).removeData("bs.modal");
+        });
+        $("#dialogUserRightDetail").on("hidden.bs.modal", function () {
+            $(this).removeData("bs.modal");
+        });
+        $("#dialogPaasword").on("hidden.bs.modal", function () {
+            $(this).removeData("bs.modal");
+        });
         $('#homeDetail').on('hidden.bs.modal',function(){
             $(this).removeData("bs.modal");
         });
         var name="${@shiro.getPrincipalProperty('nickname')}";
+        var id="${@shiro.getPrincipalProperty('id')}";
+        console.log(id);
         if(name=="超级管理员"){
         	$("#file").hide();
+        	$(".appoint").hide();
         }else{
         	$("#taobao").hide();
         	$("#payfor").hide();
         }
+        	
     });
 
 </script>
