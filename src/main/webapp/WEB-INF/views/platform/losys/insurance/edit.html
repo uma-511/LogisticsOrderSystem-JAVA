@@ -34,7 +34,7 @@ layout("/layouts/platform.html"){
                             <div class="col-sm-8">
                                 <input type="text" id="insurance" class="form-control" name="insurance" data-parsley-required="true"
                                  data-parsley-pattern="^(([0-9]+\.[0-9]*[0-9][0-9]*)|([0-9]*[0-9][0-9]*\.[0-9]+)|([0-9]*[0-9][0-9]*))$"
-                                     value="${obj.insurance!}"  placeholder="保价">
+                                     value="${obj.insurance!}"  placeholder="只能输入正整数">
                             </div>
                         </div>
                         <div class="form-group">
@@ -42,7 +42,7 @@ layout("/layouts/platform.html"){
 
                             <div class="col-sm-8">
                                 <input type="text" id="value" class="form-control" name="value" data-parsley-required="true"
-                                      value="${obj.value!}" placeholder="收费">
+                                      value="${obj.value!}" placeholder="只能输入正整数/正小数"  data-parsley-pattern="^[0-9]+([.]{1}[0-9]+){0,1}$">
                                       
                             </div>
                         </div>

@@ -124,11 +124,17 @@ public class LosysInsurancePricesettingController {
         	Lo_insurance insurance =new Lo_insurance();
         	insurance.setLogisticsId(insurance_pricesetting.getInsuranceId());
         	insuranceService.insert(insurance);
-        	List<Lo_insurance> list=insuranceService.query(Cnd.where("logisticsId", "=", insurance_pricesetting.getInsuranceId()));
-        	for(Lo_insurance data:list){
+        	if(insurance_pricesetting.getInsuranceId()==null){
         		insurance_pricesetting.setOpAt((int)System.currentTimeMillis());
-        		insurance_pricesetting.setInsuranceId(data.getId());
+        		insurance_pricesetting.setInsuranceId(insurance.getId());
         		insurancePricesettingService.insert(insurance_pricesetting);
+        	}else{
+        		List<Lo_insurance> list=insuranceService.query(Cnd.where("logisticsId", "=", insurance_pricesetting.getInsuranceId()));
+        		for(Lo_insurance data:list){
+        			insurance_pricesetting.setOpAt((int)System.currentTimeMillis());
+        			insurance_pricesetting.setInsuranceId(data.getId());
+        			insurancePricesettingService.insert(insurance_pricesetting);
+        		}
         	}
             return Result.success("system.success");
         } catch (Exception e) {
