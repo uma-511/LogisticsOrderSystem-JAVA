@@ -127,16 +127,19 @@ public class LosysTaobaoOrderController {
 	public Object addDo(@Param("..") Lo_taobao_orders orders, HttpServletRequest req, HttpSession session) {
 		try {
 			Subject subject = SecurityUtils.getSubject();
-			Sys_user user = (Sys_user) subject.getPrincipal();
+			if (subject != null) {
+				Sys_user user = (Sys_user) subject.getPrincipal();
 
-			orders.setOrderDate((int) (System.currentTimeMillis() / 1000));
-			orders.setLogistics("顺丰");
-			taobaoOrderService.insert(orders);
-			Lo_orders order = new Lo_orders();
-			order.setTbId(orders.getId());
-			order.setTaobaoId(user.getId());
-			orderService.insert(order);
-			return Result.success("system.success");
+				orders.setOrderDate((int) (System.currentTimeMillis() / 1000));
+				orders.setLogistics("顺丰");
+				taobaoOrderService.insert(orders);
+				Lo_orders order = new Lo_orders();
+				order.setTbId(orders.getId());
+				order.setTaobaoId(user.getId());
+				orderService.insert(order);
+				return Result.success("system.success");
+			}
+			return Result.error("system.error");
 		} catch (Exception e) {
 			return Result.error("system.error");
 		}
@@ -153,30 +156,32 @@ public class LosysTaobaoOrderController {
 	@RequiresAuthentication
 	public void factory(String id, HttpServletRequest req) {
 		Subject subject = SecurityUtils.getSubject();
-		Sys_user user = (Sys_user) subject.getPrincipal();
-		List<Lo_taobao_factory> common = taobaoFactoryService.query(Cnd.where("taobaoid", "=", user.getId()));
-		List<NutMap> factory = new ArrayList<>();
-		if (!common.isEmpty()) {
-			for (Lo_taobao_factory communal : common) {
-				NutMap map = new NutMap();
-				List<Sys_user> list = userService.query(Cnd.where("id", "=", communal.getFactoryid()));
-				for (Sys_user user2 : list) {
-					map.put("id", user2.getId());
-					map.put("text", user2.getLoginname());
-					map.put("icon", "");
-					map.put("data", "");
-					List<Lo_orders> order = orderService.query(Cnd.where("tbId", "=", id));
-					if (order.get(0).getFactoryId() != null) {
-						if (order.get(0).getFactoryId().equals(user2.getId())) {
-							map.put("state", NutMap.NEW().addv("selected", true));
+		if (subject != null) {
+			Sys_user user = (Sys_user) subject.getPrincipal();
+			List<Lo_taobao_factory> common = taobaoFactoryService.query(Cnd.where("taobaoid", "=", user.getId()));
+			List<NutMap> factory = new ArrayList<>();
+			if (!common.isEmpty()) {
+				for (Lo_taobao_factory communal : common) {
+					NutMap map = new NutMap();
+					List<Sys_user> list = userService.query(Cnd.where("id", "=", communal.getFactoryid()));
+					for (Sys_user user2 : list) {
+						map.put("id", user2.getId());
+						map.put("text", user2.getLoginname());
+						map.put("icon", "");
+						map.put("data", "");
+						List<Lo_orders> order = orderService.query(Cnd.where("tbId", "=", id));
+						if (order.get(0).getFactoryId() != null) {
+							if (order.get(0).getFactoryId().equals(user2.getId())) {
+								map.put("state", NutMap.NEW().addv("selected", true));
+							}
 						}
+						factory.add(map);
 					}
-					factory.add(map);
 				}
 			}
+			req.setAttribute("user", Json.toJson(factory));
+			req.setAttribute("id", id);
 		}
-		req.setAttribute("user", Json.toJson(factory));
-		req.setAttribute("id", id);
 	}
 
 	@At
@@ -235,16 +240,27 @@ public class LosysTaobaoOrderController {
 
 	@At("/exportFile")
 	@Ok("void")
-	public void exportFile(HttpServletRequest req, HttpServletResponse resp)
-			throws FileNotFoundException, IOException {
+	public void exportFile(HttpServletRequest req, HttpServletResponse resp) throws FileNotFoundException, IOException {
 		// 第一步，查询数据得到一个数据集合
-		List<Lo_taobao_orders> taobao = taobaoOrderService.dao().query(Lo_taobao_orders.class, null);
-		String filename = URLEncoder.encode("淘宝订单.xls", "UTF-8");
-		resp.addHeader("content-type", "application/shlnd.ms-excel;charset=utf-8");
-		resp.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-		OutputStream out = resp.getOutputStream();
-		// poi
-		J4E.toExcel(out, taobao, null);
+		Subject subject = SecurityUtils.getSubject();
+		if (subject != null) {
+			Sys_user user = (Sys_user) subject.getPrincipal();
+			List<Lo_taobao_orders> taobao = null;
+			if (user.getLoginname().equals("superadmin")) {
+				taobao = taobaoOrderService.query();
+			} else {
+				List<Lo_orders> orders = orderService.query(Cnd.where("taobaoId", "=", user.getId()));
+				for (Lo_orders order : orders) {
+					taobao = taobaoOrderService.query(Cnd.where("id", "=", order.getTbId()));
+				}
+			}
+			String filename = URLEncoder.encode("淘宝订单.xls", "UTF-8");
+			resp.addHeader("content-type", "application/shlnd.ms-excel;charset=utf-8");
+			resp.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+			OutputStream out = resp.getOutputStream();
+			// poi
+			J4E.toExcel(out, taobao, null);
+		}
 	}
 
 	@At("/importFile")
@@ -260,7 +276,7 @@ public class LosysTaobaoOrderController {
 			List<Lo_taobao_orders> people = J4E.fromExcel(in, Lo_taobao_orders.class, null);
 			// 第二步，插入数据到数据库
 			taobaoOrderService.dao().insert(people);
-			for(Lo_taobao_orders orders:people){
+			for (Lo_taobao_orders orders : people) {
 				Lo_orders order = new Lo_orders();
 				order.setTbId(orders.getId());
 				order.setTaobaoId(user.getId());
