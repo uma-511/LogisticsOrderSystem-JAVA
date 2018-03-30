@@ -50,12 +50,12 @@ layout("/layouts/platform.html"){
                         	<label for="site_icp" class="col-sm-2 control-label">收费类型</label>
                             <div class="col-sm-8">
 						        <select id="type" name="type" class="form-control">
-						        <% if(obj.type=='1') {%> 
-						            <option value="2" >固定金额</option>
-						            <option value="1" selected="selected">百分比</option>
-								<%}else if(obj.type=='2') {%>
-									<option value="2" selected="selected">固定金额</option>
-						            <option value="1" >百分比</option>
+						        <% if(obj.type=='2') {%> 
+						            <option value="1" >固定金额</option>
+						            <option value="2" selected="selected">百分比</option>
+								<%}else if(obj.type=='1') {%>
+									<option value="1" selected="selected">固定金额</option>
+						            <option value="2" >百分比</option>
 						        <%}%>
 						        </select>
 					        </div>

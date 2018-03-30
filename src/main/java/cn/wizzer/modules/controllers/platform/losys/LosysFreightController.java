@@ -89,10 +89,55 @@ public class LosysFreightController {
     @At("")
     @Ok("beetl:/platform/losys/freight/index.html")
     @RequiresAuthentication
-    public Object index(String  logisticsId,String last, String width, String height, String weight, String insurance, HttpServletRequest req) {
+    public Object index( HttpServletRequest req) {
 		req.setAttribute("logisticsId", "");
-    	return logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
+		List<Record> records = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
+		
+		if (records.size()>0) {
+			String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=''";
+    		Sql sql = Sqls.create(sqlString);
+    		sql.params().set("logisticsId", records.get(0).get("id"));
+    		List<Record> areaOne = areaPriceService.list(sql);
+    		req.setAttribute("areaOne", areaOne);
+    		if (areaOne.size()>0) {
+    			String sqlString2 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
+        		Sql sql2 = Sqls.create(sqlString2);
+        		sql2.params().set("logisticsId", records.get(0).get("id"));
+        		sql2.params().set("pid", areaOne.get(0).get("id"));
+        		List<Record> areaTwo = areaPriceService.list(sql2);
+        		req.setAttribute("areaTwo", areaTwo);
+        		if (areaTwo.size()>0) {
+        			String sqlString3 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
+            		Sql sql3 = Sqls.create(sqlString3);
+            		sql3.params().set("logisticsId", records.get(0).get("id"));
+            		sql3.params().set("pid", areaTwo.get(0).get("id"));
+            		List<Record> areaThree = areaPriceService.list(sql3);
+            		req.setAttribute("areaThree", areaThree);
+            		
+    			}
+			}
+		}
+		
+		return records;
     }
+    
+    /**
+     * 查询子区域
+     */
+    @At
+    @Ok("json")
+    @RequiresAuthentication
+    public Object child(String areaId ,String logisticsId, HttpServletRequest req) {
+		String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
+		Sql sql = Sqls.create(sqlString);
+		sql.params().set("logisticsId", logisticsId);
+		sql.params().set("pid", areaId);
+		List<Record> area = areaPriceService.list(sql);
+		req.setAttribute("area", area);		
+		return area;
+    }
+    
+    
     
     /**
      * 访问运费查询模块首页
@@ -101,8 +146,8 @@ public class LosysFreightController {
     @Ok("beetl:/platform/losys/freight/tree.html")
     @RequiresAuthentication
     public Object data(String  logisticsId,String last, String width, String height, String weight, String insurance, HttpServletRequest req) {
-    		 String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId";
-    		 Sql sql = Sqls.create(sqlString);
+    		String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId";
+    		Sql sql = Sqls.create(sqlString);
     		sql.params().set("logisticsId", logisticsId);
     		List<Record> records = areaPriceService.list(sql);
     		
@@ -272,9 +317,11 @@ public class LosysFreightController {
 				//统计超长边数
 				if(longs > Double.parseDouble(logistics.getValue())) {
 					overLengthCount += 1;
-				}else if (height > Double.parseDouble(logistics.getValue())) {
+				}
+				if (height > Double.parseDouble(logistics.getValue())) {
 					overLengthCount += 1;
-				}else if (width > Double.parseDouble(logistics.getValue())) {
+				}
+				if (width > Double.parseDouble(logistics.getValue())) {
 					overLengthCount += 1;
 				}
 				//比较是否收取超长费用

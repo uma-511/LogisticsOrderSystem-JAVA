@@ -88,12 +88,12 @@ public class LosysOverLengthController {
     @Ok("json")
     public Object addDo(@Param("..") Lo_overlength_pricesetting overlength, HttpServletRequest req) {
         try {
-        	List<Record> overLengths = overLengthService.dao().query("lo_overlength_pricesetting", Cnd.where("logisticsId", "=", overlength.getLogisticsId()));
+        	/*List<Record> overLengths = overLengthService.dao().query("lo_overlength_pricesetting", Cnd.where("logisticsId", "=", overlength.getLogisticsId()));
         	if (overLengths.size()>=1) {
         		 return Result.error(500, "该公司已存在超长价格，无法继续添加");
-			}else {
+			}else {*/
 				overLengthService.insert(overlength);
-			}
+			/*}*/
             return Result.success("system.success");
         } catch (Exception e) {
             return Result.error("system.error");

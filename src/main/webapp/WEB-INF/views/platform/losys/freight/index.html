@@ -1,0 +1,258 @@
+<%
+layout("/layouts/platform.html"){
+%>
+<header class="header navbar bg-white shadow">
+    <!-- <div class="btn-group " style="padding-top: 5px">
+        <div class="input-group" style="width:250px;float:left;padding-left: 5px;padding-right: 5px">
+       		<span class="input-group-addon" >长度</span>
+       		<input class="form-control" type='text' id='last'/>
+        </div>
+        <div class="input-group" style="width:250px;float:left;padding-left: 5px;padding-right: 5px">
+       		<span class="input-group-addon" >宽度</span>
+       		<input class="form-control" type='text' id='width'/>
+        </div>
+        <div class="input-group" style="width:250px;float:left;padding-left: 5px;padding-right: 5px">
+       		<span class="input-group-addon" >高度</span>
+       		<input class="form-control" type='text' id='height'/>
+        </div>
+        <div class="input-group" style="width:250px;float:left;padding-left: 5px;padding-right: 5px">
+       		<span class="input-group-addon" >重量</span>
+       		<input class="form-control" type='text' id='weight'/>
+        </div>
+        <div class="input-group" style="width:250px;float:left;padding-left: 5px;padding-right: 5px">
+       		<span class="input-group-addon" >保价</span>
+       		<input class="form-control" type='text' id='insurance'/>
+        </div>
+    </div> -->
+    <div class="pull-right">
+    <div class="btn-group tool-button" >
+			<button class="btn btn-primary navbar-btn" onclick="search()">查询</button>
+	</div>
+	</div>
+</header>
+<div class="content-wrap">
+    <div class="wrapper" style="min-height: 500px;">
+        <div class="row mb15">
+            <div class="col-lg-12">
+                <form id="addRoleForm" class="form-horizontal stepy" method="post">
+                    <div class="form-group no-b">
+                        <div class="col-sm-10">
+                            <div class="panel">
+                            	<br>
+                            	<div class="form-group">
+	                            	<label for="name" class="col-sm-2 control-label">选择物流公司</label>
+	
+	                            	<div class="col-sm-8">
+	                                <select id="logisticsId" name="logisticsId" class="form-control" onchange="select()" >
+						        		<% for(logistics in obj){ %>
+						        			<% if(logisticsId == logistics.id) {%>
+										     <option value=${logistics.id!} selected="selected">${logistics.name!}</option>
+										    <%}else if(logisticsId != logistics.id) {%>  
+										     <option value=${logistics.id!} >${logistics.name!}</option>
+										    <%}%>
+										<%}%>	
+						        	</select>
+                            		</div>
+                        		</div>
+                        	<div class="form-group">
+	                            	<label for="name" class="col-sm-2 control-label">省份</label>
+	
+	                            	<div class="col-sm-8">
+	                                <select id="sheng" name="sheng" class="form-control" onchange="shengfen()" >
+	                                	<% if(!isEmpty(areaOne)) {%>
+						        		<% for(area1 in areaOne){ %>	
+										     <option value=${area1.id!} >${area1.name!}</option>
+										<%}%>
+										<%}%>	
+						        	</select>
+                            		</div>
+                        	</div>
+                        	
+                        	<div class="form-group">
+	                            	<label for="name" class="col-sm-2 control-label">市</label>
+	
+	                            	<div class="col-sm-8">
+	                                <select id="shi" name="shi" class="form-control" onchange="shiqu()" >
+	                                	<% if(!isEmpty(areaTwo)) {%>
+						        		<% for(area2 in areaTwo){ %>	
+										     <option value=${area2.id!} >${area2.name!}</option>
+										<%}%>
+										<%}%>	
+						        	</select>
+                            		</div>
+                        	</div>
+                        	
+                        	<div class="form-group">
+	                            	<label for="name" class="col-sm-2 control-label">镇/区</label>
+	
+	                            	<div class="col-sm-8">
+	                                <select id="qu" name="qu" class="form-control">
+	                                	<% if(!isEmpty(areaThree)) {%>
+						        		<% for(area3 in areaThree){ %>	
+										     <option value=${area3.id!} >${area3.name!}</option>
+										<%}%>
+										<%}%>	
+						        	</select>
+                            		</div>
+                        	</div>
+                        		
+                        	<div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">长度</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="last" class="form-control" name="last" 
+                                 placeholder="长度">      
+                            </div>
+                           </div>
+                           <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">宽度</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="width" class="form-control" name="width" 
+                                 placeholder="宽度">      
+                            </div>
+                           </div>
+                           <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">高度</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="height" class="form-control" name="height" 
+                                 placeholder="高度">      
+                            </div>
+                           </div>
+                           <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">重量</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="weight" class="form-control" name="weight" 
+                                 placeholder="重量">      
+                            </div>
+                           </div>
+                           <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">保价</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="insurance" class="form-control" name="insurance" 
+                                 placeholder="保价">      
+                            </div>
+                           </div>
+                            </div>
+                            <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">运费</label>
+                            <div  class="col-sm-8" style="font-size: 20px;color: red;">
+                                <p id="money">123</p>      
+                            </div>
+                           </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>     
+            </div>
+        </div>
+    </div>
+</div>
+<script language="JavaScript">
+    var jsTreeMenu;
+    
+    function search() {
+    	var logisticsId = $("#logisticsId").val();
+    	if(logisticsId.trim()==""){
+    		Toast.warning("请选择物流公司");
+    		return
+    	}
+    	var last = $("#last").val();
+    	var width = $("#width").val();
+    	var height = $("#height").val();
+    	var weight = $("#weight").val();
+    	var insurance = $("#insurance").val();
+    	var reg = /^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$/;
+    	if(reg.test(last)){
+    	}else {
+    		Toast.warning("请输入正确的长度");
+    		return
+		}
+    	if(reg.test(width)){
+    	}else {
+    		Toast.warning("请输入正确的宽度");
+    		return
+		}
+    	if(reg.test(height)){
+    	}else {
+    		Toast.warning("请输入正确的高度");
+    		return
+		}
+    	if(reg.test(weight)){
+    	}else {
+    		Toast.warning("请输入正确的重量");
+    		return
+		}
+    	if(reg.test(insurance)){
+    	}else {
+    		Toast.warning("请输入正确的保价");
+    		return
+		}
+    	 $.post("${base}/platform/losys/freight/select" , {last: last, width: width, height:height, weight: weight, logistics: logisticsId, insurance: insurance}, function (data) {
+    		$("#money").html(data + "/元")
+             
+     	});
+    }
+    
+    function select() {
+    	var last = $("#last").val();
+    	var width = $("#width").val();
+    	var height = $("#height").val();
+    	var weight = $("#weight").val();
+    	var insurance = $("#insurance").val();
+    	var logisticsId = $("#logisticsId").val();
+		if(last === ""){
+			last = "null"
+		}
+		if(width === ""){
+			width = "null"
+		}
+		if(height === ""){
+			height = "null"
+		}
+		if(weight === ""){
+			weight = "null"
+		}
+		if(insurance === ""){
+			insurance = "null"
+		}
+		
+		/* if(logisticsId === ""){
+			window.location.href = "${base}/platform/losys/freight";
+		}else {
+			$("#logisticsId").find("option:contains('')").attr("selected",true);
+			window.location.href = "${base}/platform/losys/freight/index/"+ logisticsId + "/" + last + "/" + width + "/" + height + "/" + weight + "/" + insurance;
+		} */	
+	}
+    
+    function shengfen(){
+    	$("#shi").empty();
+    	$.post("${base}/platform/losys/freight/child" , {areaId: $("#sheng").val(), logisticsId: $("#logisticsId").val()}, function (data) {
+    		$.each(data, function(index,values){
+    			$("#shi").append("<option value='"+values.id+"'>"+values.name+"</option>");
+    			
+    		});
+    		child(data[0].id);
+        });
+		
+	}
+	
+	function shiqu() {
+		$("#qu").empty();
+		$.post("${base}/platform/losys/freight/child" , {areaId: $("#shi").val(), logisticsId: $("#logisticsId").val()}, function (data) {
+    		$.each(data, function(index,values){
+    			$("#qu").append("<option value='"+values.id+"'>"+values.name+"</option>");
+    		});
+    		
+        }); 
+	}
+	
+	function child(areaId) {
+		$("#qu").empty();
+		$.post("${base}/platform/losys/freight/child" , {areaId: areaId, logisticsId: $("#logisticsId").val()}, function (data) {
+    		$.each(data, function(index,values){
+    			$("#qu").append("<option value='"+values.id+"'>"+values.name+"</option>");
+    		});
+    		
+        }); 
+	}
+</script>
+<%}%>
