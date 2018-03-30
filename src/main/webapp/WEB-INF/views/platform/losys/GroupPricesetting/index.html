@@ -8,7 +8,7 @@ layout("/layouts/platform.html"){
         </div>
         <a class="btn btn-primary navbar-btn"
 			href="${base}/platform/losys/GroupPricesetting/add" data-pjax><i
-			class="ti-plus"></i> 添加价格分组</a>
+			class="ti-plus"></i> 添加价格</a>
         <!-- <div class="pull-right offscreen-right">
             <button class="btn btn-primary navbar-btn" onclick="sublime.toggleFilter('.cd-panel')"><i
                     class="fa fa-sliders"></i> 筛选
@@ -36,12 +36,12 @@ layout("/layouts/platform.html"){
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h4 class="modal-title">删除价格分组</h4>
+                <h4 class="modal-title">删除价格</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-xs-12">
-                        确定删除该价格分组吗？ <br/>
+                        确定删除该价格吗？ <br/>
                     </div>
                 </div>
             </div>
@@ -58,12 +58,12 @@ layout("/layouts/platform.html"){
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h4 class="modal-title">删除价格分组</h4>
+                <h4 class="modal-title">删除价格</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-xs-12 mb10">
-                       确定删除该价格分组吗？
+                       确定删除该价格吗？
                     </div>
                     <div class="col-xs-12">
                         <ul id="checkedUser" class="list-group"></ul>
@@ -175,7 +175,7 @@ layout("/layouts/platform.html"){
                 }, "json");
             });
         } else {
-            Toast.warning("请先选择要删除的价格分组！");
+            Toast.warning("请先选择要删除的价格！");
         }
     }
     $(document).ready(function () {
