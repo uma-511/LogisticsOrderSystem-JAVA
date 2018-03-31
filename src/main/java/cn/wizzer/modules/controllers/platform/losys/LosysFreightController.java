@@ -275,12 +275,12 @@ public class LosysFreightController {
 			String compare, String weight, String min) {
 		try {
 			String rgex = "";
-			formula = formula.replaceAll("@last", last);
-			formula = formula.replaceAll("@width", width);
-			formula = formula.replaceAll("@height", height);
-			formula = formula.replaceAll("@size", size);
-			formula = formula.replaceAll("@price", price);
-			formula = formula.replaceAll("@compare", compare);
+			formula = formula.replaceAll("last", last);
+			formula = formula.replaceAll("width", width);
+			formula = formula.replaceAll("height", height);
+			formula = formula.replaceAll("size", size);
+			formula = formula.replaceAll("price", price);
+			formula = formula.replaceAll("compare", compare);
 			System.out.println(formula);
 			if (min.isEmpty()) {
 				rgex = weight + "*" + price + "" + compare;
