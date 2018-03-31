@@ -197,7 +197,7 @@ layout("/layouts/platform.html"){
 	            },
 	            {
 	            	"render": function (data, type, row) {
-	            		if(row.orderstatus==4){
+	            		if(row.orderstatus>=4){
 	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
