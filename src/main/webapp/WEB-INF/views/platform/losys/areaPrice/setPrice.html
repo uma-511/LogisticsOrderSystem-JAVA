@@ -24,7 +24,7 @@ layout("/layouts/platform.html"){
                         
                             <div class="panel">
                                 <div class="panel-heading no-b">
-                                    <h5>选择<b>价格</b></h5>
+                                    <h5>选择<b>价格分组</b></h5>
                                 </div>
                                 <div class="panel-body">
                                     <div id="jsTreeMenu"></div>
@@ -37,7 +37,7 @@ layout("/layouts/platform.html"){
                                     <h5><b>描述</b></h5>
                                 </div>
                                 <div id="menuDescript" class="panel-body">
-                                    <div class='alert alert-info'>请勾选价格</div>
+                                    <div class='alert alert-info'>请勾选价格分组</div>
                                 </div>
                             </div>
                         </div>
@@ -64,7 +64,7 @@ layout("/layouts/platform.html"){
         if (data.node.data)
             $("#menuDescript").text(data.node.data);
     }).on("dehover_node.jstree", function (e, data) {
-        $("#menuDescript").html("<div class='alert alert-info'>请勾选价格</div>");//清空菜单描述
+        $("#menuDescript").html("<div class='alert alert-info'>请勾选价格分组 </div>");//清空菜单描述
     }).bind("loaded.jstree", function (e, data) {
         //立即加载树下所有节点
 
@@ -100,7 +100,7 @@ layout("/layouts/platform.html"){
             }
         }, "json");
     } else {
-        Toast.warning("请先选择价格！");
+        Toast.warning("请先选择价格分组！");
     }
     }
 </script>

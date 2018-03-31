@@ -9,6 +9,7 @@ import cn.wizzer.modules.models.losys.Lo_group_pricesetting;
 import cn.wizzer.modules.services.losys.LosysAreaPriceService;
 import cn.wizzer.modules.services.losys.LosysAreaService;
 import cn.wizzer.modules.services.losys.LosysGroupPricesettingService;
+import cn.wizzer.modules.services.losys.LosysLogisticsPricesettingService;
 import cn.wizzer.modules.services.losys.LosysLogisticsService;
 
 import java.util.ArrayList;
@@ -56,6 +57,8 @@ public class LosysAreaPriceController {
     private LosysAreaService areaService;
     @Inject
     private LosysGroupPricesettingService groupPriceService;
+    @Inject
+    private LosysLogisticsPricesettingService logisticsPricesettingService;
 
     /**
      * 首页
@@ -115,24 +118,26 @@ public class LosysAreaPriceController {
     @Ok("beetl:/platform/losys/areaPrice/setPrice.html")
     public void editPrice(String ids,String logisticsId, HttpServletRequest req) {
     	String[] id = ids.split(",");
-    	
+//    	SELECT p.id,g.`name` FROM lo_logistics_pricesetting p INNER JOIN lo_logistics_group g on(p.logisticsGroupId=g.id) WHERE g.logisticsId = 'bfcbc6791d8f41d08db561c68a91c183'
     	List<Lo_area_price> list2 = null;
     	if (id.length == 1) {
     		list2 = areaPriceService.query(Cnd.where("logisticsId", "=", logisticsId).and("areaId", "=", ids).asc("opAt"));
 		}else {
 			list2 = areaPriceService.query(Cnd.where("logisticsId", "=", logisticsId).asc("opAt"));
 		}
-    	List<Lo_group_pricesetting> list = groupPriceService.query(Cnd.where("1", "=", "1").asc("opAt"));
+    	Sql sql = Sqls.create("SELECT p.id,g.`name`,p.logisticsGroupId FROM lo_logistics_pricesetting p INNER JOIN lo_logistics_group g on(p.logisticsGroupId=g.id) WHERE g.logisticsId = @logisticsId GROUP BY g.`name`");
+    	sql.params().set("logisticsId", logisticsId);
+    	List<Record> list = logisticsPricesettingService.list(sql);
         List<Map<String, Object>> tree = new ArrayList<>();
-        for (Lo_group_pricesetting group : list) {
+        for (Record group : list) {
             Map<String, Object> obj = new HashMap<>();
-            obj.put("id", group.getId());
-            obj.put("text", "运算符："+ group.getOperator() + "  重量：" + group.getWeight() + "  价钱：" + group.getPrice() + "  低消：" + group.getMin());
+            obj.put("id", group.get("logisticsGroupId"));
+            obj.put("text", group.get("name"));
             
             if (id.length == 1) {
             	if (list2.size()>0) {
     				for (Lo_area_price map : list2) {
-    					if (map.getGroupId().equals(String.valueOf(group.getId()))) {
+    					if (map.getGroupId().equals(String.valueOf(group.get("id")))) {
     						obj.put("state", NutMap.NEW().addv("selected", true));
     					}
     				}

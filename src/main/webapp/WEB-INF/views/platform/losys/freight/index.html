@@ -186,7 +186,21 @@ layout("/layouts/platform.html"){
     		Toast.warning("请输入正确的保价");
     		return
 		}
-    	 $.post("${base}/platform/losys/freight/select" , {last: last, width: width, height:height, weight: weight, logistics: logisticsId, insurance: insurance}, function (data) {
+    	
+    	var sheng = $("#sheng").val();
+    	var shi = $("#shi").val();
+    	var qu = $("#qu").val();
+    	
+    	var areaId = qu;
+    	if (areaId === "") {
+			areaId = shi;
+		}
+    	if (areaId === "") {
+			areaId = sheng;
+		}
+    	
+    	
+    	 $.post("${base}/platform/losys/freight/select" , {last: last, width: width, height:height, weight: weight, logistics: logisticsId, insurance: insurance, areaId: areaId}, function (data) {
     		$("#money").html(data + "/元")
              
      	});

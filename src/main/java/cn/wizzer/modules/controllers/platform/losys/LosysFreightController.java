@@ -8,10 +8,13 @@ import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
 import cn.wizzer.common.util.Calculator;
 import cn.wizzer.modules.models.losys.Lo_area;
+import cn.wizzer.modules.models.losys.Lo_area_price;
 import cn.wizzer.modules.models.losys.Lo_group_pricesetting;
 import cn.wizzer.modules.models.losys.Lo_insurance;
 import cn.wizzer.modules.models.losys.Lo_insurance_pricesetting;
 import cn.wizzer.modules.models.losys.Lo_logistics;
+import cn.wizzer.modules.models.losys.Lo_logistics_group;
+import cn.wizzer.modules.models.losys.Lo_logistics_pricesetting;
 import cn.wizzer.modules.models.losys.Lo_overlength_pricesetting;
 import cn.wizzer.modules.models.sys.Sys_menu;
 import cn.wizzer.modules.models.sys.Sys_unit;
@@ -20,6 +23,8 @@ import cn.wizzer.modules.services.losys.LosysAreaService;
 import cn.wizzer.modules.services.losys.LosysGroupPricesettingService;
 import cn.wizzer.modules.services.losys.LosysInsurancePricesettingService;
 import cn.wizzer.modules.services.losys.LosysInsuranceService;
+import cn.wizzer.modules.services.losys.LosysLogisticsGroupService;
+import cn.wizzer.modules.services.losys.LosysLogisticsPricesettingService;
 import cn.wizzer.modules.services.losys.LosysLogisticsService;
 import cn.wizzer.modules.services.losys.LosysOverLengthPricesettingService;
 import cn.wizzer.modules.services.sys.SysMenuService;
@@ -27,6 +32,7 @@ import cn.wizzer.modules.services.sys.SysUnitService;
 import cn.wizzer.modules.services.sys.SysUserService;
 import oracle.net.aso.a;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,6 +88,10 @@ public class LosysFreightController {
 	private LosysGroupPricesettingService groupPricesettingService;
 	@Inject
 	private LosysAreaPriceService areaPriceService;
+	@Inject
+	LosysLogisticsGroupService logisticsGroupService;
+	@Inject
+	LosysLogisticsPricesettingService logisticsPricesettingService;
 
     /**
      * 访问运费查询模块首页
@@ -206,12 +216,17 @@ public class LosysFreightController {
 	@Ok("json")
 	@RequiresAuthentication
 	public Object countMoney(String last, String width, String height, String weight, String logistics,
-			String insurance) {
+			String insurance, String areaId) {
 		double baojia = insurance(insurance, logistics);
 		double chaoChang = overLengthPrice(Double.parseDouble(last), Double.parseDouble(width),
 				Double.parseDouble(height), Double.parseDouble(weight), logistics);
-		double freight = freight(last, width, height, weight, logistics);
-		return Calculator.conversion(baojia + "+" + chaoChang + "+" + freight);
+		double freight = freight(last, width, height, weight, logistics,areaId);
+		if(baojia == -1.0 || chaoChang == -1.0 || freight == -1.0) {
+			return "请检测保价，超长价格，价格等设置";
+		}
+		BigDecimal b = new   BigDecimal(Calculator.conversion(baojia + "+" + chaoChang + "+" + freight));    
+		double money = b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue();
+		return money;
 	}
 
 	/**
@@ -225,30 +240,34 @@ public class LosysFreightController {
 	 * @return
 	 */
 	@RequiresAuthentication
-	public double freight(String last, String width, String height, String weight, String logistics) {// 100
+	public double freight(String last, String width, String height, String weight, String logistics,String areaId) {// 100
 		try {
 			double wei = Double.parseDouble(weight);
 			Lo_logistics company = logisticsService.fetch(logistics);
-			List<Lo_group_pricesetting> list = groupPricesettingService.query();
-			if (!list.isEmpty()) {
-				for (Lo_group_pricesetting heft : list) {
-					int cost = Integer.parseInt(heft.getWeight());
-					// 判断不同重量的计费方法
-					if (heft.getOperator().equals(">") && wei > cost) {
-						return calculation(company.getFormula(), last, width, height, company.getSize(),
-								heft.getPrice(), company.getCompare(), heft.getWeight(), heft.getMin());
-					} else if (heft.getOperator().equals("<") && wei < cost) {
-						return calculation(company.getFormula(), last, width, height, company.getSize(),
-								heft.getPrice(), company.getCompare(), heft.getWeight(), heft.getMin());
-					} else if (heft.getOperator().equals(">=") && wei >= cost) {
-						return calculation(company.getFormula(), last, width, height, company.getSize(),
-								heft.getPrice(), company.getCompare(), heft.getWeight(), heft.getMin());
-					} else if (heft.getOperator().equals("<=") && wei <= cost) {
-						return calculation(company.getFormula(), last, width, height, company.getSize(),
-								heft.getPrice(), company.getCompare(), heft.getWeight(), heft.getMin());
-					} else {
-						return calculation(company.getFormula(), last, width, height, company.getSize(),
-								heft.getPrice(), company.getCompare(), heft.getWeight(), heft.getMin());
+			List<Lo_area_price> areas = areaPriceService.query(Cnd.where("logisticsId", "=", logistics).and("areaId", "=", areaId));
+			for(Lo_area_price areaPrice:areas){
+				List<Lo_logistics_pricesetting> groups = logisticsPricesettingService.query(Cnd.where("logisticsGroupId", "=",areaPrice.getGroupId()));
+				for(Lo_logistics_pricesetting pricesetting:groups) {
+					Record heft=groupPricesettingService.dao().fetch("lo_group_pricesetting",Cnd.where("id", "=", pricesetting.getPricesettingId()));
+					if (heft!=null) {
+						int cost = Integer.parseInt(heft.getString("weight"));
+						// 判断不同重量的计费方法
+						if (heft.getString("operator").equals(">") && wei > cost) {
+							return calculation(company.getFormula(), last, width, height, company.getSize(),
+									heft.getString("price"), company.getCompare(), heft.getString("weight"), heft.getString("min"));
+						} else if (heft.getString("operator").equals("<") && wei < cost) {
+							return calculation(company.getFormula(), last, width, height, company.getSize(),
+									heft.getString("price"), company.getCompare(), heft.getString("weight"), heft.getString("min"));
+						} else if (heft.getString("operator").equals(">=") && wei >= cost) {
+							return calculation(company.getFormula(), last, width, height, company.getSize(),
+									heft.getString("price"), company.getCompare(), heft.getString("weight"), heft.getString("min"));
+						} else if (heft.getString("operator").equals("<=") && wei <= cost) {
+							return calculation(company.getFormula(), last, width, height, company.getSize(),
+									heft.getString("price"), company.getCompare(), heft.getString("weight"), heft.getString("min"));
+						} else {
+							return calculation(company.getFormula(), last, width, height, company.getSize(),
+									heft.getString("price"), company.getCompare(), heft.getString("weight"), heft.getString("min"));
+						}
 					}
 				}
 			}
@@ -334,107 +353,68 @@ public class LosysFreightController {
 				} 
 				// 比较是否收取超长费用
 				if (overLengthCount >= Integer.parseInt(logistics.getQuantity())) {
-					Lo_overlength_pricesetting overlength = overLengthService
-							.fetch(Cnd.where("logisticsId", "=", logisticsId));
-					// 参考值是否为0，0代表统一金额/统一百分比收费，不为0 比较参考值大小
-					if (overlength.getCalKey().equals("0")) {
-						// 是否固定金额
-						if (overlength.getType().equals("1")) {
-							money = Double.parseDouble(overlength.getCalValue());
-						} else {
-							// 百分比收费
-							money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
-						}
-					} else {
-						if (overlength.getOperator().equals(">")) {
-							if (weight > Double.parseDouble(overlength.getCalKey())) {
-								// 是否固定金额
-								if (overlength.getType().equals("1")) {
-									money = Double.parseDouble(overlength.getCalValue());
-								} else {
-									// 百分比收费
-									money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
-								}
-							} else {
-								// 是否固定金额
-								if (overlength.getType().equals("1")) {
-									money = Double.parseDouble(overlength.getCalValue());
-								} else {
-									// 百分比收费
-									money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
-								}
-							}
+					List<Lo_overlength_pricesetting> overlengths = overLengthService.query(Cnd.where("logisticsId", "=", logisticsId));
 
-						} else if (overlength.getOperator().equals("<")) {
-							if (weight < Double.parseDouble(overlength.getCalKey())) {
-								// 是否固定金额
-								if (overlength.getType().equals("1")) {
-									money = Double.parseDouble(overlength.getCalValue());
-								} else {
-									// 百分比收费
-									money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
-								}
+					for (Lo_overlength_pricesetting overlength : overlengths) {
+						// 参考值是否为0，0代表统一金额/统一百分比收费，不为0 比较参考值大小
+						if (overlength.getCalKey().equals("0")) {
+							// 是否固定金额
+							if (overlength.getType().equals("1")) {
+								money = Double.parseDouble(overlength.getCalValue());
 							} else {
-								// 是否固定金额
-								if (overlength.getType().equals("1")) {
-									money = Double.parseDouble(overlength.getCalValue());
-								} else {
-									// 百分比收费
-									money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
-								}
+								// 百分比收费
+								money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
 							}
-						} else if (overlength.getOperator().equals("=")) {
-							if (weight == Double.parseDouble(overlength.getCalKey())) {
-								// 是否固定金额
-								if (overlength.getType().equals("1")) {
-									money = Double.parseDouble(overlength.getCalValue());
-								} else {
-									// 百分比收费
-									money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
+						} else {
+							if (overlength.getOperator().equals(">")) {
+								if (weight > Double.parseDouble(overlength.getCalKey())) {
+									// 是否固定金额
+									if (overlength.getType().equals("1")) {
+										money = Double.parseDouble(overlength.getCalValue());
+									} else {
+										// 百分比收费
+										money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
+									}
 								}
-							} else {
-								// 是否固定金额
-								if (overlength.getType().equals("1")) {
-									money = Double.parseDouble(overlength.getCalValue());
-								} else {
-									// 百分比收费
-									money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
-								}
-							}
-						} else if (overlength.getOperator().equals(">=")) {
-							if (weight >= Double.parseDouble(overlength.getCalKey())) {
-								// 是否固定金额
-								if (overlength.getType().equals("1")) {
-									money = Double.parseDouble(overlength.getCalValue());
-								} else {
-									// 百分比收费
-									money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
-								}
-							} else {
-								// 是否固定金额
-								if (overlength.getType().equals("1")) {
-									money = Double.parseDouble(overlength.getCalValue());
-								} else {
-									// 百分比收费
-									money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
-								}
-							}
-						} else if (overlength.getOperator().equals("<=")) {
-							if (weight <= Double.parseDouble(overlength.getCalKey())) {
-								// 是否固定金额
-								if (overlength.getType().equals("1")) {
-									money = Double.parseDouble(overlength.getCalValue());
-								} else {
-									// 百分比收费
-									money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
-								}
-							} else {
-								// 是否固定金额
-								if (overlength.getType().equals("1")) {
-									money = Double.parseDouble(overlength.getCalValue());
-								} else {
-									// 百分比收费
-									money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
+							} else if (overlength.getOperator().equals("<")) {
+								if (weight < Double.parseDouble(overlength.getCalKey())) {
+									// 是否固定金额
+									if (overlength.getType().equals("1")) {
+										money = Double.parseDouble(overlength.getCalValue());
+									} else {
+										// 百分比收费
+										money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
+									}
+								} 
+							} else if (overlength.getOperator().equals("=")) {
+								if (weight == Double.parseDouble(overlength.getCalKey())) {
+									// 是否固定金额
+									if (overlength.getType().equals("1")) {
+										money = Double.parseDouble(overlength.getCalValue());
+									} else {
+										// 百分比收费
+										money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
+									}
+								} 
+							} else if (overlength.getOperator().equals(">=")) {
+								if (weight >= Double.parseDouble(overlength.getCalKey())) {
+									// 是否固定金额
+									if (overlength.getType().equals("1")) {
+										money = Double.parseDouble(overlength.getCalValue());
+									} else {
+										// 百分比收费
+										money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
+									}
+								} 
+							} else if (overlength.getOperator().equals("<=")) {
+								if (weight <= Double.parseDouble(overlength.getCalKey())) {
+									// 是否固定金额
+									if (overlength.getType().equals("1")) {
+										money = Double.parseDouble(overlength.getCalValue());
+									} else {
+										// 百分比收费
+										money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
+									}
 								}
 							}
 						}
