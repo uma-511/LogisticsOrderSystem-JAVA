@@ -54,8 +54,8 @@ public class LosysOverLengthController {
     @At("")
     @Ok("beetl:/platform/losys/overLength/index.html")
     @RequiresAuthentication
-    public void index(HttpServletRequest req) {
-    	
+    public Object index(HttpServletRequest req) {
+    	return logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
     }
 
     /**
@@ -146,8 +146,9 @@ public class LosysOverLengthController {
     @At
     @Ok("json:full")
     @RequiresAuthentication
-    public Object data(@Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
-        Sql countSql = Sqls.create("SELECT o.id, l.`name`, o.type, o.operator,o.calKey,o.calValue from lo_overlength_pricesetting o LEFT JOIN lo_logistics l  ON(o.logisticsId = l.id) ");
+    public Object data(@Param("logisticsid") String logisticsid, @Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
+        Sql countSql = Sqls.create("SELECT o.id, l.`name`, o.type, o.operator,o.calKey,o.calValue from lo_overlength_pricesetting o LEFT JOIN lo_logistics l  ON(o.logisticsId = l.id) where o.logisticsId = @logisticsId");
+        countSql.params().set("logisticsId", logisticsid);
         return overLengthService.data(length, start, draw, countSql, countSql);
         
     }

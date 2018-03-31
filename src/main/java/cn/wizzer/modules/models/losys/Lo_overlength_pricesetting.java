@@ -6,8 +6,11 @@ import org.nutz.dao.entity.annotation.ColDefine;
 import org.nutz.dao.entity.annotation.ColType;
 import org.nutz.dao.entity.annotation.Column;
 import org.nutz.dao.entity.annotation.Comment;
+import org.nutz.dao.entity.annotation.EL;
 import org.nutz.dao.entity.annotation.Id;
+import org.nutz.dao.entity.annotation.Name;
 import org.nutz.dao.entity.annotation.PK;
+import org.nutz.dao.entity.annotation.Prev;
 import org.nutz.dao.entity.annotation.Table;
 
 import cn.wizzer.common.base.Model;
@@ -17,10 +20,12 @@ import cn.wizzer.common.base.Model;
 public class Lo_overlength_pricesetting extends Model implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-    @Column
-    @Comment("ID")
-    @ColDefine(type = ColType.INT, auto=true)
-    private int id;
+	@Column
+	@Name
+	@Comment("ID")
+	@ColDefine(type = ColType.VARCHAR, width = 32)
+	@Prev(els = { @EL("uuid()") })
+	private String id;
 
 	@Column
 	@Comment("物流公司ID")
@@ -47,11 +52,12 @@ public class Lo_overlength_pricesetting extends Model implements Serializable {
 	@ColDefine(type = ColType.VARCHAR, width = 4)
 	private String calValue;
     
-	public int getId() {
+
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
