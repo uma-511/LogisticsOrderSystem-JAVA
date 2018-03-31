@@ -107,13 +107,14 @@ public class LosysTaobaoOrderController {
 	@At
 	@Ok("json")
 	@SLog(tag = "修改用户", msg = "")
+	@AdaptBy(type = WhaleAdaptor.class)
 	public Object editDo(@Param("..") Lo_taobao_orders tOrders, @Param("..") Lo_orders orders, HttpServletRequest req) {
 		try {
 			tOrders.setOpBy(Strings.sNull(req.getAttribute("uid")));
 			tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
 			tOrders.setOrderDate((int) (System.currentTimeMillis() / 1000));
 			taobaoOrderService.updateIgnoreNull(tOrders);
-			orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()),
+			orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()).add("orderStatus", 5),
 					Cnd.where("tbId", "=", tOrders.getId()));
 			return Result.success("system.success");
 		} catch (Exception e) {

@@ -127,6 +127,7 @@ public class LosysFactoryOrderController {
     @At
     @Ok("json")
     @SLog(tag = "修改用户", msg = "")
+    @AdaptBy(type = WhaleAdaptor.class)
     public Object editDo(@Param("..") Lo_taobao_orders tOrders,@Param("..")Lo_orders orders, HttpServletRequest req) {
         try {
         	tOrders.setOpBy(Strings.sNull(req.getAttribute("uid")));

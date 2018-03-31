@@ -175,21 +175,22 @@ layout("/layouts/platform.html"){
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
                             '<li><a href="${base}/platform/losys/factory/order/confirm/' + row.orderid + '" data-toggle="modal" data-target="#homeDetail">确认订单</a></li>' +
+                            '<li><a href="${base}/platform/losys/factory/order/detail/' + row.orderid + '" data-pjax>查看订单状态</a></li>' +
                             '</ul></div>';
 	            		}else if(row.orderstatus==2 && name!="超级管理员"){
 	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
                             '<li><a href="${base}/platform/losys/factory/order/parts/' + row.orderid + '" data-pjax>揽件</a></li>' +
+                            '<li><a href="${base}/platform/losys/factory/order/detail/' + row.orderid + '" data-pjax>查看订单状态</a></li>' +
                             '</ul></div>';
-	            		}else if(row.orderstatus==5 && name=="超级管理员"){
+	            		}else{
 	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
                             '<li><a href="${base}/platform/losys/factory/order/detail/' + row.orderid + '" data-pjax>查看订单状态</a></li>' +
                             '</ul></div>';
 	            		}
-	            		return '';
                     },
 	                "targets": 11
 	            }

@@ -116,10 +116,10 @@ layout("/layouts/platform.html"){
                                     <div id="imgs" style="padding: 5px;">
                                     	<%if(!isEmpty(orders.packagePhoto)){%>
                                         <img src='${orders.packagePhoto!}' style='width:150px;'>
-                                        <i class="fa fa-close" onclick="$('#img').val('');$('#imgs').html('');"></i>
+                                        <i class="fa fa-close" onclick="$('#packagePhoto').val('');$('#imgs').html('');"></i>
                                         <%}%>
                                     </div>
-                                    <input type="hidden" id="img" name="img" >
+                                    <input type="hidden" id="packagePhoto" name="packagePhoto" >
                                 </div>
                             </div>
                     </div>
@@ -148,6 +148,7 @@ function clearFile() {
     
 }
     $(document).ready(function () {
+    	$("#packagePhoto").val("${orders.packagePhoto!}");
         $('#orderAddForm').ajaxForm({
             dataType: 'json',
             beforeSubmit: function (arr, form, options) {
@@ -184,7 +185,7 @@ function clearFile() {
                 if (data.code == 0) {
                     Toast.success(data.msg);
                     $("#imgs").html("<img src='" + data.data + "' style='width:150px;'>");
-                    $("#img").val(data.data);
+                    $("#packagePhoto").val(data.data);
                 } else {
                     clearFile();
                     Toast.error(data.msg);
