@@ -14,6 +14,25 @@ layout("/layouts/platform.html"){
                   action="${base}/platform/losys/insurance/addDo" method="post">
                 <div class="row mb10">
                     <div class="col-lg-12">
+                    <div class="form-group">
+                       		<label for="site_icp" class="col-sm-2 control-label">物流公司</label>
+                           	<div class="col-sm-8">
+					        <select id="insuranceId" name="insuranceId" class="form-control">
+					            <% for(items in obj){%>
+								   <option value="${items.id}">${items.name}</option>
+								<%}%>
+					        </select>
+					        </div>
+                    	</div>
+                    	<div class="form-group">
+                       		<label for="site_icp" class="col-sm-2 control-label">收费类型</label>
+                           	<div class="col-sm-8">
+					        <select id="type" name="type" class="form-control">
+					            <option value="1">固定金额</option>
+					            <option value="2">百分比</option>
+					        </select>
+					        </div>
+                    	</div>
                         <div class="form-group">
                        		<label for="site_icp" class="col-sm-2 control-label">运算符</label>
                            	<div class="col-sm-8">
@@ -43,25 +62,6 @@ layout("/layouts/platform.html"){
                                        placeholder="只能输入正整数/正小数" data-parsley-pattern="^[0-9]+([.]{1}[0-9]+){0,1}$">
                             </div>
                         </div>
-                        <div class="form-group">
-                       		<label for="site_icp" class="col-sm-2 control-label">收费类型</label>
-                           	<div class="col-sm-8">
-					        <select id="type" name="type" class="form-control">
-					            <option value="1">固定金额</option>
-					            <option value="2">百分比</option>
-					        </select>
-					        </div>
-                    	</div>
-                    	<div class="form-group">
-                       		<label for="site_icp" class="col-sm-2 control-label">物流公司</label>
-                           	<div class="col-sm-8">
-					        <select id="insuranceId" name="insuranceId" class="form-control">
-					            <% for(items in obj){%>
-								   <option value="${items.id}">${items.name}</option>
-								<%}%>
-					        </select>
-					        </div>
-                    	</div>
                     
                 </div>
                 <div class="col-lg-3"></div>
