@@ -27,7 +27,7 @@ layout("/layouts/platform.html"){
             <table class="table table-bordered table-striped mg-t datatable">
                 <thead>
                 <tr>
-                    <th>物流公司名</th>
+                    <th>选择公司</th>
                     <th>收费类型</th>
                     <th>运算符</th>
                     <th>参考值</th>
@@ -121,6 +121,17 @@ layout("/layouts/platform.html"){
                 {"data": "calvalue", "bSortable": true}
             ],
             "columnDefs": [
+            	{
+                    "render": function (data, type, row) {
+                    	if(data === '1'){
+                    		return '固定金额';
+                    	}else {
+                    		return '百分比';
+                    	}
+                        
+                    },
+                    "targets": 1
+                },
             	{
                     "render": function (data, type, row) {
                         return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
