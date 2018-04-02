@@ -104,7 +104,12 @@ INSERT INTO `losys`.`lo_insurance_pricesetting` (`id`, `insuranceId`, `operator`
 /* updateSysMenu51*/
 INSERT INTO `losys`.`lo_insurance` (`id`, `logisticsId`, `opBy`, `opAt`, `delFlag`) VALUES ('b442eadd951247c78e6dda2599ec197b', '4795f660515f465ab50f285cf525e121', 'ccb77b82f75b44a9847aeff7ac38a0b5', '1522406094', '0');
 /* updateSysMenu52*/
-INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('0', '4795f660515f465ab50f285cf525e121', '2', '<', '30', '20', 'ccb77b82f75b44a9847aeff7ac38a0b5', '1522406461', '0');
+INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('8a967359efcb4087a43f2b63616353a6', '4795f660515f465ab50f285cf525e121', '2', '>', '30', '100', '52a3474a0f5e49068dfb5006cbce4b01', '1522651397', '0');
+/* updateSysMenu53*/
+INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('bf6bf32bafba4a74af4fd73028e91aa2', '4795f660515f465ab50f285cf525e121', '1', '<', '30', '20', '52a3474a0f5e49068dfb5006cbce4b01', '1522651416', '0');
+/* updateSysMenu54*/
+INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('f861cf0e53ec4cd696f77fb66ee3ce9e', 'd8af6c76f11147cd9cde0f23de28d3db', '1', '>', '0', '50', '52a3474a0f5e49068dfb5006cbce4b01', '1522651187', '0');
+
 
 /* insertTeamtalkMenu9 */ 
 INSERT INTO sys_role_menu(roleId,menuId) SELECT (select id from sys_role where name='淘宝方') as roleid,id as menuid FROM sys_menu WHERE 
