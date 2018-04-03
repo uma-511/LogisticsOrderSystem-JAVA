@@ -70,7 +70,7 @@ public class LosysAreaPriceController {
     	Sql sql = Sqls.create("SELECT * FROM lo_area WHERE pid = ''");
     	List<Record> areas = areaService.list(sql);
     	for (Record record : areas) {
-    		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId and g.logisticsId =@logisticsId");
+    		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId and g.logisticsId =@logisticsId AND p.groupId = g.id");
     		if (logisticsId == null) {
     			sql2.params().set("logisticsId", logistics.get(0).get("id"));
     			logisticsId="";
@@ -106,7 +106,7 @@ public class LosysAreaPriceController {
     	sql.setParam("pid", id);
     	List<Record> areas = areaService.list(sql);
     	for (Record record : areas) {
-    		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId and g.logisticsId =@logisticsId");
+    		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId and g.logisticsId =@logisticsId AND p.groupId = g.id");
     		if (logisticsId == null) {
     			sql2.params().set("logisticsId", logistics.get(0).get("id"));
 			}else {
