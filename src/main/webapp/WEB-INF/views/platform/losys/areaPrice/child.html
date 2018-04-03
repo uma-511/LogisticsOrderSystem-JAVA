@@ -1,0 +1,9 @@
+<% for(obj in list){ %>
+				                    <tr data-tt-id="${obj.id!}" data-tt-parent-id="${obj.pid!}" data-tt-branch="${obj.haschild==1}">
+				                        <td>
+				                            <input type="checkbox" class="shuibian" value="${obj.id!}"><span class="pd-l-sm"></span><i class=""></i> ${obj.name!}
+				                        </td>
+				                        <td>${obj.price!}</td>
+				                    </tr>
+				                    <%
+				                    } %>

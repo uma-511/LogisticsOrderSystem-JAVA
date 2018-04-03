@@ -63,24 +63,47 @@ public class LosysAreaPriceController {
     /**
      * 首页
      */
-    @At({"","data/?"})
+    @At({"","/data/?"})
     @Ok("beetl:/platform/losys/areaPrice/index.html")
-    @RequiresAuthentication
     public Object index(String logisticsId ,HttpServletRequest req) {
-    	/*List<Lo_area> list = areaService.query(Cnd.where("1", "=", "1"));
-        List<Map<String, Object>> tree = new ArrayList<>();
-        for (Lo_area area : list) {
-            Map<String, Object> obj = new HashMap<>();
-            obj.put("id", area.getId());
-            obj.put("text", area.getName());
-            obj.put("parent", "".equals(Strings.sNull(area.getPid())) ? "#" : area.getPid());
-            tree.add(obj);
-        }
-        req.setAttribute("area", Json.toJson(tree));
-        req.setAttribute("logisticsId", "");*/
-    	//List<Lo_area> area = areaService.query(Cnd.where("pid", "=", "").asc("opAt")); 
     	List<Record> logistics = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
     	Sql sql = Sqls.create("SELECT * FROM lo_area WHERE pid = ''");
+    	List<Record> areas = areaService.list(sql);
+    	for (Record record : areas) {
+    		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId and g.logisticsId =@logisticsId");
+    		if (logisticsId == null) {
+    			sql2.params().set("logisticsId", logistics.get(0).get("id"));
+    			logisticsId="";
+			}else {
+				sql2.params().set("logisticsId", logisticsId);
+				
+			}
+    		sql2.params().set("areaId", record.getString("id"));
+        	List<Record> prices = areaService.list(sql2);
+        	String prString = "";
+        	String priceName = "";
+        	for (Record record2 : prices) {
+        			prString += record2.getString("name") + ",";
+			}
+        	if(!prString.equals("")){
+        		priceName=prString.substring(0,prString.length()-1);
+        	}
+        	record.set("price", priceName);
+		}
+    	req.setAttribute("list", areas);
+    	req.setAttribute("logistics", logistics);
+    	req.setAttribute("logisticsId", logisticsId);
+    	return req;
+    }
+    
+    
+    @At("/child/?/?")
+    @Ok("beetl:/platform/losys/areaPrice/child.html")
+    @RequiresAuthentication
+    public Object child(String id ,String logisticsId, HttpServletRequest req) {
+    	List<Record> logistics = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
+    	Sql sql = Sqls.create("SELECT * FROM lo_area WHERE pid = @pid" );
+    	sql.setParam("pid", id);
     	List<Record> areas = areaService.list(sql);
     	for (Record record : areas) {
     		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId and g.logisticsId =@logisticsId");
@@ -92,54 +115,18 @@ public class LosysAreaPriceController {
     		sql2.params().set("areaId", record.getString("id"));
         	List<Record> prices = areaService.list(sql2);
         	String prString = "";
+        	String priceName = "";
         	for (Record record2 : prices) {
-				prString += record2.getString("name");
+        			prString += record2.getString("name") + ",";
 			}
-        	record.set("price", prString);
+        	if(!prString.equals("")){
+        		priceName=prString.substring(0,prString.length()-1);
+        	}
+        	record.set("price", priceName);
 		}
     	req.setAttribute("list", areas);
-    	return logistics;
-    }
-    
-    
-    @At("/child/?")
-    @Ok("beetl:/platform/losys/area/child.html")
-    @RequiresAuthentication
-    public Object child(String id) {
-
-        List<Lo_area> list = areaService.query(Cnd.where("pid", "=", id).asc("opAt"));
-        return list;
-    }
-    
-    
-    /**
-     * 选择物流公司显示数据
-     */
-    @At("/data/?")
-    @Ok("beetl:/platform/losys/areaPrice/index.html")
-    @RequiresAuthentication
-    public Object data(String logisticsId, HttpServletRequest req) {
-    	List<Lo_area> list = areaService.query(Cnd.where("1", "=", "1"));
-    	List<Lo_area_price> area_prices = areaPriceService.query(Cnd.where("logisticsId", "=", logisticsId));
-        List<Map<String, Object>> tree = new ArrayList<>();
-        for (Lo_area area : list) {
-            Map<String, Object> obj = new HashMap<>();
-            obj.put("id", area.getId());
-            obj.put("text", area.getName());
-            obj.put("parent", "".equals(Strings.sNull(area.getPid())) ? "#" : area.getPid());
-            for (Lo_area_price  area_price : area_prices) {
-				if (area_price.getAreaId().equals(area.getId())) {
-					obj.put("state", NutMap.NEW().addv("selected", true));
-					break;
-				}else {
-					obj.put("state", NutMap.NEW().addv("selected", false));
-				}
-			}
-            tree.add(obj);
-        }
-        req.setAttribute("area", Json.toJson(tree));
-        req.setAttribute("logisticsId", logisticsId);
-        return logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
+    	req.setAttribute("logistics", logistics);
+    	return req;
     }
     
     /**

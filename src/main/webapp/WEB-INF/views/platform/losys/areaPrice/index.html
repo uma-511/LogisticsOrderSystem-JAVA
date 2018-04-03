@@ -16,9 +16,7 @@ layout("/layouts/platform.html"){
     <div class="wrapper" style="min-height: 500px;">
         <div class="row mb15">
             <div class="col-lg-12">
-                <form id="addRoleForm" class="form-horizontal stepy" method="post" action="${base}/platform/losys/taobao/factory">
-                    <input type="hidden" id="factoryIds" name="factoryIds"/>
-
+                <form id="addRoleForm" class="form-horizontal stepy" method="post" action="${base}/platform/losys/areaPrice">
                     <div class="form-group no-b">
                         <div class="col-sm-8">
                             <div class="panel">
@@ -27,26 +25,39 @@ layout("/layouts/platform.html"){
 	                            	<label for="name" class="col-sm-2 control-label">选择公司</label>
 	
 	                            	<div class="col-sm-8">
-	                                <select id="logisticsId" name="logisticsId" class="form-control" >
-	                                		<option value="" ></option>  
-						        		<% for(logistics in obj){ %>
-						        			<% if(logisticsId == logistics.id) {%>
-										     <option value=${logistics.id!} selected="selected">${logistics.name!}</option>
-										    <%}else if(logisticsId != logistics.id) {%>  
-										     <option value=${logistics.id!} >${logistics.name!}</option>
+	                                <select id="logisticsId" name="logisticsId" class="form-control" onchange="search()">
+						        		<% for(logistic in logistics){ %>
+						        		    <% if(logisticsId == logistic.id) {%>
+										     <option value=${logistic.id!} selected="selected">${logistic.name!}</option>
+										    <%}else if(logisticsId != logistic.id) {%>  
+										     <option value=${logistic.id!} >${logistic.name!}</option>
 										    <%}%>
 										<%}%>	
 						        	</select>
                             		</div>
                         		</div>
-                            	
-                            	
-                                <div class="panel-heading no-b">
-                                    <h5>选择<b>区域</b></h5>
-                                </div>
-                                <div class="panel-body">
-                                    <div id="jsTreeMenu"></div>
-                                </div>
+                                <table id="treeTable" class="table no-m">
+				                    <thead>
+				                    <tr>
+				                        <th class="col-md-2 pd-l-lg">
+				                            <span class="pd-l-sm ml20"></span>区域名称
+				                        </th>
+				                        <th class="col-md-1">区域价格组名称</th>
+				                    </tr>
+				                    </thead>
+				                    <tbody>
+				                    <% for(obj in list){ %>
+				                    <tr data-tt-id="${obj.id!}" data-tt-parent-id="${obj.pid!}" data-tt-branch="${obj.haschild==1}">
+				                        <td>
+				                            <input type="checkbox" class="shuibian" value="${obj.id!}"><span class="pd-l-sm"></span><i class=""></i> ${obj.name!}
+				                        </td>
+				                        <td>
+				                        ${obj.price!}
+				                        </td>
+				                    </tr>
+				                    <%} %>
+				                    </tbody>
+				                </table>
                             </div>
                         </div>
                         <div class="col-sm-4">
@@ -66,26 +77,31 @@ layout("/layouts/platform.html"){
     </div>
 </div>
 <script language="JavaScript">
-    var jsTreeMenu;
-    $(function () {
-        jsTreeMenu = $("#jsTreeMenu").jstree({
-                    plugins: ["wholerow", "checkbox"],
-                    core: {
-                        data: ${area!}
-        			},
-                checkbox: {
-                    three_state: false
+var treeTable;
+$(function () {
+    $("#dialogDetail").on("hidden.bs.modal", function() {
+        $(this).removeData("bs.modal");
+    });
+    $("#dialogSort").on("hidden.bs.modal", function() {
+        $(this).removeData("bs.modal");
+    });
+    treeTable= $("#treeTable").treetable({
+        expandable: true,
+        onNodeExpand : function(){
+            var node = this;
+            var rows = "<tr data-tt-id=\"loading\" data-tt-parent-id=\""+node.id+"\" data-tt-branch=\"false\"><td colspan='5'><img src=\""+base+"/assets/img/loading.gif\"/>loading</td></tr>";
+            treeTable.treetable("loadBranch", node, rows);
+            var logisticsId = $("#logisticsId").val();
+            if(logisticsId==""){
+            	logisticsId="0";
+            }
+	            $.post("${base}/platform/losys/areaPrice/child/"+node.id+"/"+logisticsId,{}, function(data){
+	                treeTable.treetable("unloadBranch", node);
+	                treeTable.treetable("loadBranch", node, data);
+	            });
         }
-    }).on("hover_node.jstree", function (e, data) {
-        if (data.node.data)
-            $("#menuDescript").text(data.node.data);
-    }).on("dehover_node.jstree", function (e, data) {
-        $("#menuDescript").html("<div class='alert alert-info'>请勾选区域</div>");//清空菜单描述
-    }).bind("loaded.jstree", function (e, data) {
-        //立即加载树下所有节点
-
     });
-    });
+});
     function each(node, tree, nodes) {
         var p = tree.get_parent(node);
         if (p.length > 1) {
@@ -100,35 +116,24 @@ layout("/layouts/platform.html"){
     		Toast.warning("请选择物流公司");
     		return
     	}
-        var tree = $.jstree.reference("#jsTreeMenu");
-        var ids = tree.get_selected();
-        //查询所选节点的所有父节点
-        for (var i = 0; i < ids.length; i++) {
-            var node = ids[i];
-            each(node, tree, ids);
-        }
-        if (ids.length > 0) {
+    	var num="";
+    	$.each($('input:checkbox:checked'),function(){
+    		num+=$(this).val()+",";
+    	});
+    	num=num.substring(0,num.length-1);
+    	console.log(num)
+        if (num.length > 0) {
           /*  $.post("${base}/platform/losys/logisticsGroup/setPrice", {logistics: ids.toString(), groupName: groupName});  */
-       window.location.href = "${base}/platform/losys/areaPrice/setPrice/"+ids.toString()+"/" + logisticsId;
+       window.location.href = "${base}/platform/losys/areaPrice/setPrice/"+num.toString()+"/" + logisticsId;
     } else {
         Toast.warning("请先选择区域！");
     }
     }
     
-    function select() {
-    	/* $.post("${base}/platform/losys/areaPrice/data", {logisticsId: $("#logisticsId").val()}, function (data) {
-    		 console.log(data)
-    		/*  $("#jsTreeMenu").jstree({
-				    "core" : {
-				        "data" : ${area!}
-				    }
-				}); */
-    	/* 	 $("#jsTreeMenu").jstree().settings.core.data =  data;
-    		 $("#jsTreeMenu").jstree().refresh(true);
-    		
-    	});  */ 
-    	window.location.href = "${base}/platform/losys/areaPrice/data/"+$("#logisticsId").val();
-    	
+    function search() {
+    	if($("#logisticsId").val()!=""){
+    		window.location.href ="${base}/platform/losys/areaPrice/data/"+$("#logisticsId").val();
+    	}
 	}
 </script>
 <%}%>
