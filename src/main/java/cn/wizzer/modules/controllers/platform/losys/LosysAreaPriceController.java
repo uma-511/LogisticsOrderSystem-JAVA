@@ -63,11 +63,11 @@ public class LosysAreaPriceController {
     /**
      * 首页
      */
-    @At("")
+    @At({"","data/?"})
     @Ok("beetl:/platform/losys/areaPrice/index.html")
     @RequiresAuthentication
-    public Object index(HttpServletRequest req) {
-    	List<Lo_area> list = areaService.query(Cnd.where("1", "=", "1"));
+    public Object index(String logisticsId ,HttpServletRequest req) {
+    	/*List<Lo_area> list = areaService.query(Cnd.where("1", "=", "1"));
         List<Map<String, Object>> tree = new ArrayList<>();
         for (Lo_area area : list) {
             Map<String, Object> obj = new HashMap<>();
@@ -77,9 +77,40 @@ public class LosysAreaPriceController {
             tree.add(obj);
         }
         req.setAttribute("area", Json.toJson(tree));
-        req.setAttribute("logisticsId", "");
-    	return logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
+        req.setAttribute("logisticsId", "");*/
+    	//List<Lo_area> area = areaService.query(Cnd.where("pid", "=", "").asc("opAt")); 
+    	List<Record> logistics = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
+    	Sql sql = Sqls.create("SELECT * FROM lo_area WHERE pid = ''");
+    	List<Record> areas = areaService.list(sql);
+    	for (Record record : areas) {
+    		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId and g.logisticsId =@logisticsId");
+    		if (logisticsId == null) {
+    			sql2.params().set("logisticsId", logistics.get(0).get("id"));
+			}else {
+				sql2.params().set("logisticsId", logisticsId);
+			}
+    		sql2.params().set("areaId", record.getString("id"));
+        	List<Record> prices = areaService.list(sql2);
+        	String prString = "";
+        	for (Record record2 : prices) {
+				prString += record2.getString("name");
+			}
+        	record.set("price", prString);
+		}
+    	req.setAttribute("list", areas);
+    	return logistics;
     }
+    
+    
+    @At("/child/?")
+    @Ok("beetl:/platform/losys/area/child.html")
+    @RequiresAuthentication
+    public Object child(String id) {
+
+        List<Lo_area> list = areaService.query(Cnd.where("pid", "=", id).asc("opAt"));
+        return list;
+    }
+    
     
     /**
      * 选择物流公司显示数据
