@@ -17,11 +17,17 @@ import cn.wizzer.modules.services.sys.SysUnitService;
 import cn.wizzer.modules.services.sys.SysUserService;
 import oracle.net.aso.a;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -239,15 +245,72 @@ public class LosysAreaController {
         return tree;
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    @At("/intoArea")
+    @Ok("json")
+    @RequiresAuthentication
+    public Object intoArea()
+	{
+ 	    File csv = new File("F:\\China.csv");  // CSV文件路径
+	    BufferedReader br = null;
+	    try
+	    {
+	        br = new BufferedReader(new FileReader(csv));
+	    } catch (FileNotFoundException e)
+	    {
+	        e.printStackTrace();
+	    }
+	    String line = "";
+	    String everyLine = "";
+	    int count = 1;
+	    int one = 0;
+	    try {
+	            List<String> allString = new ArrayList<>();
+            	String shengId ="";
+            	String shiId = "";
+	            while ((line = br.readLine()) != null)  //读取到的内容给line变量
+	            {
+	            	if(one==0) {
+	            		one += 1;
+	            		continue;
+	            	}
+	            	String[] areas = line.split(",");
+	            	Lo_area area = new Lo_area();
+	            	
+	            	if(areas.length==2) { //省
+	            		shengId = String.valueOf(count);
+	            		area.setHasChild("1");
+	            		area.setName(areas[1]);
+	            		area.setPid("");
+	            		area.setPath("");
+	            	}else if (areas.length==3 || areas.length==5) { //市
+	            		shiId = String.valueOf(count);
+	            		area.setHasChild("1");
+	            		area.setName(areas[2]);
+	            		area.setPid(shengId);
+	            		area.setPath(shengId+"-");
+					}else {	//区
+						if(areas[3].equals("")) {
+							shiId = String.valueOf(count);
+		            		area.setHasChild("1");
+		            		area.setName(areas[2]);
+		            		area.setPid(shengId);
+		            		area.setPath(shengId+"-");
+						} else {
+							area.setHasChild("0");
+		            		area.setName(areas[3]);
+		            		area.setPid(shiId);
+		            		area.setPath(shengId+"-"+shiId+"-");
+						}	
+					}
+	            	areaService.insert(area);
+	            	count += 1;
+	            }
+	            System.out.println("csv表格中所有行数："+count);
+	    } catch (IOException e)
+	    {
+	        e.printStackTrace();
+	    }
+	    return "ok";
+	}
+   
 }
