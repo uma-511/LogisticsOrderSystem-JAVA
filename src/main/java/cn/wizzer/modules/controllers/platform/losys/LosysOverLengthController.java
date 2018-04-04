@@ -75,7 +75,8 @@ public class LosysOverLengthController {
     @Ok("beetl:/platform/losys/overLength/edit.html")
     public Object edit(String id,HttpServletRequest req) {
     	/*Lo_overlength_pricesetting overLength = overLengthService.dao().fetch(Lo_overlength_pricesetting.class, Cnd.where("id", "=", id));*/
-    	Sql sql = Sqls.create("SELECT o.id, l.`name`, o.type, o.operator,o.calKey,o.calValue, o.logisticsId from lo_overlength_pricesetting o LEFT JOIN lo_logistics l  ON(o.logisticsId = l.id) where o.id =" + id);
+    	Sql sql = Sqls.create("SELECT o.id, l.`name`, o.type, o.operator,o.calKey,o.calValue, o.logisticsId from lo_overlength_pricesetting o LEFT JOIN lo_logistics l  ON(o.logisticsId = l.id) where o.id = @id");
+    	sql.setParam("id", id);
     	List<Record> overLength = overLengthService.list(sql);
     	return overLength.get(0);
     }
