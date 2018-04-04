@@ -120,11 +120,11 @@ INSERT INTO `losys`.`lo_insurance` (`id`, `logisticsId`, `opBy`, `opAt`, `delFla
 /* updateSysMenu59*/
 INSERT INTO `losys`.`lo_insurance` (`id`, `logisticsId`, `opBy`, `opAt`, `delFlag`) VALUES ('529e417d74af4d91ac364adc570b35b3', 'd8af6c76f11147cd9cde0f23de28d3db', '9105e848fbd2481d907bc9747f0f1fe9', '1522811749', '0');
 
-/* updateSysMenu52*/
+/* updateSysMenu60*/
 INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('8a967359efcb4087a43f2b63616353a6', '4795f660515f465ab50f285cf525e121', '2', '>', '30', '100', '52a3474a0f5e49068dfb5006cbce4b01', '1522651397', '0');
-/* updateSysMenu53*/
+/* updateSysMenu61*/
 INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('bf6bf32bafba4a74af4fd73028e91aa2', '4795f660515f465ab50f285cf525e121', '1', '<', '30', '20', '52a3474a0f5e49068dfb5006cbce4b01', '1522651416', '0');
-/* updateSysMenu54*/
+/* updateSysMenu62*/
 INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('f861cf0e53ec4cd696f77fb66ee3ce9e', 'd8af6c76f11147cd9cde0f23de28d3db', '1', '>', '0', '50', '52a3474a0f5e49068dfb5006cbce4b01', '1522651187', '0');
 
 
