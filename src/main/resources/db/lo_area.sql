@@ -1,39 +1,3 @@
-/*
-Navicat MySQL Data Transfer
-
-Source Server         : localhost
-Source Server Version : 50717
-Source Host           : localhost:3306
-Source Database       : losys
-
-Target Server Type    : MYSQL
-Target Server Version : 50717
-File Encoding         : 65001
-
-Date: 2018-04-03 10:53:09
-*/
-
-SET FOREIGN_KEY_CHECKS=0;
-
--- ----------------------------
--- Table structure for lo_area
--- ----------------------------
-DROP TABLE IF EXISTS `lo_area`;
-CREATE TABLE `lo_area` (
-  `id` int(32) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `pid` varchar(128) DEFAULT NULL COMMENT '父级ID',
-  `name` varchar(20) DEFAULT NULL COMMENT '区域名称',
-  `path` varchar(30) DEFAULT NULL COMMENT '路径 所有父级id以-隔开',
-  `hasChild` int(32) DEFAULT NULL COMMENT '是否存在子级  存在：1 不存在：0',
-  `opBy` varchar(32) DEFAULT NULL COMMENT '操作人',
-  `opAt` int(32) DEFAULT NULL COMMENT '操作时间',
-  `delFlag` tinyint(1) DEFAULT NULL COMMENT '删除标记',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3227 DEFAULT CHARSET=utf8 COMMENT='区域';
-
--- ----------------------------
--- Records of lo_area
--- ----------------------------
 INSERT INTO `lo_area` VALUES ('1', '', '北京市', '', '1', '52a3474a0f5e49068dfb5006cbce4b01', '1522723671', '0');
 INSERT INTO `lo_area` VALUES ('2', '1', '北京市', '1-', '1', '52a3474a0f5e49068dfb5006cbce4b01', '1522723671', '0');
 INSERT INTO `lo_area` VALUES ('3', '2', '东城区', '1-2-', '0', '52a3474a0f5e49068dfb5006cbce4b01', '1522723671', '0');
