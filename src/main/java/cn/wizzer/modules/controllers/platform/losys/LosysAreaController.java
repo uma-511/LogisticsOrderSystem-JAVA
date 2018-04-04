@@ -153,8 +153,11 @@ public class LosysAreaController {
     		Lo_area area = areaService.fetch(id);
     		areaService.delete(id);
 
-    		if (area.getPid() != null) {
-    			areaService.dao().update(Lo_area.class, Chain.make("hasChild", 0), Cnd.where("id","=",area.getPid()));
+    		if (area.getPid() != null || !area.getPid().equals("")) {
+    			List<Lo_area> areas = areaService.query(Cnd.where("pid", "=", area.getPid()));
+    			if (areas.size()<1) {
+    				areaService.dao().update(Lo_area.class, Chain.make("hasChild", 0), Cnd.where("id","=",area.getPid()));
+				}    			
 			}
     		if (list.size()>0) {
     			for (Lo_area lo_area : list) {
