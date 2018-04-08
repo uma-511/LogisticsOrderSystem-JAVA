@@ -99,35 +99,35 @@ layout("/layouts/platform.html"){
                         	<div class="form-group">
                             <label for="name" class="col-sm-2 control-label">长度</label>
                             <div class="col-sm-8">
-                                <input type="text" id="last" class="form-control" name="last" 
+                                <input type="text" id="last" class="form-control" name="last"  value="${last!}"
                                  placeholder="长度">      
                             </div>
                            </div>
                            <div class="form-group">
                             <label for="name" class="col-sm-2 control-label">宽度</label>
                             <div class="col-sm-8">
-                                <input type="text" id="width" class="form-control" name="width" 
+                                <input type="text" id="width" class="form-control" name="width" value="${width!}"
                                  placeholder="宽度">      
                             </div>
                            </div>
                            <div class="form-group">
                             <label for="name" class="col-sm-2 control-label">高度</label>
                             <div class="col-sm-8">
-                                <input type="text" id="height" class="form-control" name="height" 
+                                <input type="text" id="height" class="form-control" name="height" value="${height!}"
                                  placeholder="高度">      
                             </div>
                            </div>
                            <div class="form-group">
                             <label for="name" class="col-sm-2 control-label">重量</label>
                             <div class="col-sm-8">
-                                <input type="text" id="weight" class="form-control" name="weight" 
+                                <input type="text" id="weight" class="form-control" name="weight" value="${weight!}"
                                  placeholder="重量">      
                             </div>
                            </div>
                            <div class="form-group">
                             <label for="name" class="col-sm-2 control-label">保价</label>
                             <div class="col-sm-8">
-                                <input type="text" id="insurance" class="form-control" name="insurance" 
+                                <input type="text" id="insurance" class="form-control" name="insurance" value="${insurance!}"
                                  placeholder="保价">      
                             </div>
                            </div>
@@ -198,7 +198,10 @@ layout("/layouts/platform.html"){
     	if (areaId === null) {
 			areaId = sheng;
 		}
-    	
+    	if (areaId === null) {
+    		Toast.warning("该物流公司没有设置运送的区域");
+    		return
+		}
     	
     	 $.post("${base}/platform/losys/freight/select" , {last: last, width: width, height:height, weight: weight, logistics: logisticsId, insurance: insurance, areaId: areaId}, function (data) {
     		$("#money").html(data + "/元")
@@ -229,6 +232,7 @@ layout("/layouts/platform.html"){
 			insurance = "null"
 		}
 		
+		window.location.href = "${base}/platform/losys/freight/index/"+ logisticsId + "/" + last + "/" + width + "/" + height + "/" + weight + "/" + insurance;
 		/* if(logisticsId === ""){
 			window.location.href = "${base}/platform/losys/freight";
 		}else {
