@@ -155,9 +155,6 @@ public class LosysFreightController {
 	 * @param logistics
 	 * @return
 	 */
-	// @At("")
-	// @Ok("beetl:/platform/losys/freight/add.html")
-	// @RequiresAuthentication
 	public double insurance(String insurance, String logistics) {
 		try {
 			int num = Integer.parseInt(insurance);
@@ -168,17 +165,18 @@ public class LosysFreightController {
 				for (Lo_insurance_pricesetting price : list) {
 					int cost = Integer.parseInt(price.getInsurance());
 					double value = Double.parseDouble(price.getValue());
-					// 判断不同保价范围的收费标准
-					if (price.getOperator().equals(">") && num > cost) {
-						return support(price.getType(), num, value);
-					} else if (price.getOperator().equals("<") && num < cost) {
-						return support(price.getType(), num, value);
-					} else if (price.getOperator().equals(">=") && num >= cost) {
-						return support(price.getType(), num, value);
-					} else if (price.getOperator().equals("<=") && num <= cost) {
-						return support(price.getType(), num, value);
-					} else if (price.getOperator().equals("=") && num == cost){
-						return support(price.getType(), num, value);
+					if(price.getOperator().equals("<=") && num <= cost){
+						if(num>cost){
+							return support(price.getType(), num, value);
+						}else{
+							return support(price.getType(), num, value);
+						}
+					}else if(price.getOperator().equals(">") && num > cost){
+						if(num>cost){
+							return support(price.getType(), num, value);
+						}else{
+							return support(price.getType(), num, value);
+						}
 					}else{
 						continue;
 					}

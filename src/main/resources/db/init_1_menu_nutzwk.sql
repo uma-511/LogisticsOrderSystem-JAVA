@@ -100,9 +100,11 @@ INSERT INTO `losys`.`lo_logistics` (`id`, `name`, `size`, `compare`, `formula`, 
 /* updateSysMenu49*/
 INSERT INTO `losys`.`lo_logistics` (`id`, `name`, `size`, `compare`, `formula`, `value`, `quantity`, `calType`, `opBy`, `opAt`, `delFlag`) VALUES ('d8af6c76f11147cd9cde0f23de28d3db', '跨越', '10000', '0', 'last*width*height/size*pricecompare', '150', '2', '2', 'ccb77b82f75b44a9847aeff7ac38a0b5', '1522401420', '0');
 /* updateSysMenu50*/
-INSERT INTO `losys`.`lo_insurance_pricesetting` (`id`, `insuranceId`, `operator`, `insurance`, `type`, `value`, `opBy`, `opAt`, `delFlag`) VALUES ('35d6a7aec1064902a60a4dff2cec5b3a', 'b442eadd951247c78e6dda2599ec197b', '=', '1000', '1', '2', NULL, '1987689253', NULL);
+INSERT INTO `losys`.`lo_insurance_pricesetting` (`id`, `insuranceId`, `operator`, `insurance`, `type`, `value`, `opBy`, `opAt`, `delFlag`) VALUES ('35d6a7aec1064902a60a4dff2cec5b3a', 'b442eadd951247c78e6dda2599ec197b', '<=', '1000', '1', '2', NULL, '1987689253', NULL);
 /* updateSysMenu51*/
-INSERT INTO `losys`.`lo_insurance_pricesetting` (`id`, `insuranceId`, `operator`, `insurance`, `type`, `value`, `opBy`, `opAt`, `delFlag`) VALUES ('43d0872a30fb44bf87a7ad437c51f964', 'b827fc9936a943a38f10e1ecea612772', '=', '500', '1', '1', '9105e848fbd2481d907bc9747f0f1fe9', '1522810544', '0');
+INSERT INTO `losys`.`lo_insurance_pricesetting` (`id`, `insuranceId`, `operator`, `insurance`, `type`, `value`, `opBy`, `opAt`, `delFlag`) VALUES ('43d0872a30fb44bf87a7ad437c51f964', 'b827fc9936a943a38f10e1ecea612772', '<=', '500', '1', '1', '9105e848fbd2481d907bc9747f0f1fe9', '1522810544', '0');
+/* updateSysMenu63*/
+INSERT INTO `losys`.`lo_insurance_pricesetting` (`id`, `insuranceId`, `operator`, `insurance`, `type`, `value`, `opBy`, `opAt`, `delFlag`) VALUES ('67dae4b3cc75472389eeda6469891a06', 'f84edfea1b6b4118973b700b220ca5ba', '>', '500', '1', '2', '5f29c01fa57e4485adda17d9be54b093', '1523157569', '0');
 /* updateSysMenu52*/
 INSERT INTO `losys`.`lo_insurance_pricesetting` (`id`, `insuranceId`, `operator`, `insurance`, `type`, `value`, `opBy`, `opAt`, `delFlag`) VALUES ('7b852f03c4fc4696aa99cc6bda9fed84', '86ef9568d30540538f807d1d55b16b67', '>', '1000', '2', '0.005', '9105e848fbd2481d907bc9747f0f1fe9', '1522810751', '0');
 /* updateSysMenu53*/
@@ -123,7 +125,7 @@ INSERT INTO `losys`.`lo_insurance` (`id`, `logisticsId`, `opBy`, `opAt`, `delFla
 /* updateSysMenu60*/
 INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('8a967359efcb4087a43f2b63616353a6', '4795f660515f465ab50f285cf525e121', '2', '>', '30', '100', '52a3474a0f5e49068dfb5006cbce4b01', '1522651397', '0');
 /* updateSysMenu61*/
-INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('bf6bf32bafba4a74af4fd73028e91aa2', '4795f660515f465ab50f285cf525e121', '1', '<', '30', '20', '52a3474a0f5e49068dfb5006cbce4b01', '1522651416', '0');
+INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('bf6bf32bafba4a74af4fd73028e91aa2', '4795f660515f465ab50f285cf525e121', '1', '<=', '30', '20', '52a3474a0f5e49068dfb5006cbce4b01', '1522651416', '0');
 /* updateSysMenu62*/
 INSERT INTO `losys`.`lo_overlength_pricesetting` (`id`, `logisticsId`, `type`, `operator`, `calKey`, `calValue`, `opBy`, `opAt`, `delFlag`) VALUES ('f861cf0e53ec4cd696f77fb66ee3ce9e', 'd8af6c76f11147cd9cde0f23de28d3db', '1', '>', '0', '50', '52a3474a0f5e49068dfb5006cbce4b01', '1522651187', '0');
 
