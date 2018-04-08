@@ -96,17 +96,31 @@ public class LosysFreightController {
     /**
      * 访问运费查询模块首页
      */
-    @At("")
+    @At({"","/index/?/?/?/?/?/?"})
     @Ok("beetl:/platform/losys/freight/index.html")
     @RequiresAuthentication
-    public Object index( HttpServletRequest req) {
-		req.setAttribute("logisticsId", "");
+    public Object index(String  logisticsId, String last, String width, String height, String weight, String insurance, HttpServletRequest req) {
+    	if (logisticsId == null) {
+    		req.setAttribute("logisticsId", "");
+		}else {
+			req.setAttribute("logisticsId", logisticsId);
+			req.setAttribute("last", !last.equals("null")?last:null);
+			req.setAttribute("width", !width.equals("null")?width:null);
+			req.setAttribute("height", !height.equals("null")?height:null);
+			req.setAttribute("weight", !weight.equals("null")?weight:null);
+			req.setAttribute("insurance", !insurance.equals("null")?insurance:null);
+			
+		}
 		List<Record> records = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
 		
 		if (records.size()>0) {
 			String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=''";
     		Sql sql = Sqls.create(sqlString);
-    		sql.params().set("logisticsId", records.get(0).get("id"));
+    		if(logisticsId == null) {
+    			sql.params().set("logisticsId", records.get(0).get("id"));
+    		}else {
+    			sql.params().set("logisticsId", logisticsId);
+			}
     		List<Record> areaOne = areaPriceService.list(sql);
     		req.setAttribute("areaOne", areaOne);
     		if (areaOne.size()>0) {
