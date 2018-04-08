@@ -93,85 +93,79 @@ public class LosysFreightController {
 	@Inject
 	LosysLogisticsPricesettingService logisticsPricesettingService;
 
-    /**
-     * 访问运费查询模块首页
-     */
-    @At({"","/index/?/?/?/?/?/?"})
-    @Ok("beetl:/platform/losys/freight/index.html")
-    @RequiresAuthentication
-    public Object index(String  logisticsId, String last, String width, String height, String weight, String insurance, HttpServletRequest req) {
-    	if (logisticsId == null) {
-    		req.setAttribute("logisticsId", "");
-		}else {
-			req.setAttribute("logisticsId", logisticsId);
-			req.setAttribute("last", !last.equals("null")?last:null);
-			req.setAttribute("width", !width.equals("null")?width:null);
-			req.setAttribute("height", !height.equals("null")?height:null);
-			req.setAttribute("weight", !weight.equals("null")?weight:null);
-			req.setAttribute("insurance", !insurance.equals("null")?insurance:null);
-			
-		}
+	/**
+	 * 访问运费查询模块首页
+	 */
+	@At("")
+	@Ok("beetl:/platform/losys/freight/index.html")
+	@RequiresAuthentication
+	public Object index(HttpServletRequest req) {
+		req.setAttribute("logisticsId", "");
 		List<Record> records = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
-		
-		if (records.size()>0) {
+
+		if (records.size() > 0) {
 			String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=''";
-    		Sql sql = Sqls.create(sqlString);
-    		if(logisticsId == null) {
-    			sql.params().set("logisticsId", records.get(0).get("id"));
-    		}else {
-    			sql.params().set("logisticsId", logisticsId);
-			}
-    		List<Record> areaOne = areaPriceService.list(sql);
-    		req.setAttribute("areaOne", areaOne);
-    		if (areaOne.size()>0) {
-    			String sqlString2 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
-        		Sql sql2 = Sqls.create(sqlString2);
-        		sql2.params().set("logisticsId", records.get(0).get("id"));
-        		sql2.params().set("pid", areaOne.get(0).get("id"));
-        		List<Record> areaTwo = areaPriceService.list(sql2);
-        		req.setAttribute("areaTwo", areaTwo);
-        		if (areaTwo.size()>0) {
-        			String sqlString3 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
-            		Sql sql3 = Sqls.create(sqlString3);
-            		sql3.params().set("logisticsId", records.get(0).get("id"));
-            		sql3.params().set("pid", areaTwo.get(0).get("id"));
-            		List<Record> areaThree = areaPriceService.list(sql3);
-            		req.setAttribute("areaThree", areaThree);
-            		
-    			}
+			Sql sql = Sqls.create(sqlString);
+			sql.params().set("logisticsId", records.get(0).get("id"));
+			List<Record> areaOne = areaPriceService.list(sql);
+			req.setAttribute("areaOne", areaOne);
+			if (areaOne.size() > 0) {
+				String sqlString2 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
+				Sql sql2 = Sqls.create(sqlString2);
+				sql2.params().set("logisticsId", records.get(0).get("id"));
+				sql2.params().set("pid", areaOne.get(0).get("id"));
+				List<Record> areaTwo = areaPriceService.list(sql2);
+				req.setAttribute("areaTwo", areaTwo);
+				if (areaTwo.size() > 0) {
+					String sqlString3 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
+					Sql sql3 = Sqls.create(sqlString3);
+					sql3.params().set("logisticsId", records.get(0).get("id"));
+					sql3.params().set("pid", areaTwo.get(0).get("id"));
+					List<Record> areaThree = areaPriceService.list(sql3);
+					req.setAttribute("areaThree", areaThree);
+
+				}
 			}
 		}
-		
+
 		return records;
-    }
-    
-    /**
-     * 查询子区域
-     */
-    @At
-    @Ok("json")
-    @RequiresAuthentication
-    public Object child(String areaId ,String logisticsId, HttpServletRequest req) {
+	}
+
+	/**
+	 * 查询子区域
+	 */
+	@At
+	@Ok("json")
+	@RequiresAuthentication
+	public Object child(String areaId, String logisticsId, HttpServletRequest req) {
 		String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
 		Sql sql = Sqls.create(sqlString);
 		sql.params().set("logisticsId", logisticsId);
 		sql.params().set("pid", areaId);
 		List<Record> area = areaPriceService.list(sql);
-		req.setAttribute("area", area);		
+		req.setAttribute("area", area);
 		return area;
-    }
-    
+	}
 
 	/**
-	 * 保价计算
+	 * 顺丰保价计算
 	 * 
 	 * @param insurance
 	 * @param logistics
 	 * @return
 	 */
+	// @At("")
+	// @Ok("beetl:/platform/losys/freight/add.html")
+	// @RequiresAuthentication
 	public double insurance(String insurance, String logistics) {
 		try {
 			int num = Integer.parseInt(insurance);
+			int costOne = 0;
+			double valueOne = 0;
+			int costTwo = 0;
+			double valueTwo = 0;
+			double money = 0;
+			Lo_logistics company = logisticsService.fetch(logistics);
 			List<Lo_insurance> insurances = insuranceService.query(Cnd.where("logisticsId", "=", logistics));
 			for (Lo_insurance ins : insurances) {
 				List<Lo_insurance_pricesetting> list = insurancePricesettingService
@@ -179,27 +173,51 @@ public class LosysFreightController {
 				for (Lo_insurance_pricesetting price : list) {
 					int cost = Integer.parseInt(price.getInsurance());
 					double value = Double.parseDouble(price.getValue());
-					if(price.getOperator().equals("<=") && num <= cost){
-						if(num>cost){
+					// 判断不同的物流公司的收费标准
+					if (company.getName().equals("顺丰")) {
+						// 判断不同保价范围的收费标准
+						if (price.getOperator().equals(">")) {
+							if (money >= 2) {
+								valueTwo = value;
+							} else {
+								money = value;
+							}
+							costTwo = cost;
+						} else if (price.getOperator().equals("<=")) {
+							costOne = cost;
+							valueOne = value;
+						}
+						if (costOne != 0 && costTwo != 0) {
+							if (costOne != costTwo) {
+								if (num > costOne && num <= costTwo) {
+									return support(price.getType(), num, money);
+								}
+								if (num <= costOne) {
+									return support(price.getType(), num, valueOne);
+								}
+								if (num > costTwo) {
+									return support(price.getType(), num, valueTwo);
+								}
+							} else {
+								continue;
+							}
+						} else {
+							continue;
+						}
+					} else {
+						// 判断不同保价范围的收费标准
+						if (price.getOperator().equals(">")) {
 							return support(price.getType(), num, value);
-						}else{
+						} else if (price.getOperator().equals("<=")) {
 							return support(price.getType(), num, value);
 						}
-					}else if(price.getOperator().equals(">") && num > cost){
-						if(num>cost){
-							return support(price.getType(), num, value);
-						}else{
-							return support(price.getType(), num, value);
-						}
-					}else{
-						continue;
 					}
 				}
 			}
 		} catch (Exception e) {
-			return 0;
+			return -1;
 		}
-		return 0;
+		return -1;
 
 	}
 
@@ -234,12 +252,12 @@ public class LosysFreightController {
 		double baojia = insurance(insurance, logistics);
 		double chaoChang = overLengthPrice(Double.parseDouble(last), Double.parseDouble(width),
 				Double.parseDouble(height), Double.parseDouble(weight), logistics);
-		double freight = freight(last, width, height, weight, logistics,areaId);
-		if(baojia == -1.0 || chaoChang == -1.0 || freight == -1.0) {
+		double freight = freight(last, width, height, weight, logistics, areaId);
+		if (baojia == -1.0 || chaoChang == -1.0 || freight == -1.0) {
 			return "请检测保价，超长价格，价格等设置";
 		}
-		BigDecimal b = new   BigDecimal(Calculator.conversion(baojia + "+" + chaoChang + "+" + freight));    
-		double money = b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue();
+		BigDecimal b = new BigDecimal(Calculator.conversion(baojia + "+" + chaoChang + "+" + freight));
+		double money = b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 		return money;
 	}
 
@@ -254,33 +272,41 @@ public class LosysFreightController {
 	 * @return
 	 */
 	@RequiresAuthentication
-	public double freight(String last, String width, String height, String weight, String logistics,String areaId) {// 100
+	public double freight(String last, String width, String height, String weight, String logistics, String areaId) {// 100
 		try {
 			double wei = Double.parseDouble(weight);
 			Lo_logistics company = logisticsService.fetch(logistics);
-			List<Lo_area_price> areas = areaPriceService.query(Cnd.where("logisticsId", "=", logistics).and("areaId", "=", areaId));
-			for(Lo_area_price areaPrice:areas){
-				List<Lo_logistics_pricesetting> groups = logisticsPricesettingService.query(Cnd.where("logisticsGroupId", "=",areaPrice.getGroupId()));
-				for(Lo_logistics_pricesetting pricesetting:groups) {
-					Record heft=groupPricesettingService.dao().fetch("lo_group_pricesetting",Cnd.where("id", "=", pricesetting.getPricesettingId()));
-					if (heft!=null) {
+			List<Lo_area_price> areas = areaPriceService
+					.query(Cnd.where("logisticsId", "=", logistics).and("areaId", "=", areaId));
+			for (Lo_area_price areaPrice : areas) {
+				List<Lo_logistics_pricesetting> groups = logisticsPricesettingService
+						.query(Cnd.where("logisticsGroupId", "=", areaPrice.getGroupId()));
+				for (Lo_logistics_pricesetting pricesetting : groups) {
+					Record heft = groupPricesettingService.dao().fetch("lo_group_pricesetting",
+							Cnd.where("id", "=", pricesetting.getPricesettingId()));
+					if (heft != null) {
 						int cost = Integer.parseInt(heft.getString("weight"));
 						// 判断不同重量的计费方法
 						if (heft.getString("operator").equals(">") && wei > cost) {
 							return calculation(company.getFormula(), last, width, height, company.getSize(),
-									heft.getString("price"), company.getCompare(), heft.getString("weight"), heft.getString("min"));
+									heft.getString("price"), company.getCompare(), heft.getString("weight"),
+									heft.getString("min"));
 						} else if (heft.getString("operator").equals("<") && wei < cost) {
 							return calculation(company.getFormula(), last, width, height, company.getSize(),
-									heft.getString("price"), company.getCompare(), heft.getString("weight"), heft.getString("min"));
+									heft.getString("price"), company.getCompare(), heft.getString("weight"),
+									heft.getString("min"));
 						} else if (heft.getString("operator").equals(">=") && wei >= cost) {
 							return calculation(company.getFormula(), last, width, height, company.getSize(),
-									heft.getString("price"), company.getCompare(), heft.getString("weight"), heft.getString("min"));
+									heft.getString("price"), company.getCompare(), heft.getString("weight"),
+									heft.getString("min"));
 						} else if (heft.getString("operator").equals("<=") && wei <= cost) {
 							return calculation(company.getFormula(), last, width, height, company.getSize(),
-									heft.getString("price"), company.getCompare(), heft.getString("weight"), heft.getString("min"));
+									heft.getString("price"), company.getCompare(), heft.getString("weight"),
+									heft.getString("min"));
 						} else {
 							return calculation(company.getFormula(), last, width, height, company.getSize(),
-									heft.getString("price"), company.getCompare(), heft.getString("weight"), heft.getString("min"));
+									heft.getString("price"), company.getCompare(), heft.getString("weight"),
+									heft.getString("min"));
 						}
 					}
 				}
@@ -364,10 +390,11 @@ public class LosysFreightController {
 				}
 				if (width > Double.parseDouble(logistics.getValue())) {
 					overLengthCount += 1;
-				} 
+				}
 				// 比较是否收取超长费用
 				if (overLengthCount >= Integer.parseInt(logistics.getQuantity())) {
-					List<Lo_overlength_pricesetting> overlengths = overLengthService.query(Cnd.where("logisticsId", "=", logisticsId));
+					List<Lo_overlength_pricesetting> overlengths = overLengthService
+							.query(Cnd.where("logisticsId", "=", logisticsId));
 
 					for (Lo_overlength_pricesetting overlength : overlengths) {
 						// 参考值是否为0，0代表统一金额/统一百分比收费，不为0 比较参考值大小
@@ -399,7 +426,7 @@ public class LosysFreightController {
 										// 百分比收费
 										money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
 									}
-								} 
+								}
 							} else if (overlength.getOperator().equals("=")) {
 								if (weight == Double.parseDouble(overlength.getCalKey())) {
 									// 是否固定金额
@@ -409,7 +436,7 @@ public class LosysFreightController {
 										// 百分比收费
 										money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
 									}
-								} 
+								}
 							} else if (overlength.getOperator().equals(">=")) {
 								if (weight >= Double.parseDouble(overlength.getCalKey())) {
 									// 是否固定金额
@@ -419,7 +446,7 @@ public class LosysFreightController {
 										// 百分比收费
 										money = weight * (Double.parseDouble(overlength.getCalValue()) / 100);
 									}
-								} 
+								}
 							} else if (overlength.getOperator().equals("<=")) {
 								if (weight <= Double.parseDouble(overlength.getCalKey())) {
 									// 是否固定金额
