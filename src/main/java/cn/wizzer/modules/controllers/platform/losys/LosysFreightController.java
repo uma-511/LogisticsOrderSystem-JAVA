@@ -191,8 +191,10 @@ public class LosysFreightController {
 						return support(price.getType(), num, value);
 					} else if (price.getOperator().equals("<=") && num <= cost) {
 						return support(price.getType(), num, value);
-					} else {
+					} else if (price.getOperator().equals("=") && num == cost){
 						return support(price.getType(), num, value);
+					}else{
+						continue;
 					}
 				}
 			}
