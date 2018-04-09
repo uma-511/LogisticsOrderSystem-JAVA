@@ -93,7 +93,8 @@ public class LosysFreightController {
 	@Inject
 	LosysLogisticsPricesettingService logisticsPricesettingService;
 
-    /**
+
+	/**
      * 访问运费查询模块首页
      */
     @At({"","/index/?/?/?/?/?/?"})
@@ -139,7 +140,6 @@ public class LosysFreightController {
 				}
 			}
 		}
-
 		return records;
 	}
 
@@ -184,6 +184,7 @@ public class LosysFreightController {
 			int costTwo = 0;
 			double valueTwo = 0;
 			double money = 0;
+			String type="";
 			Lo_logistics company = logisticsService.fetch(logistics);
 			List<Lo_insurance> insurances = insuranceService.query(Cnd.where("logisticsId", "=", logistics));
 			for (Lo_insurance ins : insurances) {
@@ -196,6 +197,7 @@ public class LosysFreightController {
 					if (company.getName().equals("顺丰")) {
 						// 判断不同保价范围的收费标准
 						if (price.getOperator().equals(">")) {
+							type=price.getType();
 							if (money >= 2) {
 								valueTwo = value;
 							} else {
@@ -215,7 +217,7 @@ public class LosysFreightController {
 									return support(price.getType(), num, valueOne);
 								}
 								if (num > costTwo) {
-									return support(price.getType(), num, valueTwo);
+									return support(type, num, valueTwo);
 								}
 							} else {
 								continue;
