@@ -94,32 +94,54 @@ public class LosysFreightController {
 	LosysLogisticsPricesettingService logisticsPricesettingService;
 
 	/**
-	 * 访问运费查询模块首页
-	 */
-	@At("")
-	@Ok("beetl:/platform/losys/freight/index.html")
-	@RequiresAuthentication
-	public Object index(HttpServletRequest req) {
-		req.setAttribute("logisticsId", "");
-		List<Record> records = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
-
-		if (records.size() > 0) {
-			String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=''";
-			Sql sql = Sqls.create(sqlString);
-			sql.params().set("logisticsId", records.get(0).get("id"));
-			List<Record> areaOne = areaPriceService.list(sql);
-			req.setAttribute("areaOne", areaOne);
-			if (areaOne.size() > 0) {
+     * 访问运费查询模块首页
+     */
+    @At({"","/index/?/?/?/?/?/?"})
+    @Ok("beetl:/platform/losys/freight/index.html")
+    @RequiresAuthentication
+    public Object index(String  logisticsId, String last, String width, String height, String weight, String insurance, HttpServletRequest req) {
+        if (logisticsId == null) {
+            req.setAttribute("logisticsId", "");
+        }else {
+            req.setAttribute("logisticsId", logisticsId);
+            req.setAttribute("last", !last.equals("null")?last:null);
+            req.setAttribute("width", !width.equals("null")?width:null);
+            req.setAttribute("height", !height.equals("null")?height:null);
+            req.setAttribute("weight", !weight.equals("null")?weight:null);
+            req.setAttribute("insurance", !insurance.equals("null")?insurance:null);
+            
+        }
+        List<Record> records = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
+        
+        if (records.size()>0) {
+            String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=''";
+            Sql sql = Sqls.create(sqlString);
+            if(logisticsId == null) {
+                sql.params().set("logisticsId", records.get(0).get("id"));
+            }else {
+                sql.params().set("logisticsId", logisticsId);
+            }
+            List<Record> areaOne = areaPriceService.list(sql);
+            req.setAttribute("areaOne", areaOne);
+            if (areaOne.size()>0) {
 				String sqlString2 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
 				Sql sql2 = Sqls.create(sqlString2);
-				sql2.params().set("logisticsId", records.get(0).get("id"));
+				if(logisticsId == null) {
+	                sql2.params().set("logisticsId", records.get(0).get("id"));
+	            }else {
+	                sql2.params().set("logisticsId", logisticsId);
+	            }
 				sql2.params().set("pid", areaOne.get(0).get("id"));
 				List<Record> areaTwo = areaPriceService.list(sql2);
 				req.setAttribute("areaTwo", areaTwo);
 				if (areaTwo.size() > 0) {
 					String sqlString3 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
 					Sql sql3 = Sqls.create(sqlString3);
-					sql3.params().set("logisticsId", records.get(0).get("id"));
+					if(logisticsId == null) {
+		                sql3.params().set("logisticsId", records.get(0).get("id"));
+		            }else {
+		                sql3.params().set("logisticsId", logisticsId);
+		            }
 					sql3.params().set("pid", areaTwo.get(0).get("id"));
 					List<Record> areaThree = areaPriceService.list(sql3);
 					req.setAttribute("areaThree", areaThree);
@@ -165,6 +187,7 @@ public class LosysFreightController {
 			int costTwo = 0;
 			double valueTwo = 0;
 			double money = 0;
+			String type="";
 			Lo_logistics company = logisticsService.fetch(logistics);
 			List<Lo_insurance> insurances = insuranceService.query(Cnd.where("logisticsId", "=", logistics));
 			for (Lo_insurance ins : insurances) {
@@ -177,6 +200,7 @@ public class LosysFreightController {
 					if (company.getName().equals("顺丰")) {
 						// 判断不同保价范围的收费标准
 						if (price.getOperator().equals(">")) {
+							type=price.getType();
 							if (money >= 2) {
 								valueTwo = value;
 							} else {
@@ -196,7 +220,7 @@ public class LosysFreightController {
 									return support(price.getType(), num, valueOne);
 								}
 								if (num > costTwo) {
-									return support(price.getType(), num, valueTwo);
+									return support(type, num, valueTwo);
 								}
 							} else {
 								continue;
