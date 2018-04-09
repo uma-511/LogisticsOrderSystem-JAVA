@@ -204,8 +204,13 @@ layout("/layouts/platform.html"){
 		}
     	
     	 $.post("${base}/platform/losys/freight/select" , {last: last, width: width, height:height, weight: weight, logistics: logisticsId, insurance: insurance, areaId: areaId}, function (data) {
-    		$("#money").html(data + "/元")
-             
+    		 if(data==='-2'){
+    			 $("#money").html("该地区没有设置价格，无法查询")
+    		 }else if (data==='-1') {
+    			 $("#money").html("请检测各项价格是否有设置")
+			}else {
+				$("#money").html(data + "/元")
+			} 
      	});
     }
     
@@ -243,7 +248,9 @@ layout("/layouts/platform.html"){
     
     function shengfen(){
     	$("#shi").empty();
-    	$.post("${base}/platform/losys/freight/child" , {areaId: $("#sheng").val(), logisticsId: $("#logisticsId").val()}, function (data) {
+    	$("#qu").empty();
+    	$("#money").html("");
+    	$.post("${base}/platform/losys/freight/child" , {areaId: $("#sheng").val()}, function (data) {
     		$.each(data, function(index,values){
     			$("#shi").append("<option value='"+values.id+"'>"+values.name+"</option>");
     			
@@ -255,13 +262,14 @@ layout("/layouts/platform.html"){
 	
 	function shiqu() {
 		$("#qu").empty();
-		$.post("${base}/platform/losys/freight/child" , {areaId: $("#shi").val(), logisticsId: $("#logisticsId").val()}, function (data) {
+		$.post("${base}/platform/losys/freight/child" , {areaId: $("#shi").val(),  logisticsId: $("#logisticsId").val()}, function (data) {
     		$.each(data, function(index,values){
     			$("#qu").append("<option value='"+values.id+"'>"+values.name+"</option>");
     		});
     		
         }); 
 	}
+	
 	
 	function child(areaId) {
 		$("#qu").empty();

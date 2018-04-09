@@ -93,33 +93,45 @@ public class LosysFreightController {
 	@Inject
 	LosysLogisticsPricesettingService logisticsPricesettingService;
 
-	/**
-	 * 访问运费查询模块首页
-	 */
-	@At("")
-	@Ok("beetl:/platform/losys/freight/index.html")
-	@RequiresAuthentication
-	public Object index(HttpServletRequest req) {
-		req.setAttribute("logisticsId", "");
-		List<Record> records = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
-
-		if (records.size() > 0) {
-			String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=''";
-			Sql sql = Sqls.create(sqlString);
-			sql.params().set("logisticsId", records.get(0).get("id"));
-			List<Record> areaOne = areaPriceService.list(sql);
-			req.setAttribute("areaOne", areaOne);
-			if (areaOne.size() > 0) {
-				String sqlString2 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
+    /**
+     * 访问运费查询模块首页
+     */
+    @At({"","/index/?/?/?/?/?/?"})
+    @Ok("beetl:/platform/losys/freight/index.html")
+    @RequiresAuthentication
+    public Object index(String  logisticsId, String last, String width, String height, String weight, String insurance, HttpServletRequest req) {
+        if (logisticsId == null) {
+            req.setAttribute("logisticsId", "");
+        }else {
+            req.setAttribute("logisticsId", logisticsId);
+            req.setAttribute("last", !last.equals("null")?last:null);
+            req.setAttribute("width", !width.equals("null")?width:null);
+            req.setAttribute("height", !height.equals("null")?height:null);
+            req.setAttribute("weight", !weight.equals("null")?weight:null);
+            req.setAttribute("insurance", !insurance.equals("null")?insurance:null);
+            
+        }
+        List<Record> records = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
+        
+        if (records.size()>0) {
+            String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area a  WHERE a.pid=''";
+            Sql sql = Sqls.create(sqlString);
+            List<Record> areaOne = areaPriceService.list(sql);
+            req.setAttribute("areaOne", areaOne);
+            if (areaOne.size()>0) {
+				String sqlString2 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area a WHERE a.pid=@pid";
 				Sql sql2 = Sqls.create(sqlString2);
-				sql2.params().set("logisticsId", records.get(0).get("id"));
 				sql2.params().set("pid", areaOne.get(0).get("id"));
 				List<Record> areaTwo = areaPriceService.list(sql2);
 				req.setAttribute("areaTwo", areaTwo);
 				if (areaTwo.size() > 0) {
 					String sqlString3 = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
 					Sql sql3 = Sqls.create(sqlString3);
-					sql3.params().set("logisticsId", records.get(0).get("id"));
+					if(logisticsId == null) {
+		                sql3.params().set("logisticsId", records.get(0).get("id"));
+		            }else {
+		                sql3.params().set("logisticsId", logisticsId);
+		            }
 					sql3.params().set("pid", areaTwo.get(0).get("id"));
 					List<Record> areaThree = areaPriceService.list(sql3);
 					req.setAttribute("areaThree", areaThree);
@@ -138,9 +150,16 @@ public class LosysFreightController {
 	@Ok("json")
 	@RequiresAuthentication
 	public Object child(String areaId, String logisticsId, HttpServletRequest req) {
-		String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
+		String sqlString;
+		if(logisticsId != null) {
+			sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
+		}else {
+			sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area a  WHERE a.pid=@pid";
+		}
 		Sql sql = Sqls.create(sqlString);
-		sql.params().set("logisticsId", logisticsId);
+		if(logisticsId != null) {
+			sql.params().set("logisticsId", logisticsId);
+		}
 		sql.params().set("pid", areaId);
 		List<Record> area = areaPriceService.list(sql);
 		req.setAttribute("area", area);
@@ -253,8 +272,11 @@ public class LosysFreightController {
 		double chaoChang = overLengthPrice(Double.parseDouble(last), Double.parseDouble(width),
 				Double.parseDouble(height), Double.parseDouble(weight), logistics);
 		double freight = freight(last, width, height, weight, logistics, areaId);
+		if (freight == -2.0) {
+			return "-2";
+		}
 		if (baojia == -1.0 || chaoChang == -1.0 || freight == -1.0) {
-			return "请检测保价，超长价格，价格等设置";
+			return "-1";
 		}
 		BigDecimal b = new BigDecimal(Calculator.conversion(baojia + "+" + chaoChang + "+" + freight));
 		double money = b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -278,6 +300,9 @@ public class LosysFreightController {
 			Lo_logistics company = logisticsService.fetch(logistics);
 			List<Lo_area_price> areas = areaPriceService
 					.query(Cnd.where("logisticsId", "=", logistics).and("areaId", "=", areaId));
+			if (areas.size()<1) {
+				return -2;
+			}
 			for (Lo_area_price areaPrice : areas) {
 				List<Lo_logistics_pricesetting> groups = logisticsPricesettingService
 						.query(Cnd.where("logisticsGroupId", "=", areaPrice.getGroupId()));
