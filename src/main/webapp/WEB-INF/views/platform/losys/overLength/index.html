@@ -134,6 +134,16 @@ layout("/layouts/platform.html"){
                 },
             	{
                     "render": function (data, type, row) {
+                    	if(row.type === '1'){
+                    		return data + "元";
+                    	}else {
+                    		return data + "%";
+                    	}
+                    },
+                    "targets": 4
+                },
+            	{
+                    "render": function (data, type, row) {
                         return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                                 ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                                 '<li><a href="${base}/platform/losys/overLength/edit/' + row.id + '" data-pjax>修改</a></li>' +
