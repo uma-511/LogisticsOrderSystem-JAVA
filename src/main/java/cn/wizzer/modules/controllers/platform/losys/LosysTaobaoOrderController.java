@@ -110,12 +110,17 @@ public class LosysTaobaoOrderController {
 	@AdaptBy(type = WhaleAdaptor.class)
 	public Object editDo(@Param("..") Lo_taobao_orders tOrders, @Param("..") Lo_orders orders, HttpServletRequest req) {
 		try {
-			tOrders.setOpBy(Strings.sNull(req.getAttribute("uid")));
-			tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
-			tOrders.setOrderDate((int) (System.currentTimeMillis() / 1000));
-			taobaoOrderService.updateIgnoreNull(tOrders);
-			orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()).add("orderStatus", 5),
-					Cnd.where("tbId", "=", tOrders.getId()));
+			Subject subject = SecurityUtils.getSubject();
+			if (subject != null) {
+				Sys_user user = (Sys_user) subject.getPrincipal();
+				tOrders.setOpBy(Strings.sNull(req.getAttribute("uid")));
+				tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
+				tOrders.setOrderDate((int) (System.currentTimeMillis() / 1000));
+				taobaoOrderService.updateIgnoreNull(tOrders);
+				orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()).add("orderStatus", 5).add("userId",user.getId()),
+						Cnd.where("tbId", "=", tOrders.getId()));
+				return Result.success("system.success");
+			}
 			return Result.success("system.success");
 		} catch (Exception e) {
 			return Result.error("system.error");
@@ -137,6 +142,7 @@ public class LosysTaobaoOrderController {
 				Lo_orders order = new Lo_orders();
 				order.setTbId(orders.getId());
 				order.setTaobaoId(user.getId());
+				order.setUserId(user.getId());
 				orderService.insert(order);
 				return Result.success("system.success");
 			}
@@ -190,7 +196,11 @@ public class LosysTaobaoOrderController {
 	public Object editFactoryDo(@Param("factoryid") String factoryid, @Param("tbId") String tbid,
 			HttpServletRequest req) {
 		try {
-			orderService.update(Chain.make("factoryId", factoryid).add("orderStatus", 1), Cnd.where("tbId", "=", tbid));
+			Subject subject = SecurityUtils.getSubject();
+    		if (subject != null) {
+    			Sys_user user = (Sys_user) subject.getPrincipal();
+    			orderService.update(Chain.make("factoryId", factoryid).add("orderStatus", 1).add("userId", user.getId()), Cnd.where("tbId", "=", tbid));
+    		}
 			return Result.success("system.success");
 		} catch (Exception e) {
 			return Result.error("system.error");
@@ -281,6 +291,7 @@ public class LosysTaobaoOrderController {
 				Lo_orders order = new Lo_orders();
 				order.setTbId(orders.getId());
 				order.setTaobaoId(user.getId());
+				order.setUserId(user.getId());
 				orderService.insert(order);
 			}
 			return Result.success("导入成功");

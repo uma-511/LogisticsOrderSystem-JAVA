@@ -188,6 +188,7 @@ public class LosysLogisticsOrderController {
 				Lo_orders order = new Lo_orders();
 				order.setTbId(orders.getId());
 				order.setTaobaoId(user.getId());
+				order.setUserId(user.getId());
 				orderService.insert(order);
 			}
 			return Result.success("导入成功");

@@ -170,26 +170,24 @@ public class LosysFreightController {
 	}
 
 	/**
-	 * 顺丰保价计算
+	 * 保价计算
 	 * 
 	 * @param insurance
 	 * @param logistics
 	 * @return
 	 */
-	// @At("")
-	// @Ok("beetl:/platform/losys/freight/add.html")
-	// @RequiresAuthentication
 	public double insurance(String insurance, String logistics) {
 		try {
 			int num = Integer.parseInt(insurance);
 			int costOne = 0;
-			double valueOne = 0;
+			double valueOne = 0;double valueTwo = 0;double valuethree = 0;
 			int costTwo = 0;
-			double valueTwo = 0;
+			int operatorTwo = 0;int operatorOne = 0;int operatorThree = 0;int operatorfour = 0;
 			double money = 0;
-			String type="";
+			double moneyCost = 0;
+			String typeOne=""; String typeTwo="";String typeThree="";boolean item=true;
 			Lo_logistics company = logisticsService.fetch(logistics);
-			List<Lo_insurance> insurances = insuranceService.query(Cnd.where("logisticsId", "=", logistics));
+			List<Lo_insurance> insurances = insuranceService.query(Cnd.where("logisticsId", "=", logistics).asc("opAt"));
 			for (Lo_insurance ins : insurances) {
 				List<Lo_insurance_pricesetting> list = insurancePricesettingService
 						.query(Cnd.where("insuranceId", "=", ins.getId()));
@@ -200,31 +198,59 @@ public class LosysFreightController {
 					if (company.getName().equals("顺丰")) {
 						// 判断不同保价范围的收费标准
 						if (price.getOperator().equals(">")) {
-							type=price.getType();
-							if (money >= 2) {
+							if (money >= 1) {
+								typeOne=price.getType();
 								valueTwo = value;
+								operatorOne = cost;
 							} else {
-								money = value;
+								typeTwo=price.getType();
+								moneyCost = value;
+								operatorTwo = cost;
 							}
-							costTwo = cost;
+							if(operatorTwo>operatorOne){
+								costTwo = operatorTwo;
+							}else{
+								costTwo = operatorOne;
+							}
+							money++;
 						} else if (price.getOperator().equals("<=")) {
-							costOne = cost;
-							valueOne = value;
+							typeThree=price.getType();
+							if (item == false) {
+								valueOne = value;
+								operatorThree = cost;
+							} else {
+								valuethree = value;
+								operatorfour = cost;
+							}
+							if(operatorThree>operatorfour){
+								costOne = operatorfour;
+							}else{
+								costOne = operatorThree;
+							}
+							item=false;
 						}
-						if (costOne != 0 && costTwo != 0) {
-							if (costOne != costTwo) {
+						if (costOne != 0 && costTwo != 0 && operatorOne != 0 && operatorTwo != 0 && operatorThree != 0 && operatorfour != 0) {
 								if (num > costOne && num <= costTwo) {
-									return support(price.getType(), num, money);
+									if(operatorTwo>operatorOne){
+										return support(typeOne, num, valueTwo);
+									}else{
+										return support(typeTwo, num, moneyCost);
+									}
 								}
 								if (num <= costOne) {
-									return support(price.getType(), num, valueOne);
+									if(operatorThree>operatorfour){
+										return support(typeThree, num, valuethree);
+									}else{
+										return support(typeThree, num, valueOne);
+									}
 								}
 								if (num > costTwo) {
-									return support(type, num, valueTwo);
+									if(operatorTwo>operatorOne){
+										return support(typeTwo, num, moneyCost);
+									}else{
+										return support(typeOne, num, valueTwo);
+									}
 								}
-							} else {
-								continue;
-							}
 						} else {
 							continue;
 						}
@@ -244,7 +270,7 @@ public class LosysFreightController {
 		return -1;
 
 	}
-
+	
 	/**
 	 * 判断保价的是固定金额还是百分百，然后返回保价
 	 * 

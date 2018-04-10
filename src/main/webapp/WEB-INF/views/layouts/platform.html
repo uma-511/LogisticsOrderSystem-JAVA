@@ -377,7 +377,16 @@
         $(".toggle-sidebar").click(function(){
             $(".o_img").toggleClass("o_hide");
         });
+        setInterval('orderStatus()',1000);
     });
+    function orderStatus(){
+    	$.post("${base!}/platform/login/orderStatus",{}, function(data){
+    		console.log(data.msg);
+    		if(data.msg!="操作成功"){
+	    		Toast.success(data.msg);
+    		}
+        });
+    }
 </script>
 <!--script-->
 </body>

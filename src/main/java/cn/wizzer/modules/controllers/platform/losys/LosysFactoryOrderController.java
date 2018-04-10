@@ -93,8 +93,16 @@ public class LosysFactoryOrderController {
     @At("/doAudit")
     @Ok("json")
     public Object doAudit(@Param("id") String id, @Param("status") int status, @Param("remark") String remark) {
-    	orderService.update(Chain.make("orderStatus", status).add("remark", remark), Cnd.where("id", "=", id));
-        return Result.success("cw.success");
+    	try {
+    		Subject subject = SecurityUtils.getSubject();
+    		if (subject != null) {
+    			Sys_user user = (Sys_user) subject.getPrincipal();
+    			orderService.update(Chain.make("orderStatus", status).add("userId", user.getId()).add("remark", remark), Cnd.where("id", "=", id));
+    		}
+            return Result.success("cw.success");
+		} catch (Exception e) {
+			 return Result.error("system.error");
+		}
     }
     /**
      * 通知揽件
@@ -106,8 +114,16 @@ public class LosysFactoryOrderController {
     @At("/parts/?")
    	@Ok("json")
    	public Object parts(String id) throws FileNotFoundException, IOException {
-    	orderService.update(Chain.make("orderStatus", 4), Cnd.where("tbId", "=", id));
-   		return Result.success("cw.success");
+    	try {
+    		Subject subject = SecurityUtils.getSubject();
+    		if (subject != null) {
+    			Sys_user user = (Sys_user) subject.getPrincipal();
+    			orderService.update(Chain.make("orderStatus", 4).add("userId", user.getId()), Cnd.where("tbId", "=", id));
+    		}
+            return Result.success("cw.success");
+		} catch (Exception e) {
+			 return Result.error("system.error");
+		}
 
    	}
     /**
@@ -225,6 +241,7 @@ public class LosysFactoryOrderController {
 				Lo_orders order = new Lo_orders();
 				order.setTbId(orders.getId());
 				order.setTaobaoId(user.getId());
+				order.setUserId(user.getId());
 				orderService.insert(order);
 			}
 			return Result.success("导入成功");

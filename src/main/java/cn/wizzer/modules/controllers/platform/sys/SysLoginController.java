@@ -7,10 +7,12 @@ import cn.wizzer.common.services.log.SLogService;
 import cn.wizzer.common.shiro.exception.EmptyCaptchaException;
 import cn.wizzer.common.shiro.exception.IncorrectCaptchaException;
 import cn.wizzer.common.shiro.filter.AuthenticationFilter;
+import cn.wizzer.modules.models.losys.Lo_orders;
 import cn.wizzer.modules.models.sys.Sys_log;
 import cn.wizzer.modules.models.sys.Sys_role;
 import cn.wizzer.modules.models.sys.Sys_unit;
 import cn.wizzer.modules.models.sys.Sys_user;
+import cn.wizzer.modules.services.losys.LosysOrderService;
 import cn.wizzer.modules.services.sys.SysRoleService;
 import cn.wizzer.modules.services.sys.SysUserService;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -28,6 +30,9 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
 import org.nutz.dao.Chain;
 import org.nutz.dao.Cnd;
+import org.nutz.dao.Sqls;
+import org.nutz.dao.entity.Record;
+import org.nutz.dao.sql.Sql;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
@@ -56,6 +61,8 @@ public class SysLoginController {
     SLogService sLogService;
     @Inject
     SysRoleService roleService;
+    @Inject
+    LosysOrderService orderService;
 
     @At("")
     @Ok("re")
@@ -331,4 +338,32 @@ public class SysLoginController {
         session.setAttribute("captcha", text);
         return captcha.getImage();
     }
+    
+ 
+	@At("/orderStatus")
+	@Ok("json:full")
+	@AdaptBy(type = WhaleAdaptor.class)
+	public Object orderStatus(HttpServletRequest req) {
+			Subject subject = SecurityUtils.getSubject();
+			if (subject != null) {
+				Sys_user user = (Sys_user) subject.getPrincipal();
+				Sql sql = Sqls.create("select * from lo_orders where not (userId like @userId)");
+				sql.params().set("userId", "%"+user.getId()+"%");
+				List<Record> orders = orderService.list(sql);
+				if (!orders.isEmpty()) {
+					for(Record order:orders){
+						if(order.getString("userId").equals("")){
+							orderService.update(Chain.make("userId", user.getId()), Cnd.where("id", "=", order.getString("id")));
+						}else{
+							orderService.update(Chain.make("userId", user.getId()+","+order.getString("userId")), Cnd.where("id", "=", order.getString("id")));
+						}
+					}
+					return Result.success("system.order");
+				} else {
+					return Result.success("system.success");
+				}
+			}
+		return Result.success("system.success");
+	}
+    
 }

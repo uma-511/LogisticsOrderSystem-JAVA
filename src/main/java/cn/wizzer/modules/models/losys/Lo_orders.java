@@ -92,6 +92,11 @@ public class Lo_orders extends Model implements Serializable {
 	    @ColDefine(type = ColType.INT)
 	    private int payStatus;
 	    
+	    @Column
+	    @Comment("订单改变的用户id")
+	    @ColDefine(type = ColType.VARCHAR, width = 32)
+	    private String userId;
+	    
 	    public String getId() {
 			return id;
 		}
@@ -211,4 +216,13 @@ public class Lo_orders extends Model implements Serializable {
 		public void setPayStatus(int payStatus) {
 			this.payStatus = payStatus;
 		}
+
+		public String getUserId() {
+			return userId;
+		}
+
+		public void setUserId(String userId) {
+			this.userId = userId;
+		}
+		
 }
