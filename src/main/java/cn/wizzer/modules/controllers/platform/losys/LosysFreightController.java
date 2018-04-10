@@ -254,9 +254,17 @@ public class LosysFreightController {
 					} else {
 						// 判断不同保价范围的收费标准
 						if (price.getOperator().equals(">")) {
-							return support(price.getType(), num, value);
+							if(num<=cost){
+								continue;
+							}else{
+								return support(price.getType(), num, value);
+							}
 						} else if (price.getOperator().equals("<=")) {
-							return support(price.getType(), num, value);
+							if(num>cost){
+								continue;
+							}else{
+								return support(price.getType(), num, value);
+							}
 						}
 					}
 				}
