@@ -42,6 +42,27 @@
 <div class="gallery-loader" style="background-color:transparent;">
     <div class="loader"></div>
 </div>
+<div id="dialogOrder" class="modal fade bs-modal-sm" tabindex="-2" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">订单提示</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        您有新的订单数据状态发生改变 <br/>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                <button id="okDel" type="button" class="btn btn-primary" data-loading-text="正在删除...">确 定</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="playground hidden-xs">
     <div class="options">
@@ -377,13 +398,14 @@
         $(".toggle-sidebar").click(function(){
             $(".o_img").toggleClass("o_hide");
         });
-        setInterval('orderStatus()',1000);
+        setInterval('orderStatus()',5000);
     });
     function orderStatus(){
     	$.post("${base!}/platform/login/orderStatus",{}, function(data){
     		console.log(data.msg);
     		if(data.msg!="操作成功"){
-	    		Toast.success(data.msg);
+    			var dialog = $("#dialogOrder");
+    	        dialog.modal("show");
     		}
         });
     }
