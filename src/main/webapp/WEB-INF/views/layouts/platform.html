@@ -57,8 +57,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
-                <button id="okDel" type="button" class="btn btn-primary" data-loading-text="正在删除...">确 定</button>
+                <button id="ok" type="button" class="btn btn-primary" data-loading-text="确定">确 定</button>
             </div>
         </div>
     </div>
@@ -353,6 +352,7 @@
 <script src="${base!}/assets/js/date.js"></script>
 
 <script type="text/javascript">
+    var dialog = $("#dialogOrder");
     function bindLeft(){
         $('.main-navigation a[data-pjax]').on('click',function(){
             $('.main-navigation a[data-pjax]').each(function(){
@@ -395,6 +395,9 @@
         $('#homeDetail').on('hidden.bs.modal',function(){
             $(this).removeData("bs.modal");
         });
+        $("#ok").click(function(){
+        	dialog.modal("hide");
+        });
         $(".toggle-sidebar").click(function(){
             $(".o_img").toggleClass("o_hide");
         });
@@ -404,7 +407,6 @@
     	$.post("${base!}/platform/login/orderStatus",{}, function(data){
     		console.log(data.msg);
     		if(data.msg!="操作成功"){
-    			var dialog = $("#dialogOrder");
     	        dialog.modal("show");
     		}
         });
