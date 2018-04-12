@@ -94,7 +94,7 @@ public class Lo_orders extends Model implements Serializable {
 	    
 	    @Column
 	    @Comment("订单改变的用户id")
-	    @ColDefine(type = ColType.VARCHAR, width = 34000)
+	    @ColDefine(type = ColType.VARCHAR, width = 500)
 	    private String userId;
 	    
 	    public String getId() {
