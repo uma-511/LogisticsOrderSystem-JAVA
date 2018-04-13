@@ -117,7 +117,7 @@ public class LosysTaobaoOrderController {
 				tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
 				tOrders.setOrderDate((int) (System.currentTimeMillis() / 1000));
 				taobaoOrderService.updateIgnoreNull(tOrders);
-				orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()).add("orderStatus", 5).add("userId",user.getId()),
+				orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()).add("orderStatus", 5).add("userId",user.getId()).add("payStatus",orders.getPayStatus()),
 						Cnd.where("tbId", "=", tOrders.getId()));
 				return Result.success("system.success");
 			}

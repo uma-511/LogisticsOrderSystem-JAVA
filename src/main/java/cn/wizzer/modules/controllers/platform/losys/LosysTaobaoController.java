@@ -165,8 +165,8 @@ public class LosysTaobaoController {
      */
     @At("/doAudit")
     @Ok("json")
-    public Object doAudit(@Param("id") String id, @Param("status") int status, @Param("remark") String remark) {
-    	 userService.update(Chain.make("status", status), Cnd.where("id", "=", id));
+    public Object doAudit(@Param("id") String id, @Param("status") int status, @Param("mosa") String mosa) {
+    	 userService.update(Chain.make("status", status).add("mosa", mosa), Cnd.where("id", "=", id));
         return Result.success("cw.success");
     }
     
