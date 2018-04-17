@@ -161,6 +161,7 @@ layout("/layouts/platform.html"){
     	var weight = $("#weight").val();
     	var insurance = $("#insurance").val();
     	var reg = /^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$/;
+    	var reg2 = /^\d+(\.{0,1}\d+){0,1}$/;
     	if(reg.test(last)){
     	}else {
     		Toast.warning("请输入正确的长度");
@@ -181,7 +182,7 @@ layout("/layouts/platform.html"){
     		Toast.warning("请输入正确的重量");
     		return
 		}
-    	if(reg.test(insurance)){
+    	if(reg2.test(insurance)){
     	}else {
     		Toast.warning("请输入正确的保价");
     		return
