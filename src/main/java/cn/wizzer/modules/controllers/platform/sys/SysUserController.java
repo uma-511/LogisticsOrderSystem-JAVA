@@ -6,9 +6,11 @@ import cn.wizzer.common.filter.PrivateFilter;
 import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
 import cn.wizzer.modules.models.sys.Sys_menu;
+import cn.wizzer.modules.models.sys.Sys_role;
 import cn.wizzer.modules.models.sys.Sys_unit;
 import cn.wizzer.modules.models.sys.Sys_user;
 import cn.wizzer.modules.services.sys.SysMenuService;
+import cn.wizzer.modules.services.sys.SysRoleService;
 import cn.wizzer.modules.services.sys.SysUnitService;
 import cn.wizzer.modules.services.sys.SysUserService;
 import org.apache.shiro.SecurityUtils;
@@ -57,6 +59,8 @@ public class SysUserController {
     SysMenuService menuService;
     @Inject
     SysUnitService unitService;
+    @Inject
+    SysRoleService roleService;
 
     @At("")
     @Ok("beetl:/platform/sys/user/index.html")
@@ -86,7 +90,12 @@ public class SysUserController {
             user.setLoginPjax(true);
             user.setLoginCount(0);
             user.setLoginAt(0);
+            user.setStatus(1);
             userService.insert(user);
+            List<Sys_role> role=roleService.query(Cnd.where("name", "=", "物流方"));
+			for(Sys_role roleid : role){
+				userService.insert("sys_user_role", org.nutz.dao.Chain.make("roleId", roleid.getId()).add("userId", user.getId()));
+			}
             return Result.success("system.success");
         } catch (Exception e) {
             return Result.error("system.error");

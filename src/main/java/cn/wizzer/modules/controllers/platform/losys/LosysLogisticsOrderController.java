@@ -6,11 +6,13 @@ import cn.wizzer.common.filter.PrivateFilter;
 import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
 import cn.wizzer.common.util.DateUtil;
+import cn.wizzer.modules.models.losys.Lo_logistics;
 import cn.wizzer.modules.models.losys.Lo_orders;
 import cn.wizzer.modules.models.losys.Lo_taobao_factory;
 import cn.wizzer.modules.models.losys.Lo_taobao_order;
 import cn.wizzer.modules.models.losys.Lo_taobao_orders;
 import cn.wizzer.modules.models.sys.Sys_user;
+import cn.wizzer.modules.services.losys.LosysLogisticsService;
 import cn.wizzer.modules.services.losys.LosysOrderService;
 import cn.wizzer.modules.services.losys.LosysTaobaoFactoryService;
 import cn.wizzer.modules.services.losys.LosysTaobaoOrderService;
@@ -81,6 +83,8 @@ public class LosysLogisticsOrderController {
 	LosysTaobaoOrderService taobaoOrderService;
 	@Inject
 	LosysOrderService orderService;
+	@Inject
+    private LosysLogisticsService logisticsService;
 
 	@At("")
 	@Ok("beetl:/platform/losys/logistics/order/index.html")
@@ -102,7 +106,9 @@ public class LosysLogisticsOrderController {
 	@RequiresAuthentication
 	public Object detail(String id, HttpServletRequest req) {
 		List<Lo_orders> orders = orderService.query(Cnd.where("tbId", "=", id));
+		List<Lo_logistics> logistics=logisticsService.query();
 		req.setAttribute("orders", orders.get(0));
+		req.setAttribute("logistics", logistics);
 		return taobaoOrderService.fetch(id);
 	}
 

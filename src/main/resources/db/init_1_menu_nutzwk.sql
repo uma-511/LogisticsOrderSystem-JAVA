@@ -138,3 +138,12 @@ FIND_IN_SET(id, (select GROUP_CONCAT(id) as id from sys_menu where path like ('0
 /* insertTeamtalkMenu10 */ 
 INSERT INTO sys_role_menu(roleId,menuId) SELECT (select id from sys_role where name='工厂方') as roleid,id as menuid FROM sys_menu WHERE 
 FIND_IN_SET(id, (select GROUP_CONCAT(id) as id from sys_menu where path like ('0005') or path like ('000500010002%') or path like ('00050001')))
+/* insertTeamtalkMenu11 */ 
+INSERT INTO sys_role_menu(roleId,menuId) SELECT (select id from sys_role where name='淘宝方') as roleid,id as menuid FROM sys_menu WHERE 
+FIND_IN_SET(id, (select GROUP_CONCAT(id) as id from sys_menu where path like ('0011') or path like ('001100010001%') or path like ('00110001')))
+/* insertTeamtalkMenu12 */ 
+INSERT INTO sys_role_menu(roleId,menuId) SELECT (select id from sys_role where name='工厂方') as roleid,id as menuid FROM sys_menu WHERE 
+FIND_IN_SET(id, (select GROUP_CONCAT(id) as id from sys_menu where path like ('0011') or path like ('001100010001%') or path like ('00110001')))
+/* insertTeamtalkMenu13 */ 
+INSERT INTO sys_role_menu(roleId,menuId) SELECT (select id from sys_role where name='物流方') as roleid,id as menuid FROM sys_menu WHERE 
+FIND_IN_SET(id, (select GROUP_CONCAT(id) as id from sys_menu where path like ('0006') or path like ('000600010002%') or path like ('00060001')))

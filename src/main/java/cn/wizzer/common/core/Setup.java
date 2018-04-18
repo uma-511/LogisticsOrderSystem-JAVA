@@ -835,6 +835,14 @@ public class Setup implements org.nutz.mvc.Setup {
             role.setDisabled(false);
             dao.insert(role);
             role = new Sys_role();
+            role.setName("物流方");
+            role.setCode("logistics");
+            role.setAliasName("Logistics");
+            role.setNote("logistics role");
+            role.setUnitid("");
+            role.setDisabled(false);
+            dao.insert(role);
+            role = new Sys_role();
             role.setName("系统管理员");
             role.setCode("sysadmin");
             role.setAliasName("Sysadmin");
