@@ -62,7 +62,7 @@ public class Sys_user extends Model implements Serializable {
     private int accountType;
     
     @Column
-    @Comment("结算方式  0:现结 1:日结 2:周结")
+    @Comment("结算方式  0:现结 1:月结 2:周结 ")
     @ColDefine(type = ColType.INT)
     private int mosa;
     

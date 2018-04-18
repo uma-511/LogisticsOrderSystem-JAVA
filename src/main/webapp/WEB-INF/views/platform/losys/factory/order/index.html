@@ -81,18 +81,19 @@ layout("/layouts/platform.html"){
             <table class="table table-bordered table-striped mg-t datatable">
                 <thead>
                 <tr>
-                    <th>日期</th>
-                    <th>旺旺号</th>
-                    <th>收件人</th>
-                    <th>固话</th>
-                    <th>收件手机</th>
-                    <th>收件详细地址</th>
-                    <th>托寄物型号</th>
-                    <th>尺寸（长宽高）</th>
-                    <th>托寄物件数</th>
-                    <th>颜色</th>
-                    <th>选择发货物流</th>
-                    <th>操作</th>
+                        <th>日期</th>
+						<th>买家会员名</th>
+						<th>收货人姓名</th>
+						<th>联系电话</th>
+						<th>联系手机</th>
+						<th>收货地址</th>
+						<th>托寄物型号</th>
+						<th>尺寸（长宽高）</th>
+						<th>宝贝总数量</th>
+						<th>颜色</th>
+						<th>选择发货物流</th>
+						<th>订单状态</th>
+						<th>操作</th>
             </table>
         </div>
     </div>
@@ -236,13 +237,7 @@ layout("/layouts/platform.html"){
         datatable.ajax.reload();
     }
     function exportFile(){
-    	$.post("${base}/platform/losys/taobao/order/exportFile", {}, function (data) {
-            if (data.code == 0) {
-            	Toast.success(data.msg);
-            } else {
-                Toast.error(data.msg);
-            }
-        }, "json");
+    	window.location.href="${base}/platform/losys/factory/order/exportFile";
     }
     
     function importFile(e) {
@@ -258,7 +253,7 @@ layout("/layouts/platform.html"){
         }
     	var fd = new FormData();
     	fd.append("file", $("#xx")[0].files[0]);
-        var fileurl ="${base}/platform/losys/taobao/order/importFile";
+        var fileurl ="${base}/platform/losys/factory/order/importFile";
     	$.ajax({
     		type : "POST",
     		contentType : false, // 必须false才会避开jQuery对 formdata 的默认处理 ,

@@ -2,94 +2,46 @@ package cn.wizzer.modules.models.losys;
 
 import java.io.Serializable;
 
-import org.nutz.dao.entity.annotation.ColDefine;
-import org.nutz.dao.entity.annotation.ColType;
-import org.nutz.dao.entity.annotation.Column;
-import org.nutz.dao.entity.annotation.Comment;
-import org.nutz.dao.entity.annotation.EL;
 import org.nutz.dao.entity.annotation.Name;
-import org.nutz.dao.entity.annotation.One;
-import org.nutz.dao.entity.annotation.Prev;
-import org.nutz.dao.entity.annotation.Table;
-import org.nutz.integration.json4excel.annotation.J4EIgnore;
 import org.nutz.integration.json4excel.annotation.J4EName;
 
-import cn.wizzer.common.base.Model;
-@Table("lo_taobao_orders")
-public class Lo_taobao_orders extends Model implements Serializable {
+public class Lo_taobao_order implements Serializable {
 	private static final long serialVersionUID = 1L;
-    @Column
     @Name
-    @Comment("ID")
     @J4EName("订单ID")
-    @ColDefine(type = ColType.VARCHAR, width = 32)
-    @Prev(els = {@EL("uuid()")})
     private String id;
     
-    @J4EIgnore
-    @Column
-    @Comment("日期")
-    @ColDefine(type = ColType.INT, width = 32)
-    private long orderDate;
+    @J4EName("日期")
+    private String fileDate;
     
-    @Column
-    @Comment("买家会员名")
     @J4EName("买家会员名")
-    @ColDefine(type = ColType.VARCHAR, width = 30)
     private String account;
     
-    @Column
-    @Comment("收货人姓名")
     @J4EName("收货人姓名")
-    @ColDefine(type = ColType.VARCHAR, width = 30)
     private String recipient;
     
-    @Column
-    @Comment("联系电话")
     @J4EName("联系电话")
-    @ColDefine(type = ColType.VARCHAR, width = 20)
     private String fixedTelephone;
     
-    @Column
-    @Comment("联系手机")
     @J4EName("联系手机")
-    @ColDefine(type = ColType.VARCHAR, width = 20)
     private String mobilePhone;
     
-    @Column
-    @Comment("收货地址")
     @J4EName("收货地址")
-    @ColDefine(type = ColType.VARCHAR, width = 100)
     private String address;
     
-    @Column
-    @Comment("托寄物型号")
     @J4EName("托寄物型号")
-    @ColDefine(type = ColType.VARCHAR, width = 20)
     private String mailingModel;
     
-    @Column
-    @Comment("尺寸（长宽高）")
     @J4EName("尺寸（长宽高）")
-    @ColDefine(type = ColType.VARCHAR, width = 20)
     private String size;
     
-    @Column
-    @Comment("宝贝总数量")
     @J4EName("宝贝总数量")
-    @ColDefine(type = ColType.VARCHAR, width = 20)
     private String quantity;
     
-    @Column
-    @Comment("颜色")
     @J4EName("颜色")
-    @ColDefine(type = ColType.VARCHAR, width = 20)
     private String color;
     
-    @Column
-    @Comment("选择发货物流")
     @J4EName("选择发货物流")
-    @ColDefine(type = ColType.VARCHAR, width = 20)
     private String Logistics;
 
 	public String getId() {
@@ -98,14 +50,6 @@ public class Lo_taobao_orders extends Model implements Serializable {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public long getOrderDate() {
-		return orderDate;
-	}
-
-	public void setOrderDate(long orderDate) {
-		this.orderDate = orderDate;
 	}
 
 	public String getAccount() {
@@ -186,6 +130,14 @@ public class Lo_taobao_orders extends Model implements Serializable {
 
 	public void setLogistics(String logistics) {
 		Logistics = logistics;
+	}
+
+	public String getFileDate() {
+		return fileDate;
+	}
+
+	public void setFileDate(String fileDate) {
+		this.fileDate = fileDate;
 	}
     
     

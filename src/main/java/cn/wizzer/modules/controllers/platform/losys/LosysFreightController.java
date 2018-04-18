@@ -225,6 +225,12 @@ public class LosysFreightController {
 								costOne = operatorThree;
 							}
 							item=false;
+						} else if(price.getOperator().equals(">=")){
+							return support(price.getType(), num, value);
+						} else if(price.getOperator().equals("<")){
+							return support(price.getType(), num, value);
+						}else{
+							return support(price.getType(), num, value);
 						}
 						if (costOne != 0 && costTwo != 0 && operatorOne != 0 && operatorTwo != 0 && operatorThree != 0 && operatorfour != 0) {
 								if (num > costOne && num <= costTwo) {
@@ -265,6 +271,12 @@ public class LosysFreightController {
 							}else{
 								return support(price.getType(), num, value);
 							}
+						}else if(price.getOperator().equals(">=")){
+							return support(price.getType(), num, value);
+						} else if(price.getOperator().equals("<")){
+							return support(price.getType(), num, value);
+						}else{
+							return support(price.getType(), num, value);
 						}
 					}
 				}
@@ -286,14 +298,18 @@ public class LosysFreightController {
 	 */
 	public double support(String string, int num, double value) {
 		String expression = "";
-		if (string.equals("1")) {
-			expression = String.valueOf(value);
-		} else {
-			expression = String.valueOf(num * value);
+		if(num==0){
+			return 0;
+		}else{
+			if (string.equals("1")) {
+				expression = String.valueOf(value);
+			} else {
+				expression = String.valueOf(num * value);
+			}
+			double result = Calculator.conversion(expression);
+			System.out.println(expression + " = " + result);
+			return result;
 		}
-		double result = Calculator.conversion(expression);
-		System.out.println(expression + " = " + result);
-		return result;
 	}
 
 	/**

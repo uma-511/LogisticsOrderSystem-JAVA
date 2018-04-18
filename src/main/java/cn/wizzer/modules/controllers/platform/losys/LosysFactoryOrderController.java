@@ -7,6 +7,7 @@ import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
 import cn.wizzer.common.util.DateUtil;
 import cn.wizzer.modules.models.losys.Lo_orders;
+import cn.wizzer.modules.models.losys.Lo_taobao_order;
 import cn.wizzer.modules.models.losys.Lo_taobao_orders;
 import cn.wizzer.modules.models.sys.Sys_user;
 import cn.wizzer.modules.services.losys.LosysOrderService;
@@ -45,6 +46,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -132,7 +135,7 @@ public class LosysFactoryOrderController {
      * @return
      */
     @At("/detail/?")
-    @Ok("beetl:/platform/losys/taobao/order/detail.html")
+    @Ok("beetl:/platform/losys/factory/order/detail.html")
     @RequiresAuthentication
     public Object detail(String id, HttpServletRequest req) {
     	List<Lo_orders> orders=orderService.query(Cnd.where("tbId", "=", id));
@@ -199,35 +202,64 @@ public class LosysFactoryOrderController {
     
     @At("/exportFile")
 	@Ok("void")
-	public void exportFile(HttpServletRequest req, HttpServletResponse resp)
-			throws FileNotFoundException, IOException {
-		// 第一步，查询数据得到一个数据集合
-    	Subject subject = SecurityUtils.getSubject();
-		if (subject != null) {
-			Sys_user user = (Sys_user) subject.getPrincipal();
-			List<Lo_taobao_orders> taobao = null;
-			if (user.getLoginname().equals("superadmin")) {
-				taobao = taobaoOrderService.query();
-			} else {
-				List<Lo_orders> orders = orderService.query(Cnd.where("taobaoId", "=", user.getId()));
-				for (Lo_orders order : orders) {
-					taobao = taobaoOrderService.query(Cnd.where("id", "=", order.getTbId()));
+	public void exportFile(HttpServletRequest req, HttpServletResponse resp) throws FileNotFoundException, IOException {
+		try {
+			// 第一步，查询数据得到一个数据集合
+			Subject subject = SecurityUtils.getSubject();
+			if (subject != null) {
+				Sys_user user = (Sys_user) subject.getPrincipal();
+				String filename = URLEncoder.encode("淘宝订单.xls", "UTF-8");
+				resp.addHeader("content-type", "application/shlnd.ms-excel;charset=utf-8");
+				resp.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+				OutputStream out = resp.getOutputStream();
+				List<Lo_taobao_orders> taobao = null;
+				List<Lo_taobao_order> ordersData=new ArrayList<Lo_taobao_order>();
+				if (user.getLoginname().equals("superadmin")) {
+					taobao = taobaoOrderService.query();
+					ordersData=exportData(out, taobao);
+					J4E.toExcel(out, ordersData, null);
+				} else {
+					List<Lo_orders> orders = orderService.query(Cnd.where("taobaoId", "=", user.getId()));
+					for (Lo_orders order : orders) {
+						taobao = taobaoOrderService.query(Cnd.where("id", "=", order.getTbId()));
+						List<Lo_taobao_order> orders2 = exportData(out, taobao);
+						System.out.println(orders2);
+						for (Lo_taobao_order lo_taobao_order : orders2) {
+							ordersData.add(lo_taobao_order);
+						}
+					}
+					J4E.toExcel(out, ordersData, null);
 				}
+				// poi
 			}
-			String filename = URLEncoder.encode("淘宝订单.xls", "UTF-8");
-			resp.addHeader("content-type", "application/shlnd.ms-excel;charset=utf-8");
-			resp.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-			OutputStream out = resp.getOutputStream();
-			// poi
-			J4E.toExcel(out, taobao, null);
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 	}
-    
-    
-    @At("/importFile")
+	public List<Lo_taobao_order> exportData(OutputStream out, List<Lo_taobao_orders> taobao){
+    	List<Lo_taobao_order> orderData = new ArrayList<Lo_taobao_order>();
+    	for(Lo_taobao_orders date:taobao){
+    		Lo_taobao_order r =new Lo_taobao_order();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");  
+			String orderDate=sdf.format(new Date(Long.valueOf(date.getOrderDate()+"000")));
+			r.setId(date.getId());
+			r.setAccount(date.getAccount());
+			r.setFileDate(orderDate);
+			r.setRecipient(date.getRecipient());
+			r.setFixedTelephone(date.getFixedTelephone());
+			r.setMobilePhone(date.getMobilePhone());
+			r.setAddress(date.getAddress());
+			r.setQuantity(date.getQuantity());
+			r.setColor(date.getColor());
+			orderData.add(r);
+		}
+		return orderData;
+    	
+    }
+	@At("/importFile")
 	@Ok("json")
 	@AdaptBy(type = WhaleAdaptor.class)
-	public Object importFile(@Param("file")File file) {
+	public Object importFile(@Param("file") File file) {
 		try {
 			Subject subject = SecurityUtils.getSubject();
 			Sys_user user = (Sys_user) subject.getPrincipal();
@@ -236,8 +268,9 @@ public class LosysFactoryOrderController {
 			InputStream in = Files.findFileAsStream(Disks.absolute(file.getPath()));
 			List<Lo_taobao_orders> people = J4E.fromExcel(in, Lo_taobao_orders.class, null);
 			// 第二步，插入数据到数据库
-			taobaoOrderService.dao().insert(people);
-			for(Lo_taobao_orders orders:people){
+			for (Lo_taobao_orders orders : people) {
+				orders.setOrderDate((int)(System.currentTimeMillis() / 1000));
+				taobaoOrderService.dao().insert(orders);
 				Lo_orders order = new Lo_orders();
 				order.setTbId(orders.getId());
 				order.setTaobaoId(user.getId());
