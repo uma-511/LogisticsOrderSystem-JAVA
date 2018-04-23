@@ -340,6 +340,11 @@ public class SysLoginController {
     }
     
  
+    /**
+     * 订单状态改变推送提示消息
+     * @param req
+     * @return
+     */
 	@At("/orderStatus")
 	@Ok("json:full")
 	@AdaptBy(type = WhaleAdaptor.class)
@@ -352,10 +357,20 @@ public class SysLoginController {
 				List<Record> orders = orderService.list(sql);
 				if (!orders.isEmpty()) {
 					for(Record order:orders){
-						if(order.getString("userId").equals("")){
-							orderService.update(Chain.make("userId", user.getId()), Cnd.where("id", "=", order.getString("id")));
+						if(user.getAccountType()==2 && user.getId().equals(order.getString("factoryId"))){
+							if(order.getString("userId").equals("")){
+								orderService.update(Chain.make("userId", user.getId()), Cnd.where("id", "=", order.getString("id")));
+							}else{
+								orderService.update(Chain.make("userId", user.getId()+","+order.getString("userId")), Cnd.where("id", "=", order.getString("id")));
+							}
+						}else if(user.getAccountType()==0 || user.getAccountType()==1){
+							if(order.getString("userId").equals("")){
+								orderService.update(Chain.make("userId", user.getId()), Cnd.where("id", "=", order.getString("id")));
+							}else{
+								orderService.update(Chain.make("userId", user.getId()+","+order.getString("userId")), Cnd.where("id", "=", order.getString("id")));
+							}
 						}else{
-							orderService.update(Chain.make("userId", user.getId()+","+order.getString("userId")), Cnd.where("id", "=", order.getString("id")));
+							return Result.success("system.success");
 						}
 					}
 					return Result.success("system.order");

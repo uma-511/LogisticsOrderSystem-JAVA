@@ -65,7 +65,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (endTime != 0) {
 			sqlstr += "and t.orderDate<@endTime ";
 		}
-		if (!user.getNickname().equals("超级管理员")) {
+		if (user.getAccountType() == 1) {
 			sqlstr += "and o.taobaoId=@userid ";
 		}
 		if (!name.isEmpty()) {

@@ -203,6 +203,9 @@ public class LosysLogisticsOrderController {
 			r.setFixedTelephone(date.getFixedTelephone());
 			r.setMobilePhone(date.getMobilePhone());
 			r.setAddress(date.getAddress());
+			r.setMailingModel(date.getMailingModel());
+			r.setSize(date.getSize());
+			r.setLogistics(date.getLogistics());
 			r.setQuantity(date.getQuantity());
 			r.setColor(date.getColor());
 			orderData.add(r);
