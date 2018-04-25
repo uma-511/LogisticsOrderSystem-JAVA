@@ -214,9 +214,9 @@ function clearFile() {
             }
         });
         
-        var name="${@shiro.getPrincipalProperty('nickname')}";
+        var type="${@shiro.getPrincipalProperty('accountType')}";
         console.log(name);
-        if(name!="超级管理员"){
+        if(type==1 || type==2){
         	$(".col-lg-6").hide();
         }
     });

@@ -138,14 +138,24 @@ public class LosysTaobaoOrderController {
 			Subject subject = SecurityUtils.getSubject();
 			if (subject != null) {
 				Sys_user user = (Sys_user) subject.getPrincipal();
-
 				orders.setOrderDate((int)(System.currentTimeMillis() / 1000));
 				orders.setLogistics("顺丰");
 				taobaoOrderService.insert(orders);
 				Lo_orders order = new Lo_orders();
 				order.setTbId(orders.getId());
 				order.setTaobaoId(user.getId());
-				order.setUserId(user.getId());
+				List<Sys_user> factoryId=userService.query(Cnd.where("accountType", "=", 2));
+				String factoryid="";
+				if(!factoryId.isEmpty()){
+					for(Sys_user factory:factoryId){
+						factoryid+=factory.getId()+",";
+					}
+					String str = factoryid;
+					str=str.substring(0, str.length()-1);
+					order.setUserId(user.getId()+','+str);
+				}else{
+					order.setUserId(user.getId());
+				}
 				orderService.insert(order);
 				return Result.success("system.success");
 			}
@@ -202,7 +212,9 @@ public class LosysTaobaoOrderController {
 			Subject subject = SecurityUtils.getSubject();
     		if (subject != null) {
     			Sys_user user = (Sys_user) subject.getPrincipal();
-    			orderService.update(Chain.make("factoryId", factoryid).add("orderStatus", 1).add("userId", user.getId()), Cnd.where("tbId", "=", tbid));
+    			List<Lo_orders> userid=orderService.query(Cnd.where("tbId", "=", tbid));
+    			String userId=userid.get(0).getUserId().replace(factoryid, "");
+    			orderService.update(Chain.make("factoryId", factoryid).add("orderStatus", 1).add("userId", userId), Cnd.where("tbId", "=", tbid));
     		}
 			return Result.success("system.success");
 		} catch (Exception e) {
@@ -329,7 +341,18 @@ public class LosysTaobaoOrderController {
 				Lo_orders order = new Lo_orders();
 				order.setTbId(orders.getId());
 				order.setTaobaoId(user.getId());
-				order.setUserId(user.getId());
+				List<Sys_user> factoryId=userService.query(Cnd.where("accountType", "=", 2));
+				String factoryid="";
+				if(!factoryId.isEmpty()){
+					for(Sys_user factory:factoryId){
+						factoryid+=factory.getId()+",";
+					}
+					String str = factoryid;
+					str=str.substring(0, str.length()-1);
+					order.setUserId(user.getId()+','+str);
+				}else{
+					order.setUserId(user.getId());
+				}
 				orderService.insert(order);
 			}
 			return Result.success("导入成功");
