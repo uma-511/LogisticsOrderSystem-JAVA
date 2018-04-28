@@ -6,29 +6,29 @@ layout("/layouts/platform.html"){
     <script language="JavaScript" type="text/javascript"
 			src="${base}/assets/plugins/My97DatePicker/WdatePicker.js"></script>
     <div class="btn-group tool-button">
-			<div class="input-group date form_datetime "
+			<div class="input-group date form_datetime layoutsSearch"
 				style="width: 150px; float: left; padding-left: 5px; padding-right: 5px"
 				data-date-format="dd MM yyyy" data-link-field="beginDate">
-				<input class="form-control" type='text' id="beginDate"
+				<input class="form-control layoutsSearch" type='text' id="beginDate"
 					name="beginDate" value='${today!}'
 					onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')||\'%y-%M-%d\'}'})" />
 			</div>
-			<div class="input-group date form_datetime "
+			<div class="input-group date form_datetime layoutsSearch"
 				style="width: 150px; float: left; padding-left: 5px; padding-right: 5px"
 				data-date-format="dd MM yyyy" data-link-field="endDate">
-				<input class="form-control" type='text' id='endDate' name='endDate'
+				<input class="form-control layoutsSearch" type='text' id='endDate' name='endDate'
 					value='${today!}'
 					onFocus="var date=limitMonthDate(2);WdatePicker({minDate:'#F{$dp.$D(\'beginDate\')||\'${month!}-01\'}',maxDate:date})" />
 			</div>
 		</div>
-		<div class="btn-group tool-button">
+		<div class="btn-group tool-button" style="width:45px;">
 			<button class="btn btn-primary navbar-btn" onclick="search()">查询</button>
 		</div>
 		<div class="btn-group tool-button" style="padding-left: 10px;">
 			<div class="input-group"
-				style="width: 250px; float: left; padding-left: 5px; padding-right: 5px">
+				style="width: 200px; float: left; padding-left: 5px; padding-right: 5px">
 				<span class="input-group-addon">订单状态</span> <select id="status"
-					class="form-control" onchange="search()">
+					class="form-control layoutsSearch" onchange="search()">
 					<option value="">全部</option>
 					<option value="0">未发布</option>
 					<option value="1">已发布</option>
@@ -40,23 +40,23 @@ layout("/layouts/platform.html"){
 				</select>
 			</div>
 		</div>
-		<div class="btn-group tool-button" style="padding-left: 10px;" id="taobao">
+		<div class="btn-group tool-button" id="taobao">
 			<div class="input-group"
-				style="width: 250px; float: left; padding-left: 5px; padding-right: 5px">
-				<span class="input-group-addon">淘宝店主</span> <select id="name"
-					class="form-control" onchange="search()">
+				style="width: 200px; float: left; padding-right: 5px">
+				    <span class="input-group-addon">淘宝店主</span> <select id="name"
+					class="form-control layoutsSearch" onchange="search()">
 					<option value="">全部</option>
 					<% for(items in obj){%>
-					   <option value="${items.id}">${items.loginname}</option>
+					    <option value="${items.id}">${items.loginname}</option>
 					<%}%>
 				</select>
 			</div>
 		</div>
-		<div class="btn-group tool-button" style="padding-left: 10px;" id="payfor">
+		<div class="btn-group tool-button" id="payfor">
 			<div class="input-group"
-				style="width: 250px; float: left; padding-left: 5px; padding-right: 5px">
+				style="width: 200px; float: left; padding-right: 5px">
 				<span class="input-group-addon">支付状态</span> <select id="pay"
-					class="form-control" onchange="search()">
+					class="form-control layoutsSearch" onchange="search()">
 					<option value="">全部</option>
 					<option value="0">未支付</option>
 					<option value="1">已支付</option>

@@ -7034,4 +7034,4 @@ td.no-b {
 .tcdPageCode a:hover{text-decoration: none;border: 1px solid #00aa3a;}
 .tcdPageCode span.current{display: inline-block;height: 32px;line-height: 32px;padding: 0 10px;margin: 0 2px;color: #fff;background-color: #00aa3a;	border: 1px solid #00aa3a;border-radius: 4px;vertical-align: middle;}
 .tcdPageCode span.disabled{	display: inline-block;height: 32px;line-height: 32px;padding: 0 10px;margin: 0 2px;	color: #bfbfbf;background: #f2f2f2;border: 1px solid #bfbfbf;border-radius: 4px;vertical-align: middle;}
-
+.layoutsSearch{width:100px !important;}
