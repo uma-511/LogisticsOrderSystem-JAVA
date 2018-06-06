@@ -200,9 +200,9 @@ public class LosysFactoryOrderController {
  		return taobaoOrderService.data(length, start, draw, sql, sql);
     }
     
-    @At("/exportFile")
+    @At("/exportFile/?/?/?/?/?")
 	@Ok("void")
-	public void exportFile(HttpServletRequest req, HttpServletResponse resp) throws FileNotFoundException, IOException {
+	public void exportFile(String beginDate,String endDate,String status,String name,String pay,HttpServletRequest req, HttpServletResponse resp) throws FileNotFoundException, IOException {
 		try {
 			// 第一步，查询数据得到一个数据集合
 			Subject subject = SecurityUtils.getSubject();
@@ -213,15 +213,25 @@ public class LosysFactoryOrderController {
 				resp.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 				OutputStream out = resp.getOutputStream();
 				List<Lo_taobao_orders> taobao = null;
+				int beginTime = 0;
+				int endTime = 0;
+				String tableName = Times.format("yyyyMM", new Date());
+				if (Strings.isNotBlank(beginDate)) {
+					tableName = Times.format("yyyyMM", Times.D(beginDate + " 00:00:00"));
+					beginTime = DateUtil.getTime(beginDate + " 00:00:00");
+				}
+				if (Strings.isNotBlank(endDate)) {
+					endTime = DateUtil.getTime(endDate + " 23:59:59");
+				}
 				List<Lo_taobao_order> ordersData=new ArrayList<Lo_taobao_order>();
 				if (user.getLoginname().equals("superadmin")) {
-					taobao = taobaoOrderService.query();
+					taobao = taobaoOrderService.getListExport("", beginTime, endTime, status, name, pay);
 					ordersData=exportData(out, taobao);
 					J4E.toExcel(out, ordersData, null);
 				} else {
 					List<Lo_orders> orders = orderService.query(Cnd.where("taobaoId", "=", user.getId()));
 					for (Lo_orders order : orders) {
-						taobao = taobaoOrderService.query(Cnd.where("id", "=", order.getTbId()));
+						taobao = taobaoOrderService.getListExport(order.getTbId(), beginTime, endTime, status, name, pay);
 						List<Lo_taobao_order> orders2 = exportData(out, taobao);
 						System.out.println(orders2);
 						for (Lo_taobao_order lo_taobao_order : orders2) {

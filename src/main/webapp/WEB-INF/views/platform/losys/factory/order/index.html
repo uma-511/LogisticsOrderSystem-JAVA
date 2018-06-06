@@ -29,7 +29,7 @@ layout("/layouts/platform.html"){
 				style="width: 200px; float: left; padding-left: 5px; padding-right: 5px">
 				<span class="input-group-addon">订单状态</span> <select id="status"
 					class="form-control layoutsSearch" onchange="search()">
-					<option value="">全部</option>
+					<option value="-1">全部</option>
 					<option value="0">未发布</option>
 					<option value="1">已发布</option>
 					<option value="2">已确认（有货）</option>
@@ -45,7 +45,7 @@ layout("/layouts/platform.html"){
 				style="width: 200px; float: left; padding-right: 5px">
 				    <span class="input-group-addon">淘宝店主</span> <select id="name"
 					class="form-control layoutsSearch" onchange="search()">
-					<option value="">全部</option>
+					<option value="-1">全部</option>
 					<% for(items in obj){%>
 					    <option value="${items.id}">${items.loginname}</option>
 					<%}%>
@@ -57,7 +57,7 @@ layout("/layouts/platform.html"){
 				style="width: 200px; float: left; padding-right: 5px">
 				<span class="input-group-addon">支付状态</span> <select id="pay"
 					class="form-control layoutsSearch" onchange="search()">
-					<option value="">全部</option>
+					<option value="-1">全部</option>
 					<option value="0">未支付</option>
 					<option value="1">已支付</option>
 				</select>
@@ -236,7 +236,7 @@ layout("/layouts/platform.html"){
         datatable.ajax.reload();
     }
     function exportFile(){
-    	window.location.href="${base}/platform/losys/factory/order/exportFile";
+    	window.location.href="${base}/platform/losys/factory/order/exportFile/"+$("#beginDate").val()+"/"+$("#endDate").val()+"/"+$("#status").val()+"/"+$("#name").val()+"/"+$("#pay").val()+"";
     }
     
     function importFile(e) {
