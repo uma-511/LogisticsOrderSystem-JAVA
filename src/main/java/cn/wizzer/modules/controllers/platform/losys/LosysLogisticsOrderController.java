@@ -12,6 +12,7 @@ import cn.wizzer.modules.models.losys.Lo_taobao_factory;
 import cn.wizzer.modules.models.losys.Lo_taobao_order;
 import cn.wizzer.modules.models.losys.Lo_taobao_orders;
 import cn.wizzer.modules.models.sys.Sys_user;
+import cn.wizzer.modules.services.losys.LosysAreaPriceService;
 import cn.wizzer.modules.services.losys.LosysLogisticsService;
 import cn.wizzer.modules.services.losys.LosysOrderService;
 import cn.wizzer.modules.services.losys.LosysTaobaoFactoryService;
@@ -29,6 +30,7 @@ import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
 import org.nutz.dao.*;
 import org.nutz.dao.Chain;
+import org.nutz.dao.entity.Record;
 import org.nutz.dao.sql.Sql;
 import org.nutz.integration.json4excel.J4E;
 import org.nutz.ioc.loader.annotation.Inject;
@@ -85,6 +87,8 @@ public class LosysLogisticsOrderController {
 	LosysOrderService orderService;
 	@Inject
     private LosysLogisticsService logisticsService;
+	@Inject
+	private LosysAreaPriceService areaPriceService;
 
 	@At("")
 	@Ok("beetl:/platform/losys/logistics/order/index.html")
@@ -97,8 +101,12 @@ public class LosysLogisticsOrderController {
 	@At
 	@Ok("beetl:/platform/losys/logistics/order/add.html")
 	@RequiresAuthentication
-	public void add() {
-
+	public void add(HttpServletRequest req) {
+		String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area a  WHERE a.pid=''";
+        Sql sql = Sqls.create(sqlString);
+        List<Record> areaOne = areaPriceService.list(sql);
+        req.setAttribute("areaOne", areaOne);
+		req.setAttribute("logistics", logisticsService.query());
 	}
 
 	@At("/detail/?")
@@ -110,6 +118,19 @@ public class LosysLogisticsOrderController {
 		req.setAttribute("orders", orders.get(0));
 		req.setAttribute("logistics", logistics);
 		return taobaoOrderService.fetch(id);
+	}
+	
+	@At("/delDo/?")
+	@Ok("json")
+	@SLog(tag = "删除订单", msg = "")
+	public Object delDo(String orderId, HttpServletRequest req) {
+		try {
+			    taobaoOrderService.clear(Cnd.where("id","=",orderId));
+			    orderService.clear(Cnd.where("tbId","=",orderId));
+				return Result.success("system.success");
+		} catch (Exception e) {
+			return Result.error("system.error");
+		}
 	}
 
 	/**

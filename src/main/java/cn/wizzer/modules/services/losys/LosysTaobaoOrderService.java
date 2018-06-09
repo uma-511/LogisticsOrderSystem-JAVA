@@ -58,7 +58,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		// TODO Auto-generated method stub
 		Subject subject = SecurityUtils.getSubject();
 		Sys_user user = (Sys_user) subject.getPrincipal();
-		String sqlstr = "select t.*,t.id as orderid,o.orderStatus,o.factoryId from lo_taobao_orders t inner JOIN lo_orders o on t.id=o.tbId where 1=1 ";
+		String sqlstr = "select t.*,t.id as orderid,o.orderStatus,o.freight,o.factoryId from lo_taobao_orders t inner JOIN lo_orders o on t.id=o.tbId where 1=1 ";
 		if (!status.equals("-1")) {
 			sqlstr += "and o.orderStatus=@status ";
 		}
@@ -77,6 +77,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
+		sqlstr +="ORDER BY opAt ";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("status", status);
 		sql.params().set("beginTime", beginTime);
@@ -91,7 +92,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		// TODO Auto-generated method stub
 		Subject subject = SecurityUtils.getSubject();
 		Sys_user user = (Sys_user) subject.getPrincipal();
-		String sqlstr = "select t.*,t.id as orderid,o.orderStatus from lo_taobao_orders t INNER JOIN lo_orders o ON t.id=o.tbId where 1=1 ";
+		String sqlstr = "select t.*,t.id as orderid,o.freight,o.orderStatus from lo_taobao_orders t INNER JOIN lo_orders o ON t.id=o.tbId where 1=1 ";
 		if (!status.equals("-1")) {
 			sqlstr += "and o.orderStatus=@status ";
 		}
@@ -110,6 +111,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
+		sqlstr +="ORDER BY opAt ";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("status", status);
 		sql.params().set("beginTime", beginTime);
@@ -146,6 +148,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
+		sqlstr +="ORDER BY opAt ";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("id", id);
 		sql.params().set("status", status);
@@ -188,6 +191,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
+		sqlstr +="ORDER BY opAt ";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("status", status);
 		sql.params().set("beginTime", beginTime);

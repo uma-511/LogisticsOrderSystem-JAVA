@@ -1,32 +1,26 @@
 package cn.wizzer.modules.controllers.platform.losys;
 
-import cn.wizzer.common.annotation.SLog;
-import cn.wizzer.common.base.Result;
-import cn.wizzer.common.filter.PrivateFilter;
-import cn.wizzer.common.page.DataTableColumn;
-import cn.wizzer.common.page.DataTableOrder;
-import cn.wizzer.common.util.DateUtil;
-import cn.wizzer.modules.models.losys.Lo_orders;
-import cn.wizzer.modules.models.losys.Lo_taobao_factory;
-import cn.wizzer.modules.models.losys.Lo_taobao_order;
-import cn.wizzer.modules.models.losys.Lo_taobao_orders;
-import cn.wizzer.modules.models.sys.Sys_user;
-import cn.wizzer.modules.services.losys.LosysOrderService;
-import cn.wizzer.modules.services.losys.LosysTaobaoFactoryService;
-import cn.wizzer.modules.services.losys.LosysTaobaoOrderService;
-import cn.wizzer.modules.services.sys.SysMenuService;
-import cn.wizzer.modules.services.sys.SysUnitService;
-import cn.wizzer.modules.services.sys.SysUserService;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
-import org.nutz.dao.*;
 import org.nutz.dao.Chain;
+import org.nutz.dao.Cnd;
+import org.nutz.dao.Sqls;
 import org.nutz.dao.entity.Record;
 import org.nutz.dao.sql.Sql;
 import org.nutz.integration.json4excel.J4E;
@@ -41,26 +35,39 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.adaptor.WhaleAdaptor;
-import org.nutz.mvc.annotation.*;
+import org.nutz.mvc.annotation.AdaptBy;
+import org.nutz.mvc.annotation.At;
+import org.nutz.mvc.annotation.By;
+import org.nutz.mvc.annotation.Filters;
+import org.nutz.mvc.annotation.Ok;
+import org.nutz.mvc.annotation.Param;
 
-import com.mysql.jdbc.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import cn.wizzer.common.annotation.SLog;
+import cn.wizzer.common.base.Result;
+import cn.wizzer.common.filter.PrivateFilter;
+import cn.wizzer.common.page.DataTableColumn;
+import cn.wizzer.common.page.DataTableOrder;
+import cn.wizzer.common.util.DateUtil;
+import cn.wizzer.modules.models.losys.Lo_area;
+import cn.wizzer.modules.models.losys.Lo_area_price;
+import cn.wizzer.modules.models.losys.Lo_logistics;
+import cn.wizzer.modules.models.losys.Lo_logistics_pricesetting;
+import cn.wizzer.modules.models.losys.Lo_orders;
+import cn.wizzer.modules.models.losys.Lo_taobao_factory;
+import cn.wizzer.modules.models.losys.Lo_taobao_order;
+import cn.wizzer.modules.models.losys.Lo_taobao_orders;
+import cn.wizzer.modules.models.sys.Sys_user;
+import cn.wizzer.modules.services.losys.LosysAreaPriceService;
+import cn.wizzer.modules.services.losys.LosysAreaService;
+import cn.wizzer.modules.services.losys.LosysGroupPricesettingService;
+import cn.wizzer.modules.services.losys.LosysLogisticsPricesettingService;
+import cn.wizzer.modules.services.losys.LosysLogisticsService;
+import cn.wizzer.modules.services.losys.LosysOrderService;
+import cn.wizzer.modules.services.losys.LosysTaobaoFactoryService;
+import cn.wizzer.modules.services.losys.LosysTaobaoOrderService;
+import cn.wizzer.modules.services.sys.SysMenuService;
+import cn.wizzer.modules.services.sys.SysUnitService;
+import cn.wizzer.modules.services.sys.SysUserService;
 
 /**
  * Created by wizzer on 2016/6/23.
@@ -71,17 +78,29 @@ import java.util.List;
 public class LosysTaobaoOrderController {
 	private static final Log log = Logs.get();
 	@Inject
-	SysUserService userService;
+	private SysUserService userService;
 	@Inject
-	SysMenuService menuService;
+	private SysMenuService menuService;
 	@Inject
-	SysUnitService unitService;
+	private SysUnitService unitService;
 	@Inject
-	LosysTaobaoFactoryService taobaoFactoryService;
+	private LosysTaobaoFactoryService taobaoFactoryService;
 	@Inject
-	LosysTaobaoOrderService taobaoOrderService;
+	private LosysTaobaoOrderService taobaoOrderService;
 	@Inject
-	LosysOrderService orderService;
+	private LosysOrderService orderService;
+	@Inject
+	private LosysLogisticsService logisticsService;
+	@Inject
+	private LosysAreaPriceService areaPriceService;
+	@Inject
+	private LosysAreaService areaService;
+	@Inject
+	private LosysGroupPricesettingService groupPricesettingService;
+	@Inject
+	private LosysLogisticsPricesettingService logisticsPricesettingService;
+	@Inject
+	private LosysFreightController losysFreight;
 
 	@At("")
 	@Ok("beetl:/platform/losys/taobao/order/index.html")
@@ -94,10 +113,38 @@ public class LosysTaobaoOrderController {
 	@At
 	@Ok("beetl:/platform/losys/taobao/order/add.html")
 	@RequiresAuthentication
-	public void add() {
-
+	public void add(HttpServletRequest req) {
+		String sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area a  WHERE a.pid=''";
+        Sql sql = Sqls.create(sqlString);
+        List<Record> areaOne = areaPriceService.list(sql);
+        req.setAttribute("areaOne", areaOne);
+		req.setAttribute("logistics", logisticsService.query());
 	}
-
+	
+	/**
+	 * 查询子区域
+	 */
+	@At
+	@Ok("json")
+	@RequiresAuthentication
+	public Object child(String areaId, String logisticsId, HttpServletRequest req) {
+		String sqlString;
+		if(logisticsId != null) {
+			sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area_price p INNER JOIN lo_area a on (p.areaId=a.id) WHERE p.logisticsId=@logisticsId and a.pid=@pid";
+		}else {
+			sqlString = "select a.id, a.pid,a.`name`,a.path,a.hasChild from lo_area a  WHERE a.pid=@pid";
+		}
+		Sql sql = Sqls.create(sqlString);
+		if(logisticsId != null) {
+			sql.params().set("logisticsId", logisticsId);
+		}
+		sql.params().set("pid", areaId);
+		List<Record> area = areaPriceService.list(sql);
+		req.setAttribute("area", area);
+		return area;
+	}
+	
+	
 	@At("/detail/?")
 	@Ok("beetl:/platform/losys/taobao/order/detail.html")
 	@RequiresAuthentication
@@ -137,11 +184,48 @@ public class LosysTaobaoOrderController {
 		try {
 			Subject subject = SecurityUtils.getSubject();
 			if (subject != null) {
+				Lo_area area=areaService.fetch(orders.getAddress());
+				Lo_logistics logistics=logisticsService.fetch(orders.getLogistics());
+				
 				Sys_user user = (Sys_user) subject.getPrincipal();
-				orders.setOrderDate((int)(System.currentTimeMillis() / 1000));
-				orders.setLogistics("顺丰");
-				taobaoOrderService.insert(orders);
 				Lo_orders order = new Lo_orders();
+				if(!orders.getSize().equals("")){
+					String[] size=orders.getSize().toString().split("\\*");
+					String last="";
+					String width="";
+					String height="";
+					for (String s : size) {
+						if(width!=""){
+							height=s;
+							break;
+						}
+						if(last!=""){
+							width=s;
+							continue;
+						}
+						last=s;
+					}
+					double freight= losysFreight.freight(last, width, height, "70", orders.getLogistics(), orders.getAddress());
+					if(freight == -2.0){
+						return Result.error("system.area");
+					}
+					if(freight == -1.0){
+						return Result.error("system.size");
+					}
+					order.setFreight(String.valueOf(freight));
+				}else{
+					String min=minfreight(orders.getLogistics(),orders.getAddress());
+					if(min!=null){
+						order.setFreight(min);
+					}else{
+						return Result.error("system.area");
+					}
+				}
+				orders.setOrderDate((int)(System.currentTimeMillis() / 1000));
+				orders.setLogistics(logistics.getName());
+				orders.setAddress(area.getName());
+				
+				taobaoOrderService.insert(orders);
 				order.setTbId(orders.getId());
 				order.setTaobaoId(user.getId());
 				List<Sys_user> factoryId=userService.query(Cnd.where("accountType", "=", 2));
@@ -161,10 +245,36 @@ public class LosysTaobaoOrderController {
 			}
 			return Result.error("system.error");
 		} catch (Exception e) {
+			System.out.println(e);
 			return Result.error("system.error");
 		}
 	}
 
+	/**
+	 * 查询低消
+	 * @param logistics
+	 * @param areaId
+	 * @return
+	 */
+	public String minfreight(String logistics,String areaId){
+		List<Lo_area_price> areas = areaPriceService
+				.query(Cnd.where("logisticsId", "=", logistics).and("areaId", "=", areaId));
+		if (areas.size()>0) {
+			for (Lo_area_price areaPrice : areas) {
+				List<Lo_logistics_pricesetting> groups = logisticsPricesettingService
+						.query(Cnd.where("logisticsGroupId", "=", areaPrice.getGroupId()));
+				for (Lo_logistics_pricesetting pricesetting : groups) {
+					Record heft = groupPricesettingService.dao().fetch("lo_group_pricesetting",
+							Cnd.where("id", "=", pricesetting.getPricesettingId()));
+					if (heft != null) {
+						return heft.getString("min");
+					}
+				}
+			}
+			
+		}
+		return null;
+	}
 	/**
 	 * 指派工厂
 	 * 
@@ -174,47 +284,54 @@ public class LosysTaobaoOrderController {
 	@At("/appoint/?")
 	@Ok("beetl:/platform/losys/taobao/order/appoint.html")
 	@RequiresAuthentication
-	public void factory(String id, HttpServletRequest req) {
+	public void factory(String ids, HttpServletRequest req) {
+		String[] tbid=ids.split(",");
 		Subject subject = SecurityUtils.getSubject();
+		StringBuilder sb = new StringBuilder();
 		if (subject != null) {
-			Sys_user user = (Sys_user) subject.getPrincipal();
-			List<Lo_taobao_factory> common = taobaoFactoryService.query(Cnd.where("taobaoid", "=", user.getId()));
-			List<NutMap> factory = new ArrayList<>();
-			if (!common.isEmpty()) {
-				for (Lo_taobao_factory communal : common) {
-					NutMap map = new NutMap();
-					List<Sys_user> list = userService.query(Cnd.where("id", "=", communal.getFactoryid()));
-					for (Sys_user user2 : list) {
-						map.put("id", user2.getId());
-						map.put("text", user2.getLoginname());
-						map.put("icon", "");
-						map.put("data", "");
-						List<Lo_orders> order = orderService.query(Cnd.where("tbId", "=", id));
-						if (order.get(0).getFactoryId() != null) {
-							if (order.get(0).getFactoryId().equals(user2.getId())) {
-								map.put("state", NutMap.NEW().addv("selected", true));
+			for (String s : tbid) {
+				Sys_user user = (Sys_user) subject.getPrincipal();
+				List<Lo_taobao_factory> common = taobaoFactoryService.query(Cnd.where("taobaoid", "=", user.getId()));
+				List<NutMap> factory = new ArrayList<>();
+				if (!common.isEmpty()) {
+					for (Lo_taobao_factory communal : common) {
+						NutMap map = new NutMap();
+						List<Sys_user> list = userService.query(Cnd.where("id", "=", communal.getFactoryid()));
+						for (Sys_user user2 : list) {
+							map.put("id", user2.getId());
+							map.put("text", user2.getLoginname());
+							map.put("icon", "");
+							map.put("data", "");
+							List<Lo_orders> order = orderService.query(Cnd.where("tbId", "=", s));
+							if (order.get(0).getFactoryId() != null) {
+								if (order.get(0).getFactoryId().equals(user2.getId())) {
+									map.put("state", NutMap.NEW().addv("selected", true));
+								}
 							}
+							factory.add(map);
 						}
-						factory.add(map);
 					}
 				}
+			    sb.append(s).append(",");
+			    req.setAttribute("user", Json.toJson(factory));
 			}
-			req.setAttribute("user", Json.toJson(factory));
-			req.setAttribute("id", id);
+			req.setAttribute("ids", sb.toString());
 		}
 	}
 
 	@At
 	@Ok("json")
-	public Object editFactoryDo(@Param("factoryid") String factoryid, @Param("tbId") String tbid,
+	public Object editFactoryDo(@Param("factoryid") String factoryid, @Param("tbId") String[] tbid,
 			HttpServletRequest req) {
 		try {
 			Subject subject = SecurityUtils.getSubject();
     		if (subject != null) {
-    			Sys_user user = (Sys_user) subject.getPrincipal();
-    			List<Lo_orders> userid=orderService.query(Cnd.where("tbId", "=", tbid));
-    			String userId=userid.get(0).getUserId().replace(factoryid, "");
-    			orderService.update(Chain.make("factoryId", factoryid).add("orderStatus", 1).add("userId", userId), Cnd.where("tbId", "=", tbid));
+    			for (String s : tbid) {
+    				Sys_user user = (Sys_user) subject.getPrincipal();
+    				List<Lo_orders> userid=orderService.query(Cnd.where("tbId", "=", s));
+    				String userId=userid.get(0).getUserId().replace(factoryid, "");
+    				orderService.update(Chain.make("factoryId", factoryid).add("orderStatus", 1).add("userId", userId), Cnd.where("tbId", "=", s));
+    			}
     		}
 			return Result.success("system.success");
 		} catch (Exception e) {

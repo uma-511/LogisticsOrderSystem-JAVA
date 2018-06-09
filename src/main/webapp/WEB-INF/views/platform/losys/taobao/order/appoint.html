@@ -81,7 +81,7 @@ layout("/layouts/platform.html"){
         var tree = $.jstree.reference("#jsTreeMenu");
         var ids = tree.get_selected();
         if (ids.length > 0) {
-            $.post("${base}/platform/losys/taobao/order/editFactoryDo", {factoryid: ids.toString(),tbId:'${id}'}, function (data) {
+            $.post("${base}/platform/losys/taobao/order/editFactoryDo", {factoryid: ids.toString(),tbId:'${ids}'}, function (data) {
             if (data.code == 0) {
                 Toast.success(data.msg);
                 setTimeout(function () {

@@ -12,6 +12,7 @@ layout("/layouts/platform.html"){
         <section class="panel panel-form">
             <form id="orderAddForm" role="form" class="form-horizontal parsley-form" data-parsley-validate
                   action="${base}/platform/losys/taobao/order/addDo" method="post">
+                  <input type="hidden" id="address" name="address" class="form-control">
                 <div class="row mb10">
                     <div class="col-lg-12">
                         <div class="form-group">
@@ -46,19 +47,60 @@ layout("/layouts/platform.html"){
                                  placeholder="联系手机" data-parsley-pattern="(^0{0,1}1[3-8][0-9]{9}$)" maxlength="11">
                             </div>
                         </div>
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="telephone" class="col-sm-2 control-label">收货地址</label>
 
                             <div class="col-sm-8">
                                 <input type="text" id="address" name="address" class="form-control"  data-parsley-required="true"
                                 placeholder="收货地址" maxlength="35">
                             </div>
-                        </div>
+                        </div> -->
+                        <div class="form-group">
+	                            	<label for="name" class="col-sm-2 control-label">省份</label>
+	
+	                            	<div class="col-sm-8">
+	                                <select id="sheng" name="sheng" class="form-control" onchange="shengfen()" >
+	                                	<% if(!isEmpty(areaOne)) {%>
+						        		<% for(area1 in areaOne){ %>	
+										     <option value=${area1.id!} >${area1.name!}</option>
+										<%}%>
+										<%}%>	
+						        	</select>
+                            		</div>
+                        	</div>
+                        	
+                        	<div class="form-group">
+	                            	<label for="name" class="col-sm-2 control-label">市</label>
+	
+	                            	<div class="col-sm-8">
+	                                <select id="shi" name="shi" class="form-control" onchange="shiqu()" >
+	                                	<% if(!isEmpty(areaTwo)) {%>
+						        		<% for(area2 in areaTwo){ %>	
+										     <option value=${area2.id!} >${area2.name!}</option>
+										<%}%>
+										<%}%>	
+						        	</select>
+                            		</div>
+                        	</div>
+                        	
+                        	<div class="form-group">
+	                            	<label for="name" class="col-sm-2 control-label">镇/区(收货地址)</label>
+	
+	                            	<div class="col-sm-8">
+	                                <select id="qu" name="qu" class="form-control">
+	                                	<% if(!isEmpty(areaThree)) {%>
+						        		<% for(area3 in areaThree){ %>	
+										     <option value=${area3.id!} >${area3.name!}</option>
+										<%}%>
+										<%}%>	
+						        	</select>
+                            		</div>
+                        	</div>
                         <div class="form-group">
                             <label for="address" class="col-sm-2 control-label">托寄物型号</label>
 
                             <div class="col-sm-8">
-                                <input type="text" id="mailingModel" name="mailingModel" class="form-control" data-parsley-required="true"
+                                <input type="text" id="mailingModel" name="mailingModel" class="form-control"
                                  placeholder="托寄物型号" maxlength="20">
                             </div>
                         </div>
@@ -66,15 +108,15 @@ layout("/layouts/platform.html"){
                             <label for="address" class="col-sm-2 control-label">尺寸（长宽高）</label>
 
                             <div class="col-sm-8">
-                                <input type="text" id="size" name="size" class="form-control"  data-parsley-required="true"
-                                placeholder="尺寸（长宽高）" maxlength="20">
+                                <input type="text" id="size" name="size" class="form-control"
+                                placeholder="尺寸（长宽高）格式：1*1*1" maxlength="20"  data-parsley-pattern="/^[\d+\*]+$/">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="address" class="col-sm-2 control-label">宝贝总数量</label>
 
                             <div class="col-sm-8">
-                                <input type="text" id="quantity" name="quantity" class="form-control" data-parsley-required="true"
+                                <input type="text" id="quantity" name="quantity" class="form-control"
                                  placeholder="宝贝总数量" data-parsley-pattern="([0-9]*)$" maxlength="20">
                             </div>
                         </div>
@@ -84,6 +126,24 @@ layout("/layouts/platform.html"){
                             <div class="col-sm-8">
                                 <input type="text" id="color" name="color" class="form-control"
                                  placeholder="颜色" maxlength="20">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="type" class="col-sm-2 control-label">物流公司</label>
+                            <div class="col-sm-8">
+                                <select id="Logistics" name="Logistics" class="form-control">
+                                    <% for(items in logistics){%>
+									    <option value="${items.id}">${items.name}</option>
+									<%}%>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="address" class="col-sm-2 control-label">备注</label>
+
+                            <div class="col-sm-8">
+                                <textarea  id="color" name="remark" class="form-control"
+                                 placeholder="" maxlength="50"></textarea>
                             </div>
                         </div>
                     </div>
@@ -110,7 +170,9 @@ layout("/layouts/platform.html"){
         $('#orderAddForm').ajaxForm({
             dataType: 'json',
             beforeSubmit: function (arr, form, options) {
+               
                 form.find("button:submit").button("loading");
+                
             },
             success: function (data, statusText, xhr, form) {
                 if (data.code==0) {
@@ -124,7 +186,53 @@ layout("/layouts/platform.html"){
                 form.find("button:submit").button("reset");
             }
         });
+        $(".btn-parsley").click(function(){
+        	 if($("#shi").val()==null){
+                 console.log($("#sheng").val());
+             	$("#address").val($("#sheng").val());
+             }else{
+             	 if($("#qu").val()==null){
+	                	$("#address").val($("#shi").val());
+             	 }else{
+             		$("#address").val($("#qu").val());
+             	 }
+             }
+        })
     });
+    
+    function shengfen(){
+    	$("#shi").empty();
+    	$("#qu").empty();
+    	$("#money").html("");
+    	$.post("${base}/platform/losys/taobao/order/child" , {areaId: $("#sheng").val()}, function (data) {
+    		$.each(data, function(index,values){
+    			$("#shi").append("<option value='"+values.id+"'>"+values.name+"</option>");
+    			
+    		});
+    		child(data[0].id);
+        });
+		
+	}
+	
+	function shiqu() {
+		$("#qu").empty();
+		$.post("${base}/platform/losys/taobao/order/child" , {areaId: $("#shi").val(),  logisticsId: $("#Logistics").val()}, function (data) {
+    		$.each(data, function(index,values){
+    			$("#qu").append("<option value='"+values.id+"'>"+values.name+"</option>");
+    		});
+    		
+        }); 
+	}
+	
+	function child(areaId) {
+		$("#qu").empty();
+		$.post("${base}/platform/losys/taobao/order/child" , {areaId: areaId, logisticsId: $("#Logistics").val()}, function (data) {
+    		$.each(data, function(index,values){
+    			$("#qu").append("<option value='"+values.id+"'>"+values.name+"</option>");
+    		});
+    		
+        }); 
+	}
 </script>
 
 <%}%>

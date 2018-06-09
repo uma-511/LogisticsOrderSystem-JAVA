@@ -99,12 +99,34 @@ layout("/layouts/platform.html"){
 						<th>宝贝总数量</th>
 						<th>颜色</th>
 						<th>选择发货物流</th>
+						<th>单号运费金额</th>
 						<th>订单状态</th>
 						<th>操作</th>
 			</table>
 		</div>
 	</div>
 </section>
+<div id="dialogDelete" class="modal fade bs-modal-sm" tabindex="-2" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">删除订单</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        订单删除后无法恢复，确定删除吗？ <br/>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                <button id="okDel" type="button" class="btn btn-primary" data-loading-text="正在删除...">确 定</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- 用户详情 -->
 <div id="dialogUserDetail" class="modal fade bs-modal-sm" tabindex="-3" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
@@ -164,6 +186,7 @@ layout("/layouts/platform.html"){
                 {"data": "quantity", "bSortable": true},
                 {"data": "color", "bSortable": true},
                 {"data": "logistics", "bSortable": true},
+                {"data": "freight", "bSortable": true},
                 {"data": "orderstatus", "bSortable": true},
             ],
             "columnDefs": [
@@ -183,7 +206,7 @@ layout("/layouts/platform.html"){
 	                    }else if(row.orderstatus==2){
 	                    	return '已确认（有货）';
 	                    }else if(row.orderstatus==3){
-	                    	return '已确认（无货）';
+	                    	return '<span style="color:red;">已确认（无货）</span>';
 	                    }else if(row.orderstatus==4){
 	                    	return '待揽件';
 	                    }else if(row.orderstatus==5){
@@ -193,7 +216,7 @@ layout("/layouts/platform.html"){
 	                    }
 	                    return '未发布';
 	                },
-	                "targets": 11
+	                "targets": 12
 	            },
 	            {
 	            	"render": function (data, type, row) {
@@ -202,12 +225,17 @@ layout("/layouts/platform.html"){
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
                             '<li class="divider"></li>' +
                             '<li><a href="${base}/platform/losys/logistics/order/detail/' + row.orderid + '" data-pjax>查看订单信息</a></li>' +
+                            '<li><a href="javascript:;" onclick="del(\'' + row.orderid + '\')">删除</a></li>' +
                             '</ul></div>';
 	            		}else{
-	            			return '';
+	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
+                            ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
+                            '<li class="divider"></li>' +
+                            '<li><a href="javascript:;" onclick="del(\'' + row.orderid + '\')">删除</a></li>' +
+                            '</ul></div>';
 	            		}
                     },
-	                "targets": 12
+	                "targets": 13
 	            }
                
             ]
@@ -221,6 +249,25 @@ layout("/layouts/platform.html"){
     }
     function exportFile(){
     	window.location.href="${base}/platform/losys/logistics/order/exportFile/"+$("#beginDate").val()+"/"+$("#endDate").val()+"/"+$("#status").val()+"/"+$("#name").val()+"/"+$("#pay").val()+"";
+    }
+    function del(id) {
+        var dialog = $("#dialogDelete");
+        dialog.modal("show");
+        dialog.find("#okDel").unbind("click");
+        dialog.find("#okDel").bind("click", function (event) {
+            var btn = $(this);
+            btn.button("loading");
+            $.post("${base}/platform/losys/logistics/order/delDo/" + id, {}, function (data) {
+                if (data.code == 0) {
+                    datatable.ajax.reload(null,false);
+                } else {
+                    Toast.error(data.msg);
+                }
+                //重置按钮状态，关闭提示框
+                btn.button("reset");
+                dialog.modal("hide");
+            }, "json");
+        });
     }
      //限制开始和结束时间为同一个月
     function limitMonthDate(e) {

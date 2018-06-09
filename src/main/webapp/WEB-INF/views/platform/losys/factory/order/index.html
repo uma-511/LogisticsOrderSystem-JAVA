@@ -92,6 +92,7 @@ layout("/layouts/platform.html"){
 						<th>宝贝总数量</th>
 						<th>颜色</th>
 						<th>选择发货物流</th>
+						<th>单号运费金额</th>
 						<th>操作</th>
             </table>
         </div>
@@ -156,6 +157,7 @@ layout("/layouts/platform.html"){
                 {"data": "quantity", "bSortable": true},
                 {"data": "color", "bSortable": true},
                 {"data": "logistics", "bSortable": true},
+                {"data": "freight", "bSortable": true},
             ],
             "columnDefs": [
             	{
@@ -184,6 +186,12 @@ layout("/layouts/platform.html"){
                             '<li><a href="${base}/platform/losys/factory/order/parts/' + row.orderid + '" data-pjax>揽件</a></li>' +
                             '<li><a href="${base}/platform/losys/factory/order/detail/' + row.orderid + '" data-pjax>查看订单状态</a></li>' +
                             '</ul></div>';
+	            		}else if(row.orderstatus==3 && name!="超级管理员"){
+	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
+                            ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
+                            '<li class="divider"></li>' +
+                            '<li><a href="${base}/platform/losys/factory/order/confirm/' + row.orderid + '" data-toggle="modal" data-target="#homeDetail">状态变更</a></li>' +
+                            '</ul></div>';
 	            		}else{
 	            			return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
                             ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
@@ -192,7 +200,7 @@ layout("/layouts/platform.html"){
                             '</ul></div>';
 	            		}
                     },
-	                "targets": 11
+	                "targets": 12
 	            }
                
             ]

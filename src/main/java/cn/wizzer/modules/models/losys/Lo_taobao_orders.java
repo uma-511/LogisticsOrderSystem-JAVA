@@ -91,6 +91,11 @@ public class Lo_taobao_orders extends Model implements Serializable {
     @J4EName("选择发货物流")
     @ColDefine(type = ColType.VARCHAR, width = 20)
     private String Logistics;
+    
+    @Column
+    @Comment("备注")
+    @ColDefine(type = ColType.VARCHAR, width = 200)
+    private String remark;
 
 	public String getId() {
 		return id;
@@ -186,6 +191,14 @@ public class Lo_taobao_orders extends Model implements Serializable {
 
 	public void setLogistics(String logistics) {
 		Logistics = logistics;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
     
     

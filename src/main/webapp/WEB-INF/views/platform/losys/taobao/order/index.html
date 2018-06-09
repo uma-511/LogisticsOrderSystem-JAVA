@@ -68,6 +68,9 @@ layout("/layouts/platform.html"){
 				</select>
 			</div>
 		</div>
+		<div class="btn-group tool-button" style="width:45px;">
+			<button class="btn btn-primary navbar-btn" onclick="appintAll()">批量指派</button>
+		</div>
 		<div class="pull-right offscreen-right">
 			<button class="btn btn-primary navbar-btn" onclick="exportFile()"
 				id="exportfile">
@@ -99,6 +102,7 @@ layout("/layouts/platform.html"){
 						<th>宝贝总数量</th>
 						<th>颜色</th>
 						<th>选择发货物流</th>
+						<th>单号运费金额</th>
 						<th>订单状态</th>
 						<th>操作</th>
 			</table>
@@ -164,6 +168,7 @@ layout("/layouts/platform.html"){
                 {"data": "quantity", "bSortable": true},
                 {"data": "color", "bSortable": true},
                 {"data": "logistics", "bSortable": true},
+                {"data": "freight", "bSortable": true},
                 {"data": "orderstatus", "bSortable": true},
             ],
             "columnDefs": [
@@ -183,7 +188,7 @@ layout("/layouts/platform.html"){
 	                    }else if(row.orderstatus==2){
 	                    	return '已确认（有货）';
 	                    }else if(row.orderstatus==3){
-	                    	return '已确认（无货）';
+	                    	return '<span style="color:red;">已确认（无货）</span>';
 	                    }else if(row.orderstatus==4){
 	                    	return '待揽件';
 	                    }else if(row.orderstatus==5){
@@ -193,7 +198,7 @@ layout("/layouts/platform.html"){
 	                    }
 	                    return '未发布';
 	                },
-	                "targets": 11
+	                "targets": 12
 	            },
 	            {
 	            	"render": function (data, type, row) {
@@ -212,7 +217,7 @@ layout("/layouts/platform.html"){
                             '</ul></div>';
 	            		}
                     },
-	                "targets": 12
+	                "targets": 13
 	            }
                
             ]
@@ -223,6 +228,21 @@ layout("/layouts/platform.html"){
         $("#searchBtn").on('click', function () {
             datatable.ajax.reload();
         });
+    }
+    function appintAll(){
+    	var Dtable = $('.datatable').DataTable();
+    	var ids=Dtable.rows('.selected').data();
+    	var id='';
+    	$.each(ids,function (index,items){  
+           id+=items.id+",";
+        });
+    	var tbid=id.substring(0, id.length - 1);
+    	console.log(tbid);
+    	if(tbid.length>0){
+	    	window.location.href="${base}/platform/losys/taobao/order/appoint/"+tbid;
+    	}else{
+    		Toast.error("请选择你想要指派的订单!");
+    	}
     }
     function exportFile(){
     	window.location.href="${base}/platform/losys/taobao/order/exportFile/"+$("#beginDate").val()+"/"+$("#endDate").val()+"/"+$("#status").val()+"/"+$("#name").val()+"/"+$("#pay").val()+"";
