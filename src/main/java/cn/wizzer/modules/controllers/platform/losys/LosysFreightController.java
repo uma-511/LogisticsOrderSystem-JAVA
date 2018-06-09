@@ -424,6 +424,10 @@ public class LosysFreightController {
 				rgex = min + "" + compare;
 			}
 			double result = Calculator.conversion(formula);
+			String data=String.valueOf(result);
+			if(data=="NaN"){
+				return -1;
+			}
 			double rgexs = Calculator.conversion(rgex);
 			System.out.println(formula + " = " + result);
 			System.out.println(rgex + " = " + rgexs);
