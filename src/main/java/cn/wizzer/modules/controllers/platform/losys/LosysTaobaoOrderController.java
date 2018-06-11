@@ -167,7 +167,8 @@ public class LosysTaobaoOrderController {
 				tOrders.setOpAt((int) (System.currentTimeMillis() / 1000));
 				tOrders.setOrderDate((int) (System.currentTimeMillis() / 1000));
 				taobaoOrderService.updateIgnoreNull(tOrders);
-				orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()).add("orderStatus", 5).add("userId",user.getId()).add("payStatus",orders.getPayStatus()),
+				orderService.update(Chain.make("expNum", orders.getExpNum()).add("packagePhoto", orders.getPackagePhoto()).add("orderStatus", 5)
+						.add("userId",user.getId()).add("payStatus",orders.getPayStatus()).add("freight", orders.getFreight()),
 						Cnd.where("tbId", "=", tOrders.getId()));
 				return Result.success("system.success");
 			}
@@ -189,7 +190,7 @@ public class LosysTaobaoOrderController {
 				
 				Sys_user user = (Sys_user) subject.getPrincipal();
 				Lo_orders order = new Lo_orders();
-				if(!orders.getSize().equals("")){
+				if(!orders.getSize().equals("") && user.getAccountType()==0){
 					String[] size=orders.getSize().toString().split("\\*");
 					String last="";
 					String width="";
@@ -218,7 +219,7 @@ public class LosysTaobaoOrderController {
 					if(min!=null){
 						order.setFreight(min);
 					}else{
-						return Result.error("system.area");
+						order.setFreight("0");
 					}
 				}
 				orders.setOrderDate((int)(System.currentTimeMillis() / 1000));
