@@ -65,7 +65,7 @@ layout("/layouts/platform.html"){
 										<%}%>
 										<%}%>	
 						        	</select>
-						        	<input type="hidden" id="address" name="address" class="form-control" value="">
+						        	<input type="hidden" id="area" name="area" class="form-control" value="">
                             		</div>
                         	</div>
                         	
@@ -84,7 +84,7 @@ layout("/layouts/platform.html"){
                         	</div>
                         	
                         	<div class="form-group">
-	                            	<label for="name" class="col-sm-2 control-label">镇/区(收货地址)</label>
+	                            	<label for="name" class="col-sm-2 control-label">镇/区</label>
 	
 	                            	<div class="col-sm-8">
 	                                <select id="qu" name="qu" class="form-control">
@@ -96,6 +96,14 @@ layout("/layouts/platform.html"){
 						        	</select>
                             		</div>
                         	</div>
+                        <div class="form-group">
+                            <label for="address" class="col-sm-2 control-label">收货地址</label>
+
+                            <div class="col-sm-8">
+                                <input type="text" id="address" name="address" class="form-control"
+                                 placeholder="收货地址" maxlength="50">
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="address" class="col-sm-2 control-label">托寄物型号</label>
 
@@ -180,12 +188,12 @@ layout("/layouts/platform.html"){
         $(".btn-parsley").click(function(){
        	 if($("#shi").val()==null){
                 console.log($("#sheng").val());
-            	$("#address").val($("#sheng").val());
+            	$("#area").val($("#sheng").val());
             }else{
             	 if($("#qu").val()==null){
-	                	$("#address").val($("#shi").val());
+	                	$("#area").val($("#shi").val());
             	 }else{
-            		$("#address").val($("#qu").val());
+            		$("#area").val($("#qu").val());
             	 }
             }
        })

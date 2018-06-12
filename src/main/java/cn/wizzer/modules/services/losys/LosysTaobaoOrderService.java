@@ -77,7 +77,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
-		sqlstr +="ORDER BY opAt ";
+		sqlstr +="ORDER BY opAt desc";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("status", status);
 		sql.params().set("beginTime", beginTime);
@@ -103,7 +103,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 			sqlstr += "and t.orderDate<@endTime ";
 		}
 		if (!user.getLoginname().equals("superadmin")) {
-			sqlstr += "and o.factoryId=@factoryid";
+			sqlstr += "and o.factoryId=@factoryids ";
 		}
 		if (!name.equals("-1")) {
 			sqlstr += "and o.taobaoId=@name ";
@@ -111,14 +111,14 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
-		sqlstr +="ORDER BY opAt ";
+		sqlstr +="ORDER BY opAt desc";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("status", status);
 		sql.params().set("beginTime", beginTime);
 		sql.params().set("endTime", endTime);
+		sql.params().set("factoryids", user.getId());
 		sql.params().set("name", name);
 		sql.params().set("pay", pay);
-		sql.params().set("factoryid", user.getId());
 		return sql.setCallback(Sqls.callback.records());
 	}
 	
@@ -148,7 +148,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
-		sqlstr +="ORDER BY opAt ";
+		sqlstr +="ORDER BY opAt desc";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("id", id);
 		sql.params().set("status", status);
@@ -183,7 +183,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 			sqlstr += "and t.orderDate<@endTime ";
 		}
 		if (!user.getLoginname().equals("superadmin")) {
-			sqlstr += "and o.factoryId=@factoryid";
+			sqlstr += "and o.factoryId=@factoryid ";
 		}
 		if (!name.equals("-1")) {
 			sqlstr += "and o.taobaoId=@name ";
@@ -191,8 +191,9 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
-		sqlstr +="ORDER BY opAt ";
+		sqlstr +="ORDER BY opAt desc";
 		Sql sql = Sqls.create(sqlstr);
+		sql.params().set("id", id);
 		sql.params().set("status", status);
 		sql.params().set("beginTime", beginTime);
 		sql.params().set("endTime", endTime);

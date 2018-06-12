@@ -96,6 +96,11 @@ public class Lo_taobao_orders extends Model implements Serializable {
     @Comment("备注")
     @ColDefine(type = ColType.VARCHAR, width = 200)
     private String remark;
+    
+    @Column
+    @Comment("区域")
+    @ColDefine(type = ColType.VARCHAR, width = 200)
+    private String area;
 
 	public String getId() {
 		return id;
@@ -199,6 +204,14 @@ public class Lo_taobao_orders extends Model implements Serializable {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
 	}
     
     

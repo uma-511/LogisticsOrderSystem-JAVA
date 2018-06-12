@@ -185,7 +185,7 @@ public class LosysTaobaoOrderController {
 		try {
 			Subject subject = SecurityUtils.getSubject();
 			if (subject != null) {
-				Lo_area area=areaService.fetch(orders.getAddress());
+				Lo_area area=areaService.fetch(orders.getArea());
 				Lo_logistics logistics=logisticsService.fetch(orders.getLogistics());
 				
 				Sys_user user = (Sys_user) subject.getPrincipal();
@@ -206,7 +206,7 @@ public class LosysTaobaoOrderController {
 						}
 						last=s;
 					}
-					double freight= losysFreight.freight(last, width, height, "70", orders.getLogistics(), orders.getAddress());
+					double freight= losysFreight.freight(last, width, height, "70", orders.getLogistics(), orders.getArea());
 					if(freight == -2.0){
 						return Result.error("system.area");
 					}
@@ -215,7 +215,7 @@ public class LosysTaobaoOrderController {
 					}
 					order.setFreight(String.valueOf(freight));
 				}else{
-					String min=minfreight(orders.getLogistics(),orders.getAddress());
+					String min=minfreight(orders.getLogistics(),orders.getArea());
 					if(min!=null){
 						order.setFreight(min);
 					}else{
@@ -224,7 +224,7 @@ public class LosysTaobaoOrderController {
 				}
 				orders.setOrderDate((int)(System.currentTimeMillis() / 1000));
 				orders.setLogistics(logistics.getName());
-				orders.setAddress(area.getName());
+				orders.setArea(area.getName());
 				
 				taobaoOrderService.insert(orders);
 				order.setTbId(orders.getId());
@@ -330,6 +330,9 @@ public class LosysTaobaoOrderController {
     			for (String s : tbid) {
     				Sys_user user = (Sys_user) subject.getPrincipal();
     				List<Lo_orders> userid=orderService.query(Cnd.where("tbId", "=", s));
+    				Lo_taobao_orders orders=taobaoOrderService.fetch(s);
+    				orders.setOpAt((int)(System.currentTimeMillis() / 1000));
+    				taobaoOrderService.updateIgnoreNull(orders);
     				String userId=userid.get(0).getUserId().replace(factoryid, "");
     				orderService.update(Chain.make("factoryId", factoryid).add("orderStatus", 1).add("userId", userId), Cnd.where("tbId", "=", s));
     			}
@@ -432,6 +435,7 @@ public class LosysTaobaoOrderController {
     	List<Lo_taobao_order> orderData = new ArrayList<Lo_taobao_order>();
     	for(Lo_taobao_orders date:taobao){
     		Lo_taobao_order r =new Lo_taobao_order();
+    		List<Lo_orders> orders = orderService.query(Cnd.where("tbId", "=", date.getId()));
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");  
 			String orderDate=sdf.format(new Date(Long.valueOf(date.getOrderDate()+"000")));
 			r.setId(date.getId());
@@ -446,6 +450,7 @@ public class LosysTaobaoOrderController {
 			r.setLogistics(date.getLogistics());
 			r.setQuantity(date.getQuantity());
 			r.setColor(date.getColor());
+			r.setFreight(orders.get(0).getFreight());
 			orderData.add(r);
 		}
 		return orderData;

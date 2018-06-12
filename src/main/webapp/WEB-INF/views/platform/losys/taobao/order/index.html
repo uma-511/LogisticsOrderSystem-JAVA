@@ -232,16 +232,23 @@ layout("/layouts/platform.html"){
     function appintAll(){
     	var Dtable = $('.datatable').DataTable();
     	var ids=Dtable.rows('.selected').data();
-    	var id='';
-    	$.each(ids,function (index,items){  
-           id+=items.id+",";
+    	var id='',status=true;
+    	$.each(ids,function (index,items){
+    	   id+=items.id+",";
+    	   if(items.orderstatus!=0){
+    		   status=false;
+    	   }
         });
     	var tbid=id.substring(0, id.length - 1);
     	console.log(tbid);
     	if(tbid.length>0){
-	    	window.location.href="${base}/platform/losys/taobao/order/appoint/"+tbid;
+    		if(status==false){
+    			Toast.error("您选择的订单有误!");
+    		}else{
+    			window.location.href="${base}/platform/losys/taobao/order/appoint/"+tbid;
+    		}
     	}else{
-    		Toast.error("请选择你想要指派的订单!");
+    		Toast.error("请选择您想要指派的订单!");
     	}
     }
     function exportFile(){

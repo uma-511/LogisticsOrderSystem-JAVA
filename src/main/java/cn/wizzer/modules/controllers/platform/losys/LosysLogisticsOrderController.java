@@ -225,6 +225,7 @@ public class LosysLogisticsOrderController {
     	List<Lo_taobao_order> orderData = new ArrayList<Lo_taobao_order>();
     	for(Lo_taobao_orders date:taobao){
     		Lo_taobao_order r =new Lo_taobao_order();
+    		List<Lo_orders> orders = orderService.query(Cnd.where("tbId", "=", date.getId()));
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");  
 			String orderDate=sdf.format(new Date(Long.valueOf(date.getOrderDate()+"000")));
 			r.setId(date.getId());
@@ -239,6 +240,7 @@ public class LosysLogisticsOrderController {
 			r.setLogistics(date.getLogistics());
 			r.setQuantity(date.getQuantity());
 			r.setColor(date.getColor());
+			r.setFreight(orders.get(0).getFreight());
 			orderData.add(r);
 		}
 		return orderData;

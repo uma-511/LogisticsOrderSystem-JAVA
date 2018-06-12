@@ -93,6 +93,7 @@ layout("/layouts/platform.html"){
 						<th>颜色</th>
 						<th>选择发货物流</th>
 						<th>单号运费金额</th>
+						<th>订单状态</th>
 						<th>操作</th>
             </table>
         </div>
@@ -170,6 +171,25 @@ layout("/layouts/platform.html"){
 	                "targets": 0
 	            },
 	            {
+	                "render": function (data, type, row) {
+	                    if (row.orderstatus==1) {
+	                        return "已发布";
+	                    }else if(row.orderstatus==2){
+	                    	return '已确认（有货）';
+	                    }else if(row.orderstatus==3){
+	                    	return '<span style="color:red;">已确认（无货）</span>';
+	                    }else if(row.orderstatus==4){
+	                    	return '待揽件';
+	                    }else if(row.orderstatus==5){
+	                    	return '已揽件';
+	                    }else if(row.orderstatus==6){
+	                    	return '已关闭';
+	                    }
+	                    return '未发布';
+	                },
+	                "targets": 12
+	            },
+	            {
 	            	"render": function (data, type, row) {
 	            		 var name="${@shiro.getPrincipalProperty('nickname')}";
 	            		if(row.orderstatus==1 && name!="超级管理员"){
@@ -200,7 +220,7 @@ layout("/layouts/platform.html"){
                             '</ul></div>';
 	            		}
                     },
-	                "targets": 12
+	                "targets": 13
 	            }
                
             ]

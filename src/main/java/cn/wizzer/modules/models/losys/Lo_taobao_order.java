@@ -43,6 +43,9 @@ public class Lo_taobao_order implements Serializable {
     
     @J4EName("选择发货物流")
     private String Logistics;
+    
+    @J4EName("单号运费金额")
+    private String freight;
 
 	public String getId() {
 		return id;
@@ -138,6 +141,14 @@ public class Lo_taobao_order implements Serializable {
 
 	public void setFileDate(String fileDate) {
 		this.fileDate = fileDate;
+	}
+
+	public String getFreight() {
+		return freight;
+	}
+
+	public void setFreight(String freight) {
+		this.freight = freight;
 	}
     
     
