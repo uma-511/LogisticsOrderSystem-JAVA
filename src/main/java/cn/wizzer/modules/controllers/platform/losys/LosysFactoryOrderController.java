@@ -175,6 +175,7 @@ public class LosysFactoryOrderController {
     @Ok("json:{locked:'password|salt',ignoreNull:false}") // 忽略password和createAt属性,忽略空属性的json输出
     @RequiresAuthentication
     public Object data(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("status") String status, @Param("name") String name,@Param("pay") String pay,
+    		@Param("mobilePhone") String mobilePhone, @Param("recipient") String recipient, @Param("account") String account,
     		@Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
     	int beginTime=0;
     	int endTime=0;
@@ -196,13 +197,13 @@ public class LosysFactoryOrderController {
                 dir=orders.getDir();
             }
         }
-    	sql = taobaoOrderService.getMessageList(beginTime,endTime,status,name,pay);
+    	sql = taobaoOrderService.getMessageList(beginTime,endTime,status,name,pay,mobilePhone,recipient,account);
  		return taobaoOrderService.data(length, start, draw, sql, sql);
     }
     
-    @At("/exportFile/?/?/?/?/?")
+    @At("/exportFile/?/?/?/?/?/?/?/?")
 	@Ok("void")
-	public void exportFile(String beginDate,String endDate,String status,String name,String pay,HttpServletRequest req, HttpServletResponse resp) throws FileNotFoundException, IOException {
+	public void exportFile(String beginDate,String endDate,String status,String name,String pay,String mobilePhone,String recipient,String account,HttpServletRequest req, HttpServletResponse resp) throws FileNotFoundException, IOException {
 		try {
 			// 第一步，查询数据得到一个数据集合
 			Subject subject = SecurityUtils.getSubject();
@@ -225,13 +226,13 @@ public class LosysFactoryOrderController {
 				}
 				List<Lo_taobao_order> ordersData=new ArrayList<Lo_taobao_order>();
 				if (user.getLoginname().equals("superadmin")) {
-					taobao = taobaoOrderService.getListExport("", beginTime, endTime, status, name, pay);
+					taobao = taobaoOrderService.getListExport("", beginTime, endTime, status, name, pay,mobilePhone,recipient,account);
 					ordersData=exportData(out, taobao);
 					J4E.toExcel(out, ordersData, null);
 				} else {
 					List<Lo_orders> orders = orderService.query(Cnd.where("factoryId", "=", user.getId()));
 					for (Lo_orders order : orders) {
-						taobao = taobaoOrderService.getListExport(order.getTbId(), beginTime, endTime, status, name, pay);
+						taobao = taobaoOrderService.getListExport(order.getTbId(), beginTime, endTime, status, name, pay,mobilePhone,recipient,account);
 						List<Lo_taobao_order> orders2 = exportData(out, taobao);
 						System.out.println(orders2);
 						for (Lo_taobao_order lo_taobao_order : orders2) {

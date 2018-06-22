@@ -26,9 +26,7 @@ layout("/layouts/platform.html"){
 					onFocus="var date=limitMonthDate(2);WdatePicker({minDate:'#F{$dp.$D(\'beginDate\')||\'${month!}-01\'}',maxDate:date})" />
 			</div>
 		</div>
-		<div class="btn-group tool-button" style="width:45px;">
-			<button class="btn btn-primary navbar-btn" onclick="search()">查询</button>
-		</div>
+		
 		<div class="btn-group tool-button" style="padding-left: 10px;">
 			<div class="input-group"
 				style="width: 200px; float: left; padding-left: 5px; padding-right: 5px">
@@ -68,6 +66,31 @@ layout("/layouts/platform.html"){
 				</select>
 			</div>
 		</div>
+		<div class="btn-group tool-button">
+			<div class="input-group"
+				style="width: 250px; float: left; padding-right: 5px">
+				<span class="input-group-addon">电话号码</span> 
+				<input class="form-control" type="text" id='mobilePhone' name='mobilePhone'/>
+			</div>
+		</div>
+		<div class="btn-group tool-button">
+			<div class="input-group"
+				style="width: 250px; float: left; padding-right: 5px">
+				<span class="input-group-addon">收货人姓名</span> 
+				<input class="form-control" type="text" id='recipient' name='recipient'/>
+			</div>
+		</div>
+		<div class="btn-group tool-button">
+			<div class="input-group"
+				style="width: 250px; float: left; padding-right: 5px">
+				<span class="input-group-addon">买家会员名（旺旺号）</span> 
+				<input class="form-control" type="text" id='account' name='account'/>
+			</div>
+		</div>
+		<div class="btn-group tool-button" style="width:45px;">
+			<button class="btn btn-primary navbar-btn" onclick="search()">查询</button>
+		</div>
+		<div class="btn-group tool-button"></div>
 		<div class="btn-group tool-button" style="width:45px;">
 			<button class="btn btn-primary navbar-btn" onclick="appintAll()">批量指派</button>
 		</div>
@@ -85,7 +108,7 @@ layout("/layouts/platform.html"){
 			<div class="btn-group tool-button"></div>
 		</div>
 	</header>
-	<div class=panel-body style="padding-top: 50px;">
+	<div class=panel-body >
 		<div class="table-responsive no-border">
 			<input id="unitid" type="hidden">
 			<table class="table table-bordered table-striped mg-t datatable">
@@ -153,6 +176,9 @@ layout("/layouts/platform.html"){
                      d.status = $("#status").val(); 
                      d.name = $("#name").val(); 
                      d.pay = $("#pay").val(); 
+                     d.mobilePhone = $("#mobilePhone").val();
+                     d.recipient = $("#recipient").val();
+                     d.account = $("#account").val();
                 }
             },
             "order": [[0, "desc"]],
@@ -252,7 +278,17 @@ layout("/layouts/platform.html"){
     	}
     }
     function exportFile(){
-    	window.location.href="${base}/platform/losys/taobao/order/exportFile/"+$("#beginDate").val()+"/"+$("#endDate").val()+"/"+$("#status").val()+"/"+$("#name").val()+"/"+$("#pay").val()+"";
+    	var phone=-1,account=-1,recipient=-1;
+    	if($("#mobilePhone").val()!=""){
+    		phone=$("#mobilePhone").val();
+    	}
+    	if($("#recipient").val()!=""){
+    		recipient=$("#recipient").val();
+    	}
+    	if($("#account").val()!=""){
+    		account=$("#account").val();
+    	}
+    	window.location.href="${base}/platform/losys/taobao/order/exportFile/"+$("#beginDate").val()+"/"+$("#endDate").val()+"/"+$("#status").val()+"/"+$("#name").val()+"/"+$("#pay").val()+"/"+phone+"/"+recipient+"/"+account;
     }
      //限制开始和结束时间为同一个月
     function limitMonthDate(e) {
@@ -336,7 +372,9 @@ layout("/layouts/platform.html"){
         if(name=="超级管理员"){
         	$("#file").hide();
         	$(".appoint").hide();
+        	$(".panel-body").css("padding-top","100px");
         }else{
+        	$(".panel-body").css("padding-top","50px");
         	$("#taobao").hide();
         	$("#payfor").hide();
         }
