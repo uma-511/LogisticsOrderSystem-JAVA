@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html class="signin no-js" lang="${lang!}">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="${AppName!}">
+    <meta name="keywords" content="nutz,nutzwk">
+    <title>${AppName!}</title>
+    <link rel="stylesheet" href="${base!}/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="${base!}/assets/css/font-awesome.css">
+    <link rel="stylesheet" href="${base!}/assets/css/themify-icons.css">
+    <link rel="stylesheet" href="${base!}/assets/css/animate.min.css">
+    <link rel="stylesheet" href="${base!}/assets/css/skins/palette.css">
+    <link rel="stylesheet" href="${base!}/assets/css/fonts/font.css">
+    <link rel="stylesheet" href="${base!}/assets/css/main.css">
+    <!--[if lt IE 9]>
+    <script src="${base!}/assets/js/html5shiv.js"></script>
+    <script src="${base!}/assets/js/respond.min.js"></script>
+    <script src="${base!}/assets/js/json2.js"></script>
+    <![endif]-->
+    <script src="${base!}/assets/plugins/modernizr.js"></script>
+    <script src="${base!}/assets/plugins/jquery-1.11.1.min.js"></script>
+    <script src="${base!}/assets/js/jquery.pjax.js"></script>
+    <script src="${base!}/assets/js/sso/RSA.js"></script>
+    <script src="${base!}/assets/js/sso/BigInt.js"></script>
+    <script src="${base!}/assets/js/sso/Barrett.js"></script>
+    <style type="text/css">
+     .color{
+       background-color:#C0C0C0;
+       border-color:#C0C0C0;
+     }
+     .colorbule{
+       background-color:#1374c5;
+       border-color:#1374c5;
+     }
+     .input_error{
+       border-color:#ac3111;
+       box-shadow:inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #f08266
+     }
+     #abc a:hover {
+	    color: #1374c5;
+	 }
+    </style>
+
+<body>
+<div class="overlay"></div>
+<div class="center-wrapper">
+    <div class="center-content">
+        <div class="row no-m">
+            <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+                <section class="panel bg-white no-b fadeIn animated">
+                    <header class="panel-heading no-b text-center" style="font-size:30px;">
+                                                忘记密码
+                    </header>
+                    <div class="p15">
+                    <form id="codeForm" action="" data-parsley-validate="" novalidate=""
+                              role="form"
+                              method="post">
+                            <input type="hidden" id="platformCaptcha" name="platformCaptcha">
+
+                            <div class="form-group" id="showPhone">
+                                <span>手机号码：</span>
+                                <input type="text" id="phone" name="phone" value="" required
+                                       class="form-control input-lg mb25"
+                                       placeholder="手机号码" maxlength="11">
+                                <ul class="parsley-errors-list filled" id="parsley-id-6" style="display:none;"><li class="parsley-required">请输入手机号码</li></ul>
+                                <ul class="parsley-errors-list filled" id="parsley-id-7" style="display:none;"><li class="parsley-required">请输入完整的中国大陆手机号码</li></ul>
+                                <ul class="parsley-errors-list filled" id="parsley-id-8" style="display:none;"><li class="parsley-required">此手机号码未注册过</li></ul>
+                            </div>
+                            <div class="form-group">
+                                <span>验证码：</span>
+                                <button id="register" class="btn btn-primary btn-lg" type="button"
+                                        data-loading-text="重新获取" style="float: right;margin-top: 20px;">
+                                                                         获取验证码
+                                </button>
+                                <input type="text" id="code" name="code" value="" required
+                                       class="form-control input-lg mb25"
+                                       placeholder="${msg['login.captcha']}" maxlength="6" style="width:200px;">
+                                <ul class="parsley-errors-list filled" id="parsley-id-4" style="display:none;"><li class="parsley-required">请输入验证码</li></ul>
+                                <ul class="parsley-errors-list filled" id="parsley-id-9" style="display:none;"><li class="parsley-required">验证码错误，请重新输入验证码</li></ul>
+                                <ul class="parsley-errors-list filled" id="parsley-id-5" style="display:none;"><li class="parsley-required">验证码已失效，请重新获取</li></ul>
+                            </div>
+                            <div class="form-group" id="showPwd" style="display:none;">
+                                <span> 密码：</span>
+                                  <input id="password" type="password" class="form-control input-lg mb25" required name="password"
+                              data-parsley-required="true" data-parsley-minlength="6" data-parsley-maxlength="20"  maxlength="16"
+                               placeholder="${msg['login.password']}" onKeyUp="AuthPasswd(this.value.trim())">
+                               <ul class="parsley-errors-list filled" id="parsley-id-3" style="display:none;"><li class="parsley-required">请输入新密码</li></ul>
+                            </div>
+                            <p id="tip" class="bg-danger p15" style="display:none"></p>
+                            
+                             <div class="show">
+                                <button id="next" class="btn btn-lg btn-block" type="button"
+                                        data-loading-text="提交">
+                                                                                 提交
+                                </button>
+                            </div>
+                            <div id="abc" style="float: right;">
+		                    <a id="login" style="font-size:13px;cursor:pointer">返回登录界面</a>
+		                    </div>
+		                    <div class="form-group">
+		                    </div>
+                           </form>
+                    </div>
+                    
+                </section>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+var time;
+var phone_res = /^1(3|4|5|7|8)[0-9]\d{8}$/;
+$(document).ready(function () {
+	$("#login").on("click", function () {
+		window.location.href = "${base!}/platform/login";
+	});
+	$("#next").on("click", function () {
+		if($(this).hasClass("colorbule")){
+			if($("#code").val()==""){
+				 $("#parsley-id-4").show();
+				 $("#code").addClass("input_error");
+				 return false;
+			}
+			var url = "${base!}/platform/login/verifyCode";
+			var data = {phone:$("#phone").val(),code:$("#code").val()};
+			$.ajax({
+				type : "POST",
+				url : url,
+				data : data,
+				datatype : "json",
+				success : function(result) {
+					$("#parsley-id-4").hide();
+					$("#parsley-id-5").hide();
+					$("#parsley-id-9").hide();
+					if (result.code == 0) {
+						$("#code").removeClass("input_error");
+						if($("#password").val()==""){
+							 $("#parsley-id-3").show();
+							 $("#password").addClass("input_error");
+							 return false;
+						}else{
+							updatePwd();
+						}
+					} else if (result.code == 1){
+						$("#parsley-id-9").show();
+						$("#code").addClass("input_error");
+					}else{
+						$("#parsley-id-5").show();
+						$("#code").addClass("input_error");
+					}
+				}
+			});
+			
+		}
+	});	
+	$("#register").on("click", function () {
+		if($("#phone").val()==""){
+			 $("#parsley-id-6").show();
+			 $("#phone").addClass("input_error");
+			 return false;
+		}
+		$("#parsley-id-6").hide();
+		$("#parsley-id-8").hide();
+		if(valid()){
+			var url = "${base!}/platform/login/sendVerifyCode";
+			var data = {phone:$("#phone").val()};
+			$.ajax({
+				type : "POST",
+				url : url,
+				data : data,
+				datatype : "json",
+				success : function(result) {
+					if (result.code == -1) {
+						$("#parsley-id-8").show();
+						$("#phone").addClass("input_error");
+					}else{
+						phone=$("#phone").val();
+						$("#showPhone").hide();
+						$("#showPwd").show();
+						$("#next").addClass("colorbule");
+						time = 60;
+						$("#register").addClass("disabled").text(time+"S");
+						clearId = setInterval("rushTime()",1000);
+					}
+				}
+			});
+		}
+	});
+})
+
+function valid(){
+	if(!phone_res.test($("#phone").val())){
+		$("#parsley-id-7").show();
+		$("#phone").addClass("input_error");
+		return false;
+	}else{
+		$("#parsley-id-7").hide();
+		$("#phone").removeClass("input_error");
+		return true;
+	}
+	
+	//if()
+}
+function updatePwd(){
+	var url = "${base!}/platform/login/doChangePassword";
+	var data = {phone:$("#phone").val(),newPwd:$("#password").val()};
+	$.ajax({
+		type : "POST",
+		url : url,
+		data : data,
+		datatype : "json",
+		success : function(result) {
+			window.location.href = "${base!}/platform/login";
+		}
+	});
+}
+function rushTime(){
+	if(time==0){
+		$("#register").removeClass("disabled").text("重新获取");
+		return;
+	}
+	time--;
+	$("#register").text(time+"S");
+}
+</script>
+
+</body>
+</html>

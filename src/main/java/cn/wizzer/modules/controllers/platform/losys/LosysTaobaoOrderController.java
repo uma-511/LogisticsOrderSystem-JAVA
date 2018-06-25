@@ -122,6 +122,23 @@ public class LosysTaobaoOrderController {
 	}
 	
 	/**
+	 * 查询父级区域
+	 */
+	@At
+	@Ok("json")
+	@RequiresAuthentication
+	public Object province(String city, String logisticsId, HttpServletRequest req) {
+		List<Lo_area> area=areaService.query(Cnd.where("name", "=", city));
+		List<Lo_area> parea = null;
+		if(!area.isEmpty()){
+			for(Lo_area citys:area){
+				parea = areaService.query(Cnd.where("id", "=", citys.getPid()));
+			}
+		}
+		return parea;
+	}
+	
+	/**
 	 * 查询子区域
 	 */
 	@At

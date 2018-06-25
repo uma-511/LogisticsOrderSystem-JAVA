@@ -384,7 +384,6 @@
     });
     function orderStatus(){
     	$.post("${base!}/platform/login/orderStatus",{}, function(data){
-    		console.log(data.msg);
     		if(data.msg!="操作成功"){
     	        dialog.modal("show");
     		}

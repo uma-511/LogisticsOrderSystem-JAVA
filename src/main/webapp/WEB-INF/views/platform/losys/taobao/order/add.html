@@ -59,7 +59,7 @@ layout("/layouts/platform.html"){
 	                            	<label for="name" class="col-sm-2 control-label">省份</label>
 	
 	                            	<div class="col-sm-8">
-	                                <select id="sheng" name="sheng" class="form-control" onchange="shengfen()" >
+	                                <select id="sheng" name="sheng" class="form-control" onchange="shengfen(0)" >
 	                                	<% if(!isEmpty(areaOne)) {%>
 						        		<% for(area1 in areaOne){ %>	
 										     <option value=${area1.id!} >${area1.name!}</option>
@@ -206,9 +206,65 @@ layout("/layouts/platform.html"){
              	 }
              }
         })
+        $("#address").blur(function(){
+        	var address=$("#address").val();
+        	if(address!=""){
+        		if(address.indexOf("省") > -1 || address.indexOf("自治区") > -1 || address.indexOf("行政区") > -1){//找的到省份
+        			var province="";
+        			var provinceVal="";
+        			if(address.substr(0,address.lastIndexOf("省"))){
+            	    	province=address.substr(0,address.lastIndexOf("省"))
+            	    	provinceVal=$("#sheng  option:contains('"+province+"省')").val()
+            	    }else if(address.substr(0,address.lastIndexOf("自治区"))){
+            	    	province=address.substr(0,address.lastIndexOf("自治区"))
+            	    	provinceVal=$("#sheng  option:contains('"+province+"自治区')").val()
+            	    }else{
+            	    	province=address.substr(0,address.lastIndexOf("行政区"))
+            	    	provinceVal=$("#sheng  option:contains('"+province+"行政区')").val()
+            	    }
+        			$("#sheng").val(provinceVal);
+        			shengfen(2);
+        		}else{
+        			findCity();//继续找市
+        		}
+        	}
+        });
     });
-    
-    function shengfen(){
+    function findCity(){
+    	var address=$("#address").val();
+    	var lengthAdd=address.indexOf("市");
+    	if(lengthAdd >= 5){//有省和市
+    		var city=address.substring(lengthAdd-2,address.lastIndexOf("市"))
+			var cityVal=$("#shi  option:contains('"+city+"')").val()
+			$("#shi").val(cityVal);
+    		shiqu();
+		}else if(lengthAdd < 5 && lengthAdd > -1){//只有市
+			var city=address.substr(0,address.lastIndexOf("市"))
+			findProvince(city+"市");
+			shiqu();
+		}else {
+			console.log("找不到对应的区域")
+		}
+    }
+    function findArea(){
+    	var address=$("#address").val();
+    	var lengthAdd1=address.indexOf("县");
+    	var lengthAdd2=address.indexOf("区");
+    	if(address.indexOf("县") > -1 || address.indexOf("区") > -1){//找的到县
+    		console.log($("#qu").val());
+    	    var area="";
+    	    if(address.substr(lengthAdd2-2,address.lastIndexOf("区"))!=null){
+    	    	area=address.substr(lengthAdd2-2,address.lastIndexOf("区"))
+    	    }else{
+    			area=address.substr(lengthAdd1-2,address.lastIndexOf("县"))
+    	    }
+			var areaVal=$("#qu  option:contains('"+area+"')").val()
+			$("#qu").val(areaVal);
+		}else{
+			console.log("找不到对应的区域")
+		}
+    }
+    function shengfen(num){
     	$("#shi").empty();
     	$("#qu").empty();
     	$("#money").html("");
@@ -217,9 +273,19 @@ layout("/layouts/platform.html"){
     			$("#shi").append("<option value='"+values.id+"'>"+values.name+"</option>");
     			
     		});
+    		if(num==2){
+    			findCity();
+    		}
+    		if(num==1){
+    			var address=$("#address").val();
+    			var city=address.substr(0,address.lastIndexOf("市"))
+    			var cityVal=$("#shi  option:contains('"+city+"市')").val()
+    			console.log(cityVal);
+    			$("#shi").val(cityVal);
+    		}
     		child(data[0].id);
         });
-		
+    	
 	}
 	
 	function shiqu() {
@@ -228,7 +294,7 @@ layout("/layouts/platform.html"){
     		$.each(data, function(index,values){
     			$("#qu").append("<option value='"+values.id+"'>"+values.name+"</option>");
     		});
-    		
+    		findArea();
         }); 
 	}
 	
@@ -238,7 +304,15 @@ layout("/layouts/platform.html"){
     		$.each(data, function(index,values){
     			$("#qu").append("<option value='"+values.id+"'>"+values.name+"</option>");
     		});
-    		
+        }); 
+	}
+	function findProvince(city) {
+		$("#qu").empty();
+		$.post("${base}/platform/losys/taobao/order/province" , {city: city, logisticsId: $("#Logistics").val()}, function (data) {
+    		$.each(data, function(index,values){
+    			$("#sheng").val(values.id);
+    		});
+    		shengfen(1);
         }); 
 	}
 </script>

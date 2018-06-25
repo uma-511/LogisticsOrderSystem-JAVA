@@ -7,6 +7,8 @@ import cn.wizzer.common.services.log.SLogService;
 import cn.wizzer.common.shiro.exception.EmptyCaptchaException;
 import cn.wizzer.common.shiro.exception.IncorrectCaptchaException;
 import cn.wizzer.common.shiro.filter.AuthenticationFilter;
+import cn.wizzer.modules.controllers.open.util.RandomCode;
+import cn.wizzer.modules.controllers.open.util.SMSSend;
 import cn.wizzer.modules.models.losys.Lo_orders;
 import cn.wizzer.modules.models.sys.Sys_log;
 import cn.wizzer.modules.models.sys.Sys_role;
@@ -15,6 +17,8 @@ import cn.wizzer.modules.models.sys.Sys_user;
 import cn.wizzer.modules.services.losys.LosysOrderService;
 import cn.wizzer.modules.services.sys.SysRoleService;
 import cn.wizzer.modules.services.sys.SysUserService;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -86,6 +90,13 @@ public class SysLoginController {
 	@Ok("beetl:/platform/sys/enroll.html")
 	@Filters
 	public void enroll() {
+
+	}
+	
+	@At("/forgetPwd")
+	@Ok("beetl:/platform/sys/forgetPwd.html")
+	@Filters
+	public void forgetPwd() {
 
 	}
 
@@ -205,6 +216,30 @@ public class SysLoginController {
 	}
 
 	/**
+	 * 验证手机号码是否存在
+	 * @param phone
+	 * @param req
+	 * @return
+	 */
+	@At("/validPhone")
+	@Ok("json:full")
+	@AdaptBy(type = WhaleAdaptor.class)
+	public Object validPhone(@Param("phone") String phone, HttpServletRequest req) {
+		if (!Strings.isEmpty(phone)) {
+			Subject subject = SecurityUtils.getSubject();
+			if (subject != null) {
+				List<Sys_user> lphone = userService.query(Cnd.where("phone", "=", phone));
+				if (lphone.isEmpty()) {
+					return Result.success("system.success");
+				} else {
+					return Result.error("system.error");
+				}
+			}
+		}
+		return req;
+	}
+	
+	/**
 	 * 验证淘宝/工厂名称是否存在
 	 * 
 	 * @param theme
@@ -228,6 +263,72 @@ public class SysLoginController {
 		return req;
 	}
 
+	/**
+	 * 发送验证码
+	 *
+	 * @param phone
+	 * @return
+	 */
+	@At("/sendVerifyCode")
+	@Ok("json:full")
+	@AdaptBy(type = WhaleAdaptor.class)
+	public Object sendVerifyCode(String phone) {
+		Sys_user user = userService.fetch(Cnd.where("phone", "=", phone));
+		int time=(int) (System.currentTimeMillis() / 1000);
+		if (user == null) {
+			return Result.error(-1,"此手机号码未注册过！");
+		}
+//		if (user != null && time - user.getOpAt() < 60) {
+//			return Result.error(-2,"操作过于频繁，请稍后！");
+//		}
+		String code = RandomCode.genIntCode(6);
+		String content = "短信验证码：" + code + "，验证码有效时间为5分钟！【同协物流】";
+		SMSSend.sendSMS(phone, content);
+		user.setCode(code);
+		user.setOpAt(time);
+		user.setPhone(phone);
+		userService.updateIgnoreNull(user);
+		return Result.success(code,"发送成功！");
+	}
+	
+	/**
+	 * 验证验证码
+	 *
+	 * @param phone
+	 * @param code
+	 * @return
+	 */
+	@At("/verifyCode")
+	@Ok("json:full")
+	@AdaptBy(type = WhaleAdaptor.class)
+	public Object verifyCode(@Param("phone") String phone, @Param("code") String code) {
+		Sys_user user = userService.fetch(Cnd.where("phone", "=", phone));
+//		if (user == null) {
+//			return "验证码失效，请重新发送！";
+//		}
+		if (!StringUtils.equals(user.getCode(), code)) {
+			return Result.error(1,"验证码验证错误！");
+		}
+		if (user.getOpAt() - (int) (System.currentTimeMillis() / 1000)>300) {
+			return Result.error(2,"验证码已失效，请重新发送！");
+		}
+		return Result.success("验证码验证正确！");
+	}
+	
+	@At
+    @Ok("json")
+    @RequiresAuthentication
+    public Object doChangePassword(@Param("phone") String phone, @Param("newPwd") String newPassword, HttpServletRequest req) {
+		    Sys_user user = userService.fetch(Cnd.where("phone", "=", phone));
+            RandomNumberGenerator rng = new SecureRandomNumberGenerator();
+            String salt = rng.nextBytes().toBase64();
+            String hashedPasswordBase64 = new Sha256Hash(newPassword, salt, 1024).toBase64();
+            user.setSalt(salt);
+            user.setPassword(hashedPasswordBase64);
+            userService.update(Chain.make("salt", salt).add("password", hashedPasswordBase64), Cnd.where("id", "=", user.getId()));
+            return Result.success("修改成功");
+    }
+	
 	/**
 	 * 登陆验证
 	 *

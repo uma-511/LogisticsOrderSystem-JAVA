@@ -71,6 +71,11 @@ public class Sys_user extends Model implements Serializable {
     @ColDefine(type = ColType.VARCHAR, width = 50)
     private String referee;
     
+    @Column
+    @Comment("验证码")
+    @ColDefine(type = ColType.VARCHAR, width = 10)
+    private String code;
+    
 	@Column
     @Comment("是否在线")
     @ColDefine(type = ColType.BOOLEAN)
@@ -381,6 +386,14 @@ public class Sys_user extends Model implements Serializable {
 
 	public void setReferee(String referee) {
 		this.referee = referee;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	public int getMosa() {

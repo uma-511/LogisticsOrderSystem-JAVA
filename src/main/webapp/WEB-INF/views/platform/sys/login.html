@@ -23,6 +23,12 @@
     <script src="${base!}/assets/plugins/modernizr.js"></script>
     <script src="${base!}/assets/plugins/jquery-1.11.1.min.js"></script>
     <script src="${base!}/assets/js/jquery.pjax.js"></script>
+    <style type="text/css">
+    .hyperlink:hover {color: red !important}
+    .hyperlink{
+       float:right;
+    }
+    </style>
 
 <body>
 <div class="overlay"></div>
@@ -78,6 +84,7 @@
                                        class="form-control input-lg mb25"
                                        placeholder="${msg['login.password']}">
                             </div>
+                            <a class="hyperlink" href="${base!}/platform/login/forgetPwd" >忘记密码 </a>
                             <p id="tip" class="bg-danger p15" style="display:none"></p>
 
                             <div class="show">

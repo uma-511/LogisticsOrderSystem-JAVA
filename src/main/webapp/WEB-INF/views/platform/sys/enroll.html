@@ -69,6 +69,7 @@
                                 <input type="tel" id="phone" name="phone" value="" required data-parsley-pattern="(^[0-9]{3,4}\-[0-9]{3,8}$)|(^[0-9]{3,8}$)|(^\([0-9]{3,4}\)[0-9]{3,8}$)|(^0{0,1}1[3-8][0-9]{9}$)"
                                        class="form-control input-lg mb25"
                                        placeholder="联系方式" maxlength="14">
+                                       <ul class="parsley-errors-list filled" id="parsley-id-8" style="display:none;"><li class="parsley-required">此联系方式已被注册</li></ul>
                             </div>
                              <div class="form-group" id="business">
                                 <span>淘宝/⼯⼚名称：</span>
@@ -120,15 +121,14 @@
 </div>
 
 <script type="text/javascript">
+
 $(document).ready(function () {
 	$("#login").on("click", function () {
 		window.location.href = "${base!}/platform/login";
 	});
 	$("#next").on("click",function(){
 		var urlLoginname = "${base!}/platform/login/validLoginname";
-		var urlShopname = "${base!}/platform/login/validShopname";
 		var dataLoginname = {loginname:$("#loginname").val()};
-		var dataShopname = {shopname:$("#shopname").val()};
 		if($("#loginname").val()!=""){
 			$.ajax({
 				type : "POST",
@@ -137,26 +137,15 @@ $(document).ready(function () {
 				datatype : "json",
 				success : function(result) {
 					if (result.code == 0) {
-						$("#parsley-id-6").hide();
+						 $("#parsley-id-6").hide();
 						 $("#loginname").removeClass("parsley-error");
-						if($("#shopname").val()!=""){
-							$.ajax({
-								type : "POST",
-								url : urlShopname,
-								data : dataShopname,
-								datatype : "json",
-								success : function(result) {
-									if (result.code == 0) {
-										 $('#bindForm').submit();
-									}else{
-										 $("#parsley-id-7").show();
-										 $("#shopname").addClass("parsley-error");
-									}
-								}
-							});
-						}else{
-							$('#bindForm').submit();
-						}
+						 $("#parsley-id-8").hide();
+						 $("#phone").removeClass("parsley-error");
+						 if($("#phone").val()!=""){
+							 validPhone();
+						 }else{
+							 $('#bindForm').submit();
+						 }
 					}else{
 						 $("#parsley-id-6").show();
 						 $("#loginname").addClass("parsley-error");
@@ -181,14 +170,52 @@ $(document).ready(function () {
         }
     });
 })
+function validPhone(){
+	var urlPhone = "${base!}/platform/login/validPhone";
+	var phone = {phone:$("#phone").val()};
+	$.ajax({
+		type : "POST",
+		url : urlPhone,
+		data : phone,
+		datatype : "json",
+		success : function(result) {
+			if (result.code == 0) {
+				if($("#shopname").val()!=""){
+					validShopname();
+				}else{
+					$('#bindForm').submit();
+				}
+			}else{
+				 $("#parsley-id-8").show();
+				 $("#phone").addClass("parsley-error");
+			}
+		}
+	});
+}
+function validShopname(){
+	var urlShopname = "${base!}/platform/login/validShopname";
+	var dataShopname = {shopname:$("#shopname").val()};
+	$.ajax({
+		type : "POST",
+		url : urlShopname,
+		data : dataShopname,
+		datatype : "json",
+		success : function(result) {
+			if (result.code == 0) {
+				 $("#parsley-id-7").hide();
+				 $("#shopname").removeClass("parsley-error");
+				 $('#bindForm').submit();
+			}else{
+				 $("#parsley-id-7").show();
+				 $("#shopname").addClass("parsley-error");
+			}
+		}
+	});
+}
 </script>
 
-<script src="${base!}/assets/bootstrap/js/bootstrap.js"></script>
 <script src="${base!}/assets/plugins/jquery.form.js"></script>
 <script src="${base!}/assets/plugins/parsley.min.js"></script>
 <script src="${base!}/assets/plugins/parsley.zh_cn.js"></script>
-<script src="${base!}/assets/plugins/jquery.cookie.js"></script>
-<script src="${base!}/assets/plugins/getUrlParam.js"></script>
-<script src="${base!}/assets/js/password-security.js"></script>
 </body>
 </html>
