@@ -7,9 +7,11 @@ import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
 import cn.wizzer.common.util.DateUtil;
 import cn.wizzer.modules.models.losys.Lo_orders;
-import cn.wizzer.modules.models.losys.Lo_taobao_order;
+import cn.wizzer.modules.models.losys.Lo_taobao_kyorder;
+import cn.wizzer.modules.models.losys.Lo_taobao_sforder;
 import cn.wizzer.modules.models.losys.Lo_taobao_orders;
 import cn.wizzer.modules.models.sys.Sys_user;
+import cn.wizzer.modules.services.losys.LosysLogisticsService;
 import cn.wizzer.modules.services.losys.LosysOrderService;
 import cn.wizzer.modules.services.losys.LosysTaobaoFactoryService;
 import cn.wizzer.modules.services.losys.LosysTaobaoOrderService;
@@ -71,12 +73,15 @@ public class LosysFactoryOrderController {
     LosysTaobaoOrderService taobaoOrderService;
     @Inject
     LosysOrderService orderService;
+	@Inject
+	LosysLogisticsService logisticsService;
     
     @At("")
     @Ok("beetl:/platform/losys/factory/order/index.html")
     @RequiresAuthentication
     public Object index(HttpServletRequest req) {
     	req.setAttribute("today", DateUtil.getDate());
+		req.setAttribute("logistics", logisticsService.query());
     	return userService.query(Cnd.where("accountType", "=", 1));
     }
     
@@ -175,6 +180,7 @@ public class LosysFactoryOrderController {
     @Ok("json:{locked:'password|salt',ignoreNull:false}") // 忽略password和createAt属性,忽略空属性的json输出
     @RequiresAuthentication
     public Object data(@Param("beginDate") String beginDate, @Param("endDate") String endDate, @Param("status") String status, @Param("name") String name,@Param("pay") String pay,
+    		@Param("logisticsid") String logisticsid,
     		@Param("length") int length, @Param("start") int start, @Param("draw") int draw, @Param("::order") List<DataTableOrder> order, @Param("::columns") List<DataTableColumn> columns) {
     	int beginTime=0;
     	int endTime=0;
@@ -196,13 +202,17 @@ public class LosysFactoryOrderController {
                 dir=orders.getDir();
             }
         }
-    	sql = taobaoOrderService.getMessageList(beginTime,endTime,status,name,pay);
+    	String logistics="";
+		if(!logisticsid.equals("-1")){
+			logistics=logisticsService.fetch(logisticsid).getName();
+		}
+    	sql = taobaoOrderService.getMessageList(beginTime,endTime,status,name,pay,logistics);
  		return taobaoOrderService.data(length, start, draw, sql, sql);
     }
     
-    @At("/exportFile/?/?/?/?/?")
+    @At("/exportFile/?/?/?/?/?/?")
 	@Ok("void")
-	public void exportFile(String beginDate,String endDate,String status,String name,String pay,HttpServletRequest req, HttpServletResponse resp) throws FileNotFoundException, IOException {
+	public void exportFile(String beginDate,String endDate,String status,String name,String pay,String logisticsid,HttpServletRequest req, HttpServletResponse resp) throws FileNotFoundException, IOException {
 		try {
 			// 第一步，查询数据得到一个数据集合
 			Subject subject = SecurityUtils.getSubject();
@@ -223,22 +233,39 @@ public class LosysFactoryOrderController {
 				if (Strings.isNotBlank(endDate)) {
 					endTime = DateUtil.getTime(endDate + " 23:59:59");
 				}
-				List<Lo_taobao_order> ordersData=new ArrayList<Lo_taobao_order>();
+				String logistics=logisticsService.fetch(logisticsid).getName();
+				List<Lo_taobao_sforder> shunforders=new ArrayList<Lo_taobao_sforder>();
+				List<Lo_taobao_kyorder> kuayorders=new ArrayList<Lo_taobao_kyorder>();
 				if (user.getLoginname().equals("superadmin")) {
-					taobao = taobaoOrderService.getListExport("", beginTime, endTime, status, name, pay);
-					ordersData=exportData(out, taobao);
-					J4E.toExcel(out, ordersData, null);
-				} else {
-					List<Lo_orders> orders = orderService.query(Cnd.where("factoryId", "=", user.getId()));
-					for (Lo_orders order : orders) {
-						taobao = taobaoOrderService.getListExport(order.getTbId(), beginTime, endTime, status, name, pay);
-						List<Lo_taobao_order> orders2 = exportData(out, taobao);
-						System.out.println(orders2);
-						for (Lo_taobao_order lo_taobao_order : orders2) {
-							ordersData.add(lo_taobao_order);
-						}
+					taobao = taobaoOrderService.getMessageListExport("", beginTime, endTime, status, name, pay,logistics);
+					if(logistics.equals("顺丰")){
+						shunforders=exportShunf(out, taobao);
+						J4E.toExcel(out, shunforders, null);
+					}else{
+						kuayorders=exportKuay(out, taobao);
+						J4E.toExcel(out, kuayorders, null);
 					}
-					J4E.toExcel(out, ordersData, null);
+				} else {
+					List<Lo_orders> orders = orderService.query(Cnd.where("taobaoId", "=", user.getId()));
+					if(logistics.equals("顺丰")){
+						for (Lo_orders order : orders) {
+							taobao = taobaoOrderService.getMessageListExport(order.getTbId(), beginTime, endTime, status, name, pay,logistics);
+							List<Lo_taobao_sforder> ordersShunf = exportShunf(out, taobao);
+							for (Lo_taobao_sforder ordersf : ordersShunf) {
+								shunforders.add(ordersf);
+							}
+						}
+						J4E.toExcel(out, shunforders, null);
+					}else{
+						for (Lo_orders order : orders) {
+							taobao = taobaoOrderService.getMessageListExport(order.getTbId(), beginTime, endTime, status, name, pay,logistics);
+							List<Lo_taobao_kyorder> ordersKuay = exportKuay(out, taobao);
+							for (Lo_taobao_kyorder orderky : ordersKuay) {
+								kuayorders.add(orderky);
+							}
+						}
+						J4E.toExcel(out, kuayorders, null);
+					}
 				}
 				// poi
 			}
@@ -246,26 +273,43 @@ public class LosysFactoryOrderController {
 			// TODO: handle exception
 		}
 	}
-	public List<Lo_taobao_order> exportData(OutputStream out, List<Lo_taobao_orders> taobao){
-    	List<Lo_taobao_order> orderData = new ArrayList<Lo_taobao_order>();
+	/**
+	 * 导出顺丰excel
+	 * @param out
+	 * @param taobao
+	 * @return
+	 */
+	public List<Lo_taobao_sforder> exportShunf(OutputStream out, List<Lo_taobao_orders> taobao){
+    	List<Lo_taobao_sforder> orderData = new ArrayList<Lo_taobao_sforder>();
     	for(Lo_taobao_orders date:taobao){
-    		Lo_taobao_order r =new Lo_taobao_order();
-    		List<Lo_orders> orders = orderService.query(Cnd.where("tbId", "=", date.getId()));
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");  
-			String orderDate=sdf.format(new Date(Long.valueOf(date.getOrderDate()+"000")));
+    		Lo_taobao_sforder r =new Lo_taobao_sforder();
 			r.setId(date.getId());
-			r.setAccount(date.getAccount());
-			r.setFileDate(orderDate);
 			r.setRecipient(date.getRecipient());
 			r.setFixedTelephone(date.getFixedTelephone());
 			r.setMobilePhone(date.getMobilePhone());
 			r.setAddress(date.getAddress());
-			r.setMailingModel(date.getMailingModel());
-			r.setSize(date.getSize());
-			r.setLogistics(date.getLogistics());
 			r.setQuantity(date.getQuantity());
-			r.setColor(date.getColor());
-			r.setFreight(orders.get(0).getFreight());
+			orderData.add(r);
+		}
+		return orderData;
+    	
+    }
+	
+	/**
+	 * 导出跨越excel
+	 * @param out
+	 * @param taobao
+	 * @return
+	 */
+	public List<Lo_taobao_kyorder> exportKuay(OutputStream out, List<Lo_taobao_orders> taobao){
+    	List<Lo_taobao_kyorder> orderData = new ArrayList<Lo_taobao_kyorder>();
+    	for(Lo_taobao_orders date:taobao){
+    		Lo_taobao_kyorder r =new Lo_taobao_kyorder();
+			r.setRecipient(date.getRecipient());
+			r.setFixedTelephone(date.getFixedTelephone());
+			r.setMobilePhone(date.getMobilePhone());
+			r.setAddress(date.getAddress());
+			r.setQuantity(date.getQuantity());
 			orderData.add(r);
 		}
 		return orderData;

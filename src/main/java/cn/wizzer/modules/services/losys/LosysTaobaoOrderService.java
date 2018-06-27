@@ -6,7 +6,7 @@ import cn.wizzer.common.base.Service;
 import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
 import cn.wizzer.modules.models.losys.Lo_taobao_factory;
-import cn.wizzer.modules.models.losys.Lo_taobao_order;
+import cn.wizzer.modules.models.losys.Lo_taobao_sforder;
 import cn.wizzer.modules.models.losys.Lo_taobao_orders;
 import cn.wizzer.modules.models.sys.Sys_api;
 import cn.wizzer.modules.models.sys.Sys_user;
@@ -54,7 +54,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 	}
 
 	public Sql getMessageList(String col, String dir, int beginTime, int endTime, String status, String name,
-			String pay) {
+			String pay, String logistics) {
 		// TODO Auto-generated method stub
 		Subject subject = SecurityUtils.getSubject();
 		Sys_user user = (Sys_user) subject.getPrincipal();
@@ -77,6 +77,9 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
+		if (logistics!="") {
+			sqlstr += "and t.Logistics=@logistics ";
+		}
 		sqlstr +="ORDER BY opAt desc";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("status", status);
@@ -85,10 +88,11 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		sql.params().set("userid", user.getId());
 		sql.params().set("name", name);
 		sql.params().set("pay", pay);
+		sql.params().set("logistics", logistics);
 		return sql.setCallback(Sqls.callback.records());
 	}
 
-	public Sql getMessageList(int beginTime, int endTime, String status, String name, String pay) {
+	public Sql getMessageList(int beginTime, int endTime, String status, String name, String pay, String logistics) {
 		// TODO Auto-generated method stub
 		Subject subject = SecurityUtils.getSubject();
 		Sys_user user = (Sys_user) subject.getPrincipal();
@@ -111,6 +115,9 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
+		if (logistics!="") {
+			sqlstr += "and t.Logistics=@logistics ";
+		}
 		sqlstr +="ORDER BY opAt desc";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("status", status);
@@ -119,10 +126,11 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		sql.params().set("factoryids", user.getId());
 		sql.params().set("name", name);
 		sql.params().set("pay", pay);
+		sql.params().set("logistics", logistics);
 		return sql.setCallback(Sqls.callback.records());
 	}
 	
-	public List<Lo_taobao_orders> getMessageListExport(String id,int beginTime, int endTime, String status, String name, String pay) {
+	public List<Lo_taobao_orders> getMessageListExport(String id,int beginTime, int endTime, String status, String name, String pay, String logistics) {
 		// TODO Auto-generated method stub
 		Subject subject = SecurityUtils.getSubject();
 		Sys_user user = (Sys_user) subject.getPrincipal();
@@ -148,6 +156,9 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
+		if (logistics!="") {
+			sqlstr += "and t.Logistics=@logistics ";
+		}
 		sqlstr +="ORDER BY opAt desc";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("id", id);
@@ -157,6 +168,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		sql.params().set("userid", user.getId());
 		sql.params().set("name", name);
 		sql.params().set("pay", pay);
+		sql.params().set("logistics", logistics);
 		Entity<Lo_taobao_orders> entityOrder = dao().getEntity(Lo_taobao_orders.class);
         sql.setEntity(entityOrder);
 		sql.setCallback(Sqls.callback.entities());
@@ -165,7 +177,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		return records;
 	}
 	
-	public List<Lo_taobao_orders> getListExport(String id,int beginTime, int endTime, String status, String name, String pay) {
+	public List<Lo_taobao_orders> getListExport(String id,int beginTime, int endTime, String status, String name, String pay, String logistics) {
 		// TODO Auto-generated method stub
 		Subject subject = SecurityUtils.getSubject();
 		Sys_user user = (Sys_user) subject.getPrincipal();
@@ -191,6 +203,9 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		if (!pay.equals("-1")) {
 			sqlstr += "and o.payStatus=@pay ";
 		}
+		if (logistics!="") {
+			sqlstr += "and t.Logistics=@logistics ";
+		}
 		sqlstr +="ORDER BY opAt desc";
 		Sql sql = Sqls.create(sqlstr);
 		sql.params().set("id", id);
@@ -200,6 +215,7 @@ public class LosysTaobaoOrderService extends Service<Lo_taobao_orders> {
 		sql.params().set("name", name);
 		sql.params().set("pay", pay);
 		sql.params().set("factoryid", user.getId());
+		sql.params().set("logistics", logistics);
 		Entity<Lo_taobao_orders> entityOrder = dao().getEntity(Lo_taobao_orders.class);
         sql.setEntity(entityOrder);
 		sql.setCallback(Sqls.callback.entities());

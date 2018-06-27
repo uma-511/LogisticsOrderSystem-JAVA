@@ -68,6 +68,18 @@ layout("/layouts/platform.html"){
 				</select>
 			</div>
 		</div>
+		<div class="btn-group tool-button" style="padding-left: 10px;" id="taobao">
+			<div class="input-group"
+				style="width: 250px; float: left; padding-left: 5px; padding-right: 5px">
+				<span class="input-group-addon">物流公司</span> <select id="logisticsid"
+					class="form-control" onchange="search()">
+					<option value="-1">全部</option>
+					<% for(items in logistics){%>
+					   <option value="${items.id}">${items.name}</option>
+					<%}%>
+				</select>
+			</div>
+		</div>
 		<div class="pull-right offscreen-right">
 			<button class="btn btn-primary navbar-btn" onclick="exportFile()"
 				id="exportfile">
@@ -171,6 +183,7 @@ layout("/layouts/platform.html"){
                      d.status = $("#status").val(); 
                      d.name = $("#name").val(); 
                      d.pay = $("#pay").val(); 
+                     d.logisticsid = $("#logisticsid").val();
                 }
             },
             "order": [[0, "desc"]],
@@ -248,7 +261,11 @@ layout("/layouts/platform.html"){
         });
     }
     function exportFile(){
-    	window.location.href="${base}/platform/losys/logistics/order/exportFile/"+$("#beginDate").val()+"/"+$("#endDate").val()+"/"+$("#status").val()+"/"+$("#name").val()+"/"+$("#pay").val()+"";
+    	if($("#logisticsid").val()==-1){
+    		Toast.error("请先筛选对应的物流公司!");
+    	}else{
+	    	window.location.href="${base}/platform/losys/logistics/order/exportFile/"+$("#beginDate").val()+"/"+$("#endDate").val()+"/"+$("#status").val()+"/"+$("#name").val()+"/"+$("#pay").val()+"/"+$("#logisticsid").val();
+    	}
     }
     function del(id) {
         var dialog = $("#dialogDelete");
