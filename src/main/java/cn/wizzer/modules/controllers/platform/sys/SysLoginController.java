@@ -316,8 +316,8 @@ public class SysLoginController {
 	}
 	
 	@At
-    @Ok("json")
-    @RequiresAuthentication
+	@Ok("json:full")
+	@AdaptBy(type = WhaleAdaptor.class)
     public Object doChangePassword(@Param("phone") String phone, @Param("newPwd") String newPassword, HttpServletRequest req) {
 		    Sys_user user = userService.fetch(Cnd.where("phone", "=", phone));
             RandomNumberGenerator rng = new SecureRandomNumberGenerator();
