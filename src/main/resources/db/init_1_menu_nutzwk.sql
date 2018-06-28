@@ -98,7 +98,7 @@ INSERT INTO `losys`.`sys_menu` (`id`, `parentId`, `path`, `name`, `aliasName`, `
 /* updateSysMenu48*/
 INSERT INTO `losys`.`lo_logistics` (`id`, `name`, `size`, `compare`, `formula`, `value`, `quantity`, `calType`, `opBy`, `opAt`, `delFlag`) VALUES ('4795f660515f465ab50f285cf525e121', '顺丰', '12000', '*0.75', 'last*width*height/size*pricecompare', '160', '1', '2', NULL, '1522401326', '0');
 /* updateSysMenu49*/
-INSERT INTO `losys`.`lo_logistics` (`id`, `name`, `size`, `compare`, `formula`, `value`, `quantity`, `calType`, `opBy`, `opAt`, `delFlag`) VALUES ('d8af6c76f11147cd9cde0f23de28d3db', '跨越', '10000', '*1', 'last*width*height/size*pricecompare', '150', '2', '2', 'ccb77b82f75b44a9847aeff7ac38a0b5', '1522401420', '0');
+INSERT INTO `losys`.`lo_logistics` (`id`, `name`, `size`, `compare`, `formula`, `value`, `quantity`, `calType`, `opBy`, `opAt`, `delFlag`) VALUES ('d8af6c76f11147cd9cde0f23de28d3db', '跨越', '10000', '+25', 'last*width*height/size*pricecompare', '150', '2', '2', 'ccb77b82f75b44a9847aeff7ac38a0b5', '1522401420', '0');
 /* updateSysMenu50*/
 INSERT INTO `losys`.`lo_insurance_pricesetting` (`id`, `insuranceId`, `operator`, `insurance`, `type`, `value`, `opBy`, `opAt`, `delFlag`) VALUES ('35d6a7aec1064902a60a4dff2cec5b3a', 'b442eadd951247c78e6dda2599ec197b', '<=', '1000', '1', '2', NULL, '1987689253', NULL);
 /* updateSysMenu51*/
