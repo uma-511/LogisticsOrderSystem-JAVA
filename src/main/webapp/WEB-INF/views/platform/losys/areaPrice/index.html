@@ -77,8 +77,9 @@ layout("/layouts/platform.html"){
     </div>
 </div>
 <script language="JavaScript">
-var treeTable;
+var treeTable,currid=[],getChildren,reset;
 $(function () {
+	refreshCheckEvent();
     $("#dialogDetail").on("hidden.bs.modal", function() {
         $(this).removeData("bs.modal");
     });
@@ -88,17 +89,20 @@ $(function () {
     treeTable= $("#treeTable").treetable({
         expandable: true,
         onNodeExpand : function(){
-            var node = this;
+            /*var node = this;
             var rows = "<tr data-tt-id=\"loading\" data-tt-parent-id=\""+node.id+"\" data-tt-branch=\"false\"><td colspan='5'><img src=\""+base+"/assets/img/loading.gif\"/>loading</td></tr>";
             treeTable.treetable("loadBranch", node, rows);
             var logisticsId = $("#logisticsId").val();
             if(logisticsId==""){
             	logisticsId="0";
             }
-	            $.post("${base}/platform/losys/areaPrice/child/"+node.id+"/"+logisticsId,{}, function(data){
-	                treeTable.treetable("unloadBranch", node);
-	                treeTable.treetable("loadBranch", node, data);
-	            });
+            $.post("${base}/platform/losys/areaPrice/child/"+node.id+"/"+logisticsId,{}, function(data){
+                treeTable.treetable("unloadBranch", node);
+                treeTable.treetable("loadBranch", node, data);
+                refreshCheckEvent();
+            });*/
+        },
+        onNodeInitialized:function(){
         }
     });
 });
@@ -121,7 +125,7 @@ $(function () {
     		num+=$(this).val()+",";
     	});
     	num=num.substring(0,num.length-1);
-    	console.log(num)
+
         if (num.length > 0) {
           /*  $.post("${base}/platform/losys/logisticsGroup/setPrice", {logistics: ids.toString(), groupName: groupName});  */
        window.location.href = "${base}/platform/losys/areaPrice/setPrice/"+num.toString()+"/" + logisticsId;
@@ -135,5 +139,58 @@ $(function () {
     		window.location.href ="${base}/platform/losys/areaPrice/data/"+$("#logisticsId").val();
     	}
 	}
+    
+    function refreshCheckEvent(){
+    	$(".shuibian").unbind();
+        $(".shuibian").change(function() {
+        	var row=$(this).parent().parent()
+        	var hasChildren=row.data('tt-branch');
+        	var id=row.data('tt-id');
+        	var ischecked=$(this).is(':checked');
+        	if(hasChildren){
+        		//console.log("expandNode", id);
+        		//$("#treeTable").treetable("expandNode", id);
+        	}
+        	updateCheck(id,ischecked);
+       	});
+    }
+    
+    function updateCheck(preParentId,checked){
+    	if(preParentId){
+			var cn=$('[data-tt-parent-id='+preParentId+']');
+   			var cid=0;
+   			var hasChildren=false;
+   			$.each(cn,function(index,item) {
+   				hasChildren=$(item).data('tt-branch');
+   				
+   				cid=$(item).data('tt-id');
+
+				$(item).find('input').prop('checked',checked);
+				
+				if(hasChildren){
+					updateCheck(cid,checked);
+   	   			}
+   				
+   			});
+		}
+    }
+    
+    function getAllChildrenNode(preParentId,checked){
+		if(preParentId){
+			var cn=$('[data-tt-parent-id='+preParentId+']');
+   			var cid=cn.data('tt-id');
+   			var hasChildren=false;
+   			$.each(cn,function(index,item) {
+   				hasChildren=$(item).data('tt-branch');
+   				if(checked){
+   					$(item).find('input').attr('checked',checked);
+   					if(hasChildren){
+   	   					$('[data-tt-id='+cid+'] input').change();
+   	   	   			}
+   				}
+   				
+   			});
+		}
+    }
 </script>
 <%}%>

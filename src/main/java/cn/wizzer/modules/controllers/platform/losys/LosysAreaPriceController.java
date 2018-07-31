@@ -67,29 +67,34 @@ public class LosysAreaPriceController {
     @Ok("beetl:/platform/losys/areaPrice/index.html")
     public Object index(String logisticsId ,HttpServletRequest req) {
     	List<Record> logistics = logisticsService.dao().query("lo_logistics", Cnd.where("delFlag", "=", "0"));
-    	Sql sql = Sqls.create("SELECT * FROM lo_area WHERE pid = ''");
-    	List<Record> areas = areaService.list(sql);
-    	for (Record record : areas) {
-    		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId and g.logisticsId =@logisticsId AND p.groupId = g.id");
-    		if (logisticsId == null) {
-    			sql2.params().set("logisticsId", logistics.get(0).get("id"));
-    			logisticsId="";
-			}else {
-				sql2.params().set("logisticsId", logisticsId);
-				
-			}
-    		sql2.params().set("areaId", record.getString("id"));
-        	List<Record> prices = areaService.list(sql2);
-        	String prString = "";
-        	String priceName = "";
-        	for (Record record2 : prices) {
-        			prString += record2.getString("name") + ",";
-			}
-        	if(!prString.equals("")){
-        		priceName=prString.substring(0,prString.length()-1);
-        	}
-        	record.set("price", priceName);
-		}
+//    	Sql sql = Sqls.create("SELECT * FROM lo_area WHERE pid = ''");
+//    	Sql sql = Sqls.create("SELECT * FROM lo_area");
+//    	List<Record> areas = areaService.list(sql);
+//    	for (Record record : areas) {
+//    		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId and g.logisticsId =@logisticsId AND p.groupId = g.id");
+//    		if (logisticsId == null) {
+//    			sql2.params().set("logisticsId", logistics.get(0).get("id"));
+//    			logisticsId="";
+//			}else {
+//				sql2.params().set("logisticsId", logisticsId);
+//				
+//			}
+//    		sql2.params().set("areaId", record.getString("id"));
+//        	List<Record> prices = areaService.list(sql2);
+//        	String prString = "";
+//        	String priceName = "";
+//        	for (Record record2 : prices) {
+//        			prString += record2.getString("name") + ",";
+//			}
+//        	if(!prString.equals("")){
+//        		priceName=prString.substring(0,prString.length()-1);
+//        	}
+//        	record.set("price", priceName);
+//		}
+    	if (logisticsId == null) {
+			logisticsId=logistics.get(0).getString("id");
+    	}
+    	List<Record> areas = areaService.getAllAreaPrice(logisticsId);
     	req.setAttribute("list", areas);
     	req.setAttribute("logistics", logistics);
     	req.setAttribute("logisticsId", logisticsId);
@@ -106,7 +111,7 @@ public class LosysAreaPriceController {
     	sql.setParam("pid", id);
     	List<Record> areas = areaService.list(sql);
     	for (Record record : areas) {
-    		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId and g.logisticsId =@logisticsId AND p.groupId = g.id");
+    		Sql sql2 = Sqls.create("SELECT g.`name` FROM lo_area_price p INNER JOIN lo_logistics_group  g on(p.logisticsId=g.logisticsId) WHERE p.areaId =@areaId AND p.groupId = g.id where g.logisticsId =@logisticsId ");
     		if (logisticsId == null) {
     			sql2.params().set("logisticsId", logistics.get(0).get("id"));
 			}else {
