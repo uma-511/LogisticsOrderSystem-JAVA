@@ -22,6 +22,11 @@ var ioc={
         singleton : false,
         args : [ { refer : 'uploadImageContext' } ]
     },
+    upLoadExeclFile : {
+        type : 'org.nutz.mvc.upload.UploadAdaptor',
+        singleton : false,
+        args : [ { refer : 'uploadFileContext' } ]
+    },
     uploadFileContext : {
         type : 'org.nutz.mvc.upload.UploadingContext',
         singleton : false,

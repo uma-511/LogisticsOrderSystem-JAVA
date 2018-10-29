@@ -1,0 +1,149 @@
+<%
+layout("/layouts/platform.html"){
+%>
+<header class="header navbar bg-white shadow">
+    <div class="btn-group tool-button">
+        <a class="btn btn-primary navbar-btn" href="${base}/platform/losys/factory/dataImport" id="goback" data-pjax><i class="ti-angle-left"></i> 返回</a>
+    </div>
+</header>
+
+<div class="content-wrap">
+    <div class="wrapper" style="min-height:500px;">
+        <section class="panel panel-form">
+            <form id="editForm" role="form" class="form-horizontal parsley-form" data-parsley-validate
+                  action="${base}/platform/losys/factory/dataImport/editDo" method="post">
+                <input name="id" type="hidden" value="${obj.id}">
+                <div class="row mb10">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="date" class="col-sm-2 control-label">日期</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="date" class="form-control" name="date" data-parsley-required="true"
+                                       placeholder="日期" value="${obj.date}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="tbName" class="col-sm-2 control-label">淘宝店名</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="tbName" class="form-control" name="tbName" data-parsley-required="true"
+                                       placeholder="淘宝店名" value="${obj.tbName}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="factory" class="col-sm-2 control-label">工厂</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="factory" class="form-control" name="factory" data-parsley-required="true"
+                                       placeholder="工厂" value="${obj.factory}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="addressee" class="col-sm-2 control-label">收件人</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="addressee" class="form-control" name="addressee" data-parsley-required="true"
+                                       placeholder="收件人" value="${obj.addressee}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" class="col-sm-2 control-label">收件手机</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="phone" class="form-control" name="phone" data-parsley-required="true"
+                                       placeholder="收件手机" value="${obj.phone}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="receivingAddress" class="col-sm-2 control-label">收件地址</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="receivingAddress" class="form-control" name="receivingAddress" data-parsley-required="true"
+                                       placeholder="收件地址" value="${obj.receivingAddress}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="objectContent" class="col-sm-2 control-label">物件内容</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="objectContent" class="form-control" name="objectContent" data-parsley-required="true"
+                                       placeholder="物件内容" value="${obj.objectContent}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="objectNumber" class="col-sm-2 control-label">物件数量</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="objectNumber" class="form-control" name="objectNumber" data-parsley-required="true"
+                                       placeholder="物件数量" value="${obj.objectNumber}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="logisticsCompany" class="col-sm-2 control-label">物流公司</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="logisticsCompany" class="form-control" name="logisticsCompany" data-parsley-required="true"
+                                       placeholder="物流公司" value="${obj.logisticsCompany}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="logisticsNo" class="col-sm-2 control-label">物流单号</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="logisticsNo" class="form-control" name="logisticsNo" data-parsley-required="true"
+                                       placeholder="物流单号" value="${obj.logisticsNo}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="money" class="col-sm-2 control-label">物流单号</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="money" class="form-control" name="money" data-parsley-required="true"
+                                       placeholder="物流单号" value="${obj.money}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="status" class="col-sm-2 control-label">订单状态</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="status" class="form-control" name="status" data-parsley-required="true"
+                                       placeholder="订单状态" value="${obj.status}" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="remarks" class="col-sm-2 control-label">订单状态</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="remarks" class="form-control" name="remarks" data-parsley-required="true"
+                                       placeholder="订单状态" value="${obj.remarks}" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3"></div>
+                <div class="col-lg-6">
+                    <div class="form-group text-center">
+                        <label></label>
+
+                        <div>
+                            <button class="btn btn-primary btn-block btn-lg btn-parsley" data-loading-text="正在提交...">提 交</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+    </div>
+</div>
+<script language="JavaScript">
+    $(document).ready(function () {
+        $('#editForm').ajaxForm({
+            dataType: 'json',
+            beforeSubmit: function (arr, form, options) {
+                form.find("button:submit").button("loading");
+            },
+            success: function (data, statusText, xhr, form) {
+                if (data.code == 0) {
+                    Toast.success(data.msg);
+                    setTimeout(function () {
+                        $("#goback").trigger("click");
+                    }, 1000);
+                } else {
+                    Toast.error(data.msg);
+                }
+                form.find("button:submit").button("reset");
+            }
+        });
+    });
+</script>
+
+
+<%}%>
