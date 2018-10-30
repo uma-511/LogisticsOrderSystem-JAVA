@@ -16,8 +16,6 @@ import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
-import org.nutz.dao.impl.NutDao;
-import org.nutz.http.Request;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
@@ -68,6 +66,10 @@ public class LoFactoryDataimportController {
 					   @Param("phone") String phone, 
 					   @Param("objectContent") String objectContent, 
 					   @Param("tbName") String tbName, 
+					   @Param("logisticsNo") String logisticsNo, 
+					   @Param("date1") String date1, 
+					   @Param("date2") String date2, 
+					   @Param("inputDeliverGoods") String inputDeliverGoods, 
 					   @Param("length") int length, 
 					   @Param("start") int start, 
 					   @Param("draw") int draw, 
@@ -89,24 +91,54 @@ public class LoFactoryDataimportController {
 		
 		// 组装条件
 		Cnd cnd = Cnd.NEW();
+		
+		// 淘宝身份，只查询自己店铺的数据信息
 		if (role.getCode().equals("taobao")) {
-			cnd.and("tbName", "=", user.getShopname());	
+			cnd.and("tbName", "=", user.getShopname());
 		}
 		
+		// 条件 淘宝名
+		if (!Strings.isBlank(tbName)) {
+			cnd.and("tbName", "like", "%" + tbName + "%");
+		}
+		
+		// 条件 淘宝名
 		if (!Strings.isBlank(factory)) {
 			cnd.and("factory", "like", "%" + factory + "%");
 		}
 		
-		if (!Strings.isBlank(addressee)) {
-			cnd.and("addressee", "like", "%" + addressee + "%");
-		}
-		
-		if (!Strings.isBlank(phone)) {
-			cnd.and("phone", "like", "%" + phone + "%");
-		}
-		
-		if (!Strings.isBlank(objectContent)) {
-			cnd.and("objectContent", "like", "%" + objectContent + "%");
+		// 条件 发货弹出层自动输入订单号
+		/**
+		 * 注明：若发货按钮弹出层输入不为空的情况，其余条件作废，以弹出层条件作为唯一条件
+		 */
+		if (!Strings.isBlank(inputDeliverGoods)) {
+			cnd.and("logisticsNo", "like", "%" + inputDeliverGoods + "%");
+		} else {
+			
+			// 条件 订单号
+			if (!Strings.isBlank(logisticsNo)) {
+				cnd.and("logisticsNo", "like", "%" + logisticsNo + "%");
+			}
+			
+			// 条件 收货地址
+			if (!Strings.isBlank(addressee)) {
+				cnd.and("addressee", "like", "%" + addressee + "%");
+			}
+			
+			// 条件 收件人手机号
+			if (!Strings.isBlank(phone)) {
+				cnd.and("phone", "like", "%" + phone + "%");
+			}
+			
+			// 条件 物品内容
+			if (!Strings.isBlank(objectContent)) {
+				cnd.and("objectContent", "like", "%" + objectContent + "%");
+			}
+			
+			// 条件 日期
+			if (!Strings.isBlank(date1) && !Strings.isBlank(date2)) {
+				cnd.and("STR_TO_DATE(`date`,\"%Y-%m-%d\") BETWEEN '" + date1 + "'", "and", date2);
+			}
 		}
 		
     	return loFactoryDataimportService.data(length, start, draw, order, columns, cnd, null);

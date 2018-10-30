@@ -83,6 +83,10 @@ public class UploadController extends NutDao {
     			List<Lo_factory_dataImport> dataImports = J4E.fromExcel(tf.getInputStream(), Lo_factory_dataImport.class, null);
     			for (Lo_factory_dataImport lo_factory_dataImport : dataImports) {
     				Lo_factory_dataImport dataImport = dataimportService.fetch(Cnd.where("logisticsNo", "=", lo_factory_dataImport.getLogisticsNo()));
+    				String status = lo_factory_dataImport.getStatus();
+    				if (status.equals("")) {
+    					status = "未发货";
+    				}
     				if (dataImport != null) {
     					dataimportService.update(Chain.make("date", lo_factory_dataImport.getDate())
     											 .add("tbName", lo_factory_dataImport.getTbName())
@@ -95,9 +99,10 @@ public class UploadController extends NutDao {
     											 .add("logisticsCompany", lo_factory_dataImport.getLogisticsCompany())
     											 .add("logisticsNo", lo_factory_dataImport.getLogisticsNo())
     											 .add("money", lo_factory_dataImport.getMoney())
-    											 .add("status", lo_factory_dataImport.getStatus())
+    											 .add("status", status)
     											 .add("remarks", lo_factory_dataImport.getRemarks()), Cnd.where("id", "=", dataImport.getId()));
     				} else {
+    					lo_factory_dataImport.setStatus(status);
     					dataimportService.insert(lo_factory_dataImport);
     				}
 				}

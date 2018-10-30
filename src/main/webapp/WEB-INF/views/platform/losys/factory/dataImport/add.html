@@ -71,8 +71,10 @@ layout("/layouts/platform.html"){
 	            data = JSON.parse(data);
 	            if (data.code == 0) {
 	                Toast.success(data.msg);
-	                $("#img1").html("<img src='" + data.data.url + "' style='width:150px;height:95px;'>");
-	                $("#headUrl").val(data.data.value);
+	                setTimeout(function(){
+	                			window.location.href = "${base}/platform/losys/factory/dataImport";
+	                }, 500);
+	                
 	            } else {
 	                clearFile();
 	                setTimeout(function(){

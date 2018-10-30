@@ -99,6 +99,7 @@ public class Lo_factory_dataImport extends Model implements Serializable {
     @J4EName("订单状态")
     @Column
     @Comment("订单状态")
+    @Default("未发货")
     @ColDefine(type = ColType.VARCHAR, width = 64)
     private String status;
 
