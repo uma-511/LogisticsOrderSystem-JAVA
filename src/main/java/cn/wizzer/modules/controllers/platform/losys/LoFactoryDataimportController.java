@@ -14,16 +14,20 @@ import cn.wizzer.modules.services.losys.LoFactoryDataimportService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
+import org.nutz.dao.Chain;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
+import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.Iterator;
 import java.util.List;
 
 @IocBean
@@ -110,8 +114,16 @@ public class LoFactoryDataimportController {
 		// 条件 发货弹出层自动输入订单号
 		/**
 		 * 注明：若发货按钮弹出层输入不为空的情况，其余条件作废，以弹出层条件作为唯一条件
+		 * identification 用于标明是否弹框发货成功，状态为 1 时，发货成功
 		 */
+		int identification = 0;
 		if (!Strings.isBlank(inputDeliverGoods)) {
+//			Lo_factory_dataImport dataImport = loFactoryDataimportService.fetch();
+//			dataImport.u
+			int upDataCount = loFactoryDataimportService.update(Chain.make("status", "已发货"), Cnd.where("logisticsNo", "=", inputDeliverGoods));
+			if (upDataCount >= 1) {
+				identification = 1;
+			}
 			cnd.and("logisticsNo", "like", "%" + inputDeliverGoods + "%");
 		} else {
 			
@@ -141,7 +153,9 @@ public class LoFactoryDataimportController {
 			}
 		}
 		
-    	return loFactoryDataimportService.data(length, start, draw, order, columns, cnd, null);
+		NutMap map = loFactoryDataimportService.data(length, start, draw, order, columns, cnd, null);
+		map.addv("identification", identification);
+    	return map;
     }
 
     @At

@@ -152,8 +152,13 @@ layout("/layouts/platform.html"){
             "preDrawCallback": function () {
                 sublime.showLoadingbar($(".main-content"));
             },
-            "drawCallback": function () {
+            "drawCallback": function (data) {
                 sublime.closeLoadingbar($(".main-content"));
+				
+                // update（发货成功） 了数据，弹窗提示
+                if (data.json.identification == 1) {
+                	Toast.success("发货成功");
+                }
             },
             "ajax": {
                 "url": "${base}/platform/losys/factory/dataImport/data",
