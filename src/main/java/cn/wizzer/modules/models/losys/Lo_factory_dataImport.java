@@ -12,6 +12,7 @@ import org.nutz.integration.json4excel.annotation.J4EIgnore;
 import org.nutz.integration.json4excel.annotation.J4EName;
 
 import java.io.Serializable;
+import java.sql.Date;
 
 @J4EName("Sheet1")
 @Table(value="lo_factory_dataImport")
@@ -32,9 +33,9 @@ public class Lo_factory_dataImport extends Model implements Serializable {
     @J4EName("日期")
     @Column
     @Comment("日期")
-    @J4EIgnore
-    @ColDefine(type = ColType.VARCHAR, width = 32)
-    private String date;
+    @ColDefine(type = ColType.DATE, width = 32)
+    @J4EDefine(type = J4EColumnType.DATE)
+    private Date date;
 
     @J4EName("淘宝店名")
     @Column

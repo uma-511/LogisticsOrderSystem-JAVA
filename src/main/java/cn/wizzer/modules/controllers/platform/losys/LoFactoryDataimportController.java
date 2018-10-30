@@ -229,6 +229,35 @@ public class LoFactoryDataimportController {
 		return null;
     }
     
+    @At("/send/?")
+    @Ok("json") 
+    public Object send(String id ,HttpServletRequest req) {
+    	Subject subject = SecurityUtils.getSubject();
+		Sys_user user = (Sys_user) subject.getPrincipal();
+    	Result res=new Result();
+		try {
+			Lo_factory_dataImport lfd = loFactoryDataimportService.fetch(Cnd.where("logisticsNo", "=", id).and("tbName", "=", user.getShopname()));
+			if(lfd!=null){
+				if("已发货".equals(lfd.getStatus())){
+					res=Result.error("该订单已经发货");
+				}else{
+					lfd.setStatus("已发货");
+					int sendResult=loFactoryDataimportService.update(lfd);
+					if(sendResult>0){
+						res=Result.success("发货成功");
+					}else{
+						res=Result.error("发货失败");
+					}
+				}
+			}else{
+				res=Result.error("找不到对应物流单");
+			}
+			return res;
+		} catch (Exception e) {
+			return Result.error("system.error");
+		}
+    }
+    
     @At("/seeDataImport")
 	@Ok("beetl:/platform/losys/factory/dataImport/seeDataImport.html")
 	@RequiresAuthentication

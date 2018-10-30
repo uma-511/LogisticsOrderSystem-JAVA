@@ -23,6 +23,8 @@ import org.nutz.mvc.impl.AdaptorErrorContext;
 import org.nutz.mvc.upload.TempFile;
 import org.nutz.mvc.upload.UploadAdaptor;
 
+import com.mysql.jdbc.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.Date;
@@ -84,9 +86,13 @@ public class UploadController extends NutDao {
     			for (Lo_factory_dataImport lo_factory_dataImport : dataImports) {
     				Lo_factory_dataImport dataImport = dataimportService.fetch(Cnd.where("logisticsNo", "=", lo_factory_dataImport.getLogisticsNo()));
     				String status = lo_factory_dataImport.getStatus();
-    				if (status.equals("")) {
+    				
+    				if (status.equals("")&&(dataImport!=null&&StringUtils.isNullOrEmpty(dataImport.getStatus()))||dataImport==null) {
     					status = "未发货";
+    				}else{
+    					status=dataImport.getStatus();
     				}
+    				
     				if (dataImport != null) {
     					dataimportService.update(Chain.make("date", lo_factory_dataImport.getDate())
     											 .add("tbName", lo_factory_dataImport.getTbName())
