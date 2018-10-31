@@ -94,8 +94,9 @@ public class Lo_factory_dataImport extends Model implements Serializable {
     @J4EName("费用")
     @Column
     @Comment("费用")
-    @ColDefine(type = ColType.VARCHAR, width = 64)
-    private String money;
+    @J4EDefine(type = J4EColumnType.NUMERIC, precision=2)
+    @ColDefine(type = ColType.FLOAT, width = 64)
+    private double money;
 
     @J4EName("订单状态")
     @Column

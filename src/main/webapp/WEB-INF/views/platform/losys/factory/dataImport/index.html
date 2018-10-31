@@ -278,10 +278,13 @@ layout("/layouts/platform.html"){
         $("#dialogDetail").on("hidden.bs.modal", function () {
             $(this).removeData("bs.modal");
         });
-        
+        var timer;
         // 发货弹出层，监听 input 输入
         $("#inputDeliverGoods").bind('input propertychange',function(){
-        	send();
+        	  clearTimeout(timer); //如果操作时已经有了延迟执行, 则取消该延迟执行
+              timer = setTimeout(function() { //设定新的延迟执行
+            	  send();
+              }, 1000)
         })
     });
     
