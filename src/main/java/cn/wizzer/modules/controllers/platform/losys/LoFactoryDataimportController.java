@@ -232,11 +232,12 @@ public class LoFactoryDataimportController {
     @At("/send/?")
     @Ok("json") 
     public Object send(String id ,HttpServletRequest req) {
-    	Subject subject = SecurityUtils.getSubject();
-		Sys_user user = (Sys_user) subject.getPrincipal();
+//    	Subject subject = SecurityUtils.getSubject();
+//		Sys_user user = (Sys_user) subject.getPrincipal();
     	Result res=new Result();
 		try {
-			Lo_factory_dataImport lfd = loFactoryDataimportService.fetch(Cnd.where("logisticsNo", "=", id).and("tbName", "=", user.getShopname()));
+//			Lo_factory_dataImport lfd = loFactoryDataimportService.fetch(Cnd.where("logisticsNo", "=", id).and("tbName", "=", user.getShopname()));
+			Lo_factory_dataImport lfd = loFactoryDataimportService.fetch(Cnd.where("logisticsNo", "=", id));
 			if(lfd!=null){
 				if("已发货".equals(lfd.getStatus())){
 					res=Result.error("该订单已经发货");
