@@ -24,3 +24,10 @@ FIND_IN_SET(id, (select GROUP_CONCAT(id) as id from sys_menu where path like ('0
 /* insertTeamtalkMenu13 */ 
 INSERT INTO sys_role_menu(roleId,menuId) SELECT (select id from sys_role where name='物流方') as roleid,id as menuid FROM sys_menu WHERE 
 FIND_IN_SET(id, (select GROUP_CONCAT(id) as id from sys_menu where path like ('0006') or path like ('000600010002%') or path like ('00060001')))
+
+/* insertTeamtalkMenu14 */ 
+insert into sys_role_menu (`roleId`, `menuId`) VALUES ((select id from sys_role where `code` = 'dataManage'), 'bb05021392cf40968eb6c8a7de80faca');
+/* insertTeamtalkMenu15 */ 
+insert into sys_role_menu (`roleId`, `menuId`) VALUES ((select id from sys_role where `code` = 'dataManage'), '1e4415c59d79485da4d576fb0db6da3a');
+/* insertTeamtalkMenu16 */ 
+insert into sys_role_menu (`roleId`, `menuId`) VALUES ((select id from sys_role where `code` = 'dataManage'), '8ae0e5decd8c47ce8f885626e4636789');

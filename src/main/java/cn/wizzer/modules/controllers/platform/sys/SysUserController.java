@@ -92,7 +92,7 @@ public class SysUserController {
             user.setLoginAt(0);
             user.setStatus(1);
             userService.insert(user);
-            List<Sys_role> role=roleService.query(Cnd.where("name", "=", "物流方"));
+            List<Sys_role> role=roleService.query(Cnd.where("code", "=", "dataManage"));
 			for(Sys_role roleid : role){
 				userService.insert("sys_user_role", org.nutz.dao.Chain.make("roleId", roleid.getId()).add("userId", user.getId()));
 			}
