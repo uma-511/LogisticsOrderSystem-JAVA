@@ -57,8 +57,10 @@ public class LoFactoryDataimportController {
 		
 		if (role.getCode().equals("taobao")) {
 			req.setAttribute("isDisplay", "0");
-		} else {
+		} else if (role.getCode().equals("dataManage")) {
 			req.setAttribute("isDisplay", "1");
+		} else {
+			req.setAttribute("isDisplay", "2");
 		}
 	}
 
