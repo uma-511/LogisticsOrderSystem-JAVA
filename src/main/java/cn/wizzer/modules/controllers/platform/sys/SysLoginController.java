@@ -282,7 +282,7 @@ public class SysLoginController {
 //			return Result.error(-2,"操作过于频繁，请稍后！");
 //		}
 		String code = RandomCode.genIntCode(6);
-		String content = "短信验证码：" + code + "，验证码有效时间为5分钟！【同协物流】";
+		String content = "短信验证码：" + code + "，验证码有效时间为5分钟！【台盟物流供应链】";
 		SMSSend.sendSMS(phone, content);
 		user.setCode(code);
 		user.setOpAt(time);
