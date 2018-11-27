@@ -9,6 +9,9 @@ layout("/layouts/platform.html"){
 	                    class="fa fa-sliders"></i> 筛选
 	            </button>
             <% } %>
+            <button class="btn btn-primary navbar-btn" onclick="exportFile()" id="exportfile"><i
+                    class="fa fa-sliders"></i> 导出
+            </button>
         </div>
         
         <% if (isDisplay != '0') { %>
@@ -28,6 +31,7 @@ layout("/layouts/platform.html"){
             <table class="table table-bordered table-striped mg-t datatable">
                 <thead>
                     <tr>
+                            <th>序号</th>
                             <th>日期</th>
                             <th>淘宝店名</th>
                             <th>工厂</th>
@@ -145,6 +149,7 @@ layout("/layouts/platform.html"){
     function initDatatable(identification) {
         datatable = $('.datatable').DataTable({
             "dom": '<"toolbar">frtip',
+            "bSort": false,
             "searching":false,
             "processing": false,
             "serverSide": true,
@@ -182,6 +187,7 @@ layout("/layouts/platform.html"){
             },
             "order": [[0, "desc"]],
             "columns": [
+                    {"data": "id", "bSortable": true},
                     {"data": "date", "bSortable": true},
                     {"data": "tbName", "bSortable": true},
                     {"data": "factory", "bSortable": true},
@@ -196,109 +202,177 @@ layout("/layouts/platform.html"){
                     {"data": "status", "bSortable": true},
                     {"data": "remarks", "bSortable": true},
             ],
-           /*  "columnDefs": [
-                {
-                    "render": function (data, type, row) {
-                        return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
-                                ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
-                                '<li><a href="${base}/platform/losys/factory/dataImport/detail/' + row.id + '" data-toggle="modal" data-target="#dialogDetail">查看</a></li>' +
-                                '<li><a href="${base}/platform/losys/factory/dataImport/edit/' + row.id + '" data-pjax>修改</a></li>' +
-                                '<li class="divider"></li>' +
-                                '<li><a href="javascript:;" onclick="del(\'' + row.id + '\')">删除</a></li>' +
-                                '</ul></div>';
-                    },
-                    "targets": 13
-                }
-            ] */
-        });
-        datatable.on('click', 'tr', function () {
-            $(this).toggleClass('selected');
-        });
-        $("#searchBtn").on('click', function () {
-            datatable.ajax.reload();
-        });
-    }
-    function del(id) {
-        var dialog = $("#dialogDelete");
-        dialog.modal("show");
-        dialog.find("#okDel").unbind("click");
-        dialog.find("#okDel").bind("click", function (event) {
-            var btn = $(this);
-            btn.button("loading");
-            $.post("${base}/platform/losys/factory/dataImport/delete/" + id, {}, function (data) {
-                if (data.code == 0) {
-                    datatable.ajax.reload(null,false);
-                } else {
-                    Toast.error(data.msg);
-                }
-                //重置按钮状态，关闭提示框
-                btn.button("reset");
-                dialog.modal("hide");
-            }, "json");
-        });
-    }
-    function delCheck() {
-        var chks = datatable.rows('.selected').data();
-        if (chks.length > 0) {
-            var ids = [];
-            $.each(datatable.rows('.selected').data(), function (i, n) {
-                ids.push(n.id);
-            });
-            var dialog = $("#dialogDelete");
-            dialog.modal("show");
-            dialog.find("#okDel").unbind("click");
-            dialog.find("#okDel").bind("click", function (event) {
-                var btn = $(this);
-                btn.button("loading");
-                $.post("${base}/platform/losys/factory/dataImport/delete", {ids: ids.toString()}, function (data) {
-                    if (data.code == 0) {
-                        datatable.ajax.reload(null,false);
-                    } else {
-                        Toast.error(data.msg);
-                    }
-                    btn.button("reset");
-                    dialog.modal("hide");
-                }, "json");
-            });
-        } else {
-            Toast.warning("请先选择要删除的项！");
-        }
-    }
-    function send() {
-    	var id=$("#inputDeliverGoods").val();
-       $.post("${base}/platform/losys/factory/dataImport/send/" + id, {}, function (data) {
-           if (data.code == 0) {
-        	   $("#inputDeliverGoods").val("");
-        	   Toast.success(data.msg);
-               datatable.ajax.reload(null,false);
-           } else {
-        	   $("#inputDeliverGoods").val("");
-               Toast.error(data.msg);
-           }
-       }, "json");
-    }
-    $(function () {
-        initDatatable();
-        $("#dialogDetail").on("hidden.bs.modal", function () {
-            $(this).removeData("bs.modal");
-        });
-        var timer;
-        // 发货弹出层，监听 input 输入
-        $("#inputDeliverGoods").bind('input propertychange',function(){
-        	  clearTimeout(timer); //如果操作时已经有了延迟执行, 则取消该延迟执行
-              timer = setTimeout(function() { //设定新的延迟执行
-            	  send();
-              }, 1000)
-        })
-    });
-    
+            /* "aoColumns" :[
+                {"sClass" : "center", "mDataProp" : ""}, 
+                {"sClass" : "center", "mDataProp" : "date"},
+                {"sClass" : "center", "mDataProp" : "tbName"},
+                {"sClass" : "center", "mDataProp" : "factory"},
+                {"sClass" : "center", "mDataProp" : "addressee"},
+                {"sClass" : "center", "mDataProp" : "phone"},
+                {"sClass" : "center", "mDataProp" : "receivingAddress"},
+                {"sClass" : "center", "mDataProp" : "objectContent"},
+                {"sClass" : "center", "mDataProp" : "objectNumber"},
+                {"sClass" : "center", "mDataProp" : "logisticsCompany"},
+                {"sClass" : "center", "mDataProp" : "logisticsNo"},
+                {"sClass" : "center", "mDataProp" : "money"},
+                {"sClass" : "center", "mDataProp" : "status"},
+                {"sClass" : "center", "mDataProp" : "remarks"},
+             ], */
+			"fnDrawCallback" : function() {
+				var api = this.api();
+				var startIndex = api.context[0]._iDisplayStart; 
+				api.column(0).nodes().each(function(cell, i) {
+					cell.innerHTML = startIndex + i + 1;
+				});
+			},
+		/*  "columnDefs": [
+		     {
+		         "render": function (data, type, row) {
+		             return '<div class="btn-group"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">' +
+		                     ' <i class="ti-settings"></i> <span class="ti-angle-down"></span></button><ul class="dropdown-menu" role="menu">' +
+		                     '<li><a href="${base}/platform/losys/factory/dataImport/detail/' + row.id + '" data-toggle="modal" data-target="#dialogDetail">查看</a></li>' +
+		                     '<li><a href="${base}/platform/losys/factory/dataImport/edit/' + row.id + '" data-pjax>修改</a></li>' +
+		                     '<li class="divider"></li>' +
+		                     '<li><a href="javascript:;" onclick="del(\'' + row.id + '\')">删除</a></li>' +
+		                     '</ul></div>';
+		         },
+		         "targets": 13
+		     }
+		 ] */
+		});
+		datatable.on('click', 'tr', function() {
+			$(this).toggleClass('selected');
+		});
+		$("#searchBtn").on('click', function() {
+			datatable.ajax.reload();
+		});
+	}
+	function del(id) {
+		var dialog = $("#dialogDelete");
+		dialog.modal("show");
+		dialog.find("#okDel").unbind("click");
+		dialog.find("#okDel").bind(
+				"click",
+				function(event) {
+					var btn = $(this);
+					btn.button("loading");
+					$.post("${base}/platform/losys/factory/dataImport/delete/"
+							+ id, {}, function(data) {
+						if (data.code == 0) {
+							datatable.ajax.reload(null, false);
+						} else {
+							Toast.error(data.msg);
+						}
+						//重置按钮状态，关闭提示框
+						btn.button("reset");
+						dialog.modal("hide");
+					}, "json");
+				});
+	}
+	function delCheck() {
+		var chks = datatable.rows('.selected').data();
+		if (chks.length > 0) {
+			var ids = [];
+			$.each(datatable.rows('.selected').data(), function(i, n) {
+				ids.push(n.id);
+			});
+			var dialog = $("#dialogDelete");
+			dialog.modal("show");
+			dialog.find("#okDel").unbind("click");
+			dialog.find("#okDel").bind("click", function(event) {
+				var btn = $(this);
+				btn.button("loading");
+				$.post("${base}/platform/losys/factory/dataImport/delete", {
+					ids : ids.toString()
+				}, function(data) {
+					if (data.code == 0) {
+						datatable.ajax.reload(null, false);
+					} else {
+						Toast.error(data.msg);
+					}
+					btn.button("reset");
+					dialog.modal("hide");
+				}, "json");
+			});
+		} else {
+			Toast.warning("请先选择要删除的项！");
+		}
+	}
+	function send() {
+		var id = $("#inputDeliverGoods").val();
+		$.post("${base}/platform/losys/factory/dataImport/send/" + id, {},
+				function(data) {
+					if (data.code == 0) {
+						$("#inputDeliverGoods").val("");
+						Toast.success(data.msg);
+						datatable.ajax.reload(null, false);
+					} else {
+						$("#inputDeliverGoods").val("");
+						Toast.error(data.msg);
+					}
+				}, "json");
+	}
+	$(function() {
+		initDatatable();
+		$("#dialogDetail").on("hidden.bs.modal", function() {
+			$(this).removeData("bs.modal");
+		});
+		var timer;
+		// 发货弹出层，监听 input 输入
+		$("#inputDeliverGoods").bind('input propertychange', function() {
+			clearTimeout(timer); //如果操作时已经有了延迟执行, 则取消该延迟执行
+			timer = setTimeout(function() { //设定新的延迟执行
+				send();
+			}, 1000)
+		})
+	});
+
 	// 点击发货按钮
-    $("#clickDeliverGoods").click(function() {//点击按钮
+	$("#clickDeliverGoods").click(function() {//点击按钮
 		$("#myModal").modal("show");//打开模态框
-		$('#myModal').on('shown.bs.modal', function () {
+		$('#myModal').on('shown.bs.modal', function() {
 			$("#myModal #inputDeliverGoods").focus();//获取焦点
 		});
-    });
+	});
+
+	// Excel 数据导出
+	function exportFile() {
+		var tbName = $('#tbName').val();
+		if (typeof tbName === 'undefined' || tbName == '') {
+			tbName = "@@";
+		}
+		var factory = $('#factory').val();
+		if (factory == "") {
+			factory = "@@"
+		}
+		var addressee = $('#addressee').val();
+		if (addressee == "") {
+			addressee = "@@"
+		}
+		var phone = $('#phone').val();
+		if (phone == "") {
+			phone = "@@"
+		}
+		var objectContent = $('#objectContent').val();
+		if (objectContent == "") {
+			objectContent = "@@"
+		}
+		var date1 = $('#date1').val();
+		if (date1 == "") {
+			date1 = "@@"
+		}
+		var date2 = $('#date2').val();
+		if (date2 == "") {
+			date2 = "@@"
+		}
+		var logisticsNo = $('#logisticsNo').val();
+		if (logisticsNo == "") {
+			logisticsNo = "@@"
+		}
+        window.location.href = "${base}/platform/losys/factory/dataImport/exportFile/" + tbName + "/ " + factory + " / " + addressee + "/" + phone + "/" + objectContent + "/" + date1 + "/ " + date2 + "/" + logisticsNo;
+		// datatable.ajax.reload();
+        // window.location.href = "${base}/platform/losys/factory/dataImport/exportFile";
+	}
 </script>
 
 <%}%>

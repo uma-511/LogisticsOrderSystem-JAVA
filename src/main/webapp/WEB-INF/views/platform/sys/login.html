@@ -158,7 +158,7 @@
                 if (data.code == 0) {
                     $("#tip").hide();
                     form.find("button:submit").text("${msg['login.success']}");
-                    window.location.href = "${base!}/platform/home";
+                    window.location.href = "${base!}/platform/losys/factory/dataImport";
                 } else if (data.code == 2) {
                     $("#verifycode").val("");
                     $("#dialogVeryCode img").attr("src", '${base!}/platform/login/captcha?_=' + new Date().getTime());

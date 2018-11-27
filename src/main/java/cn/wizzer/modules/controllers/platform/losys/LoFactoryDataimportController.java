@@ -5,28 +5,49 @@ import cn.wizzer.common.base.Result;
 import cn.wizzer.common.filter.PrivateFilter;
 import cn.wizzer.common.page.DataTableColumn;
 import cn.wizzer.common.page.DataTableOrder;
+import cn.wizzer.common.util.DateUtil;
 import cn.wizzer.modules.models.losys.Lo_factory_dataImport;
+import cn.wizzer.modules.models.losys.Lo_orders;
+import cn.wizzer.modules.models.losys.Lo_taobao_order;
+import cn.wizzer.modules.models.losys.Lo_taobao_orders;
 import cn.wizzer.modules.models.sys.Sys_role;
 import cn.wizzer.modules.models.sys.Sys_user;
 import cn.wizzer.modules.models.sys.Sys_user_role;
 import cn.wizzer.modules.services.losys.LoFactoryDataimportService;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.subject.Subject;
 import org.nutz.dao.Chain;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
+import org.nutz.integration.json4excel.J4E;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.lang.Strings;
+import org.nutz.lang.Times;
 import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -267,5 +288,135 @@ public class LoFactoryDataimportController {
 	public void seeDataImport() {
 
 	}
-
+    
+	@At("/exportFile/?/?/?/?/?/?/?/?")
+	@Ok("void")
+	public void exportFile(String tbName, String factory, String addressee, String phone, String objectContent, String date1, String date2, String logisticsNo, HttpServletRequest req, HttpServletResponse resp) {
+		try {
+			// 登录用户
+			Subject subject = SecurityUtils.getSubject();
+			Sys_user user = (Sys_user) subject.getPrincipal();
+				
+			// 登录对应的角色关系
+			Sys_user_role user_role = dao.fetch(Sys_user_role.class, Cnd.where("userId", "=", user.getId()));
+			
+			// 登录的角色
+			Sys_role role = dao.fetch(Sys_role.class,  Cnd.where("id", "=", user_role.getRoleId()));
+			
+			// 组装条件
+			Cnd cnd = Cnd.NEW();
+			
+			// 淘宝身份，只查询自己店铺的数据信息
+			if (role.getCode().equals("taobao")) {
+				cnd.and("tbName", "=", user.getShopname());
+			}
+			
+			// 条件 淘宝名
+			if (!Strings.isBlank(tbName) && !tbName.equals("@@")) {
+				cnd.and("tbName", "like", "%" + tbName + "%");
+			}
+			
+			// 条件 工厂名
+			if (!Strings.isBlank(factory) && !factory.equals("@@")) {
+				cnd.and("factory", "like", "%" + factory + "%");
+			}
+			
+			// 条件 订单号
+			if (!Strings.isBlank(logisticsNo) && !logisticsNo.equals("@@")) {
+				cnd.and("logisticsNo", "like", "%" + logisticsNo + "%");
+			}
+			
+			// 条件 收货地址
+			if (!Strings.isBlank(addressee) && !addressee.equals("@@")) {
+				cnd.and("addressee", "like", "%" + addressee + "%");
+			}
+			
+			// 条件 收件人手机号
+			if (!Strings.isBlank(phone) && !phone.equals("@@")) {
+				cnd.and("phone", "like", "%" + phone + "%");
+			}
+			
+			// 条件 物品内容
+			if (!Strings.isBlank(objectContent) && !objectContent.equals("@@")) {
+				cnd.and("objectContent", "like", "%" + objectContent + "%");
+			}
+			
+			// 条件 日期
+			if (!Strings.isBlank(date1) && !Strings.isBlank(date2) && !date1.equals("@@") && !date2.equals("@@")) {
+				cnd.and("STR_TO_DATE(`date`,\"%Y-%m-%d\") BETWEEN '" + date1 + "'", "and", date2);
+			}
+			
+			List<Lo_factory_dataImport> dataImports = loFactoryDataimportService.query(cnd);
+			resp.setHeader("Content-Disposition", "attachment;filename=" + new String("订单数据导出.xlsx".getBytes(),"ISO-8859-1"));
+			export(resp.getOutputStream(), dataImports);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 创建Excel，并导出
+	 *
+	 * @author X J B
+	 *
+	 * @date 2018年11月27日 下午3:33:46
+	 *
+	 * @param os
+	 *
+	 */
+	private void export(OutputStream os, List<Lo_factory_dataImport> dataImports) {
+        //工作簿
+		XSSFWorkbook wk = new XSSFWorkbook();
+		CellStyle cellStyle = wk.createCellStyle();
+		cellStyle.setDataFormat(wk.createDataFormat().getFormat("yyyy-MM-dd"));
+//		CreationHelper createHelper = wk.getCreationHelper();
+//		cellStyle.setDataFormat( createHelper.createDataFormat().getFormat("yyyy-MM-dd"));
+        //创建工作表
+        Sheet sheet = wk.createSheet("Sheet1");
+        //创建一行,参数指的是： 行的索引=行号-1
+        Row row = sheet.createRow(0);
+        //列名,表头
+        String[] headers = {"序号", "日期", "淘宝店名", "工厂", "收件人", "收件手机", "收件地址", "物件内容", "物件数量", "物流公司", "物流单号", "费用", "订单状态", "备注"};
+        for(int i = 0; i < headers.length; i++){
+            row.createCell(i).setCellValue(headers[i]);
+        }
+        //创建单元格， 参数指的是：列的索引，从0开始
+        //输出每一条记录
+        if(null != dataImports && dataImports.size() > 0){
+        	Lo_factory_dataImport dataImport = null;
+            for(int i = 1; i<=dataImports.size(); i++){
+            	dataImport = dataImports.get(i-1);
+            	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        		String time= sdf.format(dataImport.getDate());
+                row = sheet.createRow(i);
+                row.createCell(0).setCellValue(i);
+//                row.createCell(1).setCellStyle(cellStyle);
+                row.createCell(1).setCellValue(time);
+                row.createCell(2).setCellValue(dataImport.getTbName());
+                row.createCell(3).setCellValue(dataImport.getFactory());
+                row.createCell(4).setCellValue(dataImport.getAddressee());
+                row.createCell(5).setCellValue(dataImport.getPhone());       
+                row.createCell(6).setCellValue(dataImport.getReceivingAddress());       
+                row.createCell(7).setCellValue(dataImport.getObjectNumber());       
+                row.createCell(8).setCellValue(dataImport.getObjectContent());       
+                row.createCell(9).setCellValue(dataImport.getLogisticsCompany());       
+                row.createCell(10).setCellValue(dataImport.getLogisticsNo());       
+                row.createCell(11).setCellValue(dataImport.getMoney());       
+                row.createCell(12).setCellValue(dataImport.getStatus());       
+                row.createCell(13).setCellValue(dataImport.getRemarks());       
+            }
+        }
+        //输出到输出流中
+        try {
+            wk.write(os);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                wk.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
