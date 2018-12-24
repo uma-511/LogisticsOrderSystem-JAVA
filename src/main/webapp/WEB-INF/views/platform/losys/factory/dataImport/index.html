@@ -337,39 +337,33 @@ layout("/layouts/platform.html"){
 
 	// Excel 数据导出
 	function exportFile() {
+		
 		var tbName = $('#tbName').val();
-		if (typeof tbName === 'undefined' || tbName == '') {
-			tbName = "@@";
-		}
 		var factory = $('#factory').val();
-		if (factory == "") {
-			factory = "@@"
-		}
 		var addressee = $('#addressee').val();
-		if (addressee == "") {
-			addressee = "@@"
-		}
 		var phone = $('#phone').val();
-		if (phone == "") {
-			phone = "@@"
-		}
 		var objectContent = $('#objectContent').val();
-		if (objectContent == "") {
-			objectContent = "@@"
-		}
 		var date1 = $('#date1').val();
-		if (date1 == "") {
-			date1 = "@@"
-		}
 		var date2 = $('#date2').val();
-		if (date2 == "") {
-			date2 = "@@"
-		}
 		var logisticsNo = $('#logisticsNo').val();
-		if (logisticsNo == "") {
-			logisticsNo = "@@"
-		}
-        window.location.href = "${base}/platform/losys/factory/dataImport/exportFile/" + tbName + "/ " + factory + " / " + addressee + "/" + phone + "/" + objectContent + "/" + date1 + "/ " + date2 + "/" + logisticsNo;
+		
+		$.fileDownload("${base}/platform/losys/factory/dataImport/exportFile/",{
+			httpMethod : "post",
+			contentType:'application/json',
+			data : {
+				tbName : tbName,
+				factory : factory,
+				addressee : addressee,
+				phone : phone,
+				objectContent : objectContent,
+				date1 : date1,
+				date2 : date2,
+				logisticsNo : logisticsNo,
+			}
+		})
+		
+        // window.location.href = "${base}/platform/losys/factory/dataImport/exportFile/" + tbName + "/ " + factory + " / " + addressee + "/" + phone + "/" + objectContent + "/" + date1 + "/ " + date2 + "/" + logisticsNo;
+        // window.location.href = "${base}/platform/losys/factory/dataImport/exportFile/";
 		// datatable.ajax.reload();
         // window.location.href = "${base}/platform/losys/factory/dataImport/exportFile";
 	}

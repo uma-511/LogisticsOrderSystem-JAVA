@@ -289,9 +289,17 @@ public class LoFactoryDataimportController {
 
 	}
     
-	@At("/exportFile/?/?/?/?/?/?/?/?")
+	@At("/exportFile")
 	@Ok("void")
-	public void exportFile(String tbName, String factory, String addressee, String phone, String objectContent, String date1, String date2, String logisticsNo, HttpServletRequest req, HttpServletResponse resp) {
+	public void exportFile(	@Param("tbName") String tbName, 
+							@Param("factory") String factory, 
+							@Param("addressee") String addressee, 
+							@Param("phone") String phone, 
+							@Param("objectContent") String objectContent,
+							@Param("date1") String date1, 
+							@Param("date2") String date2, 
+							@Param("logisticsNo") String logisticsNo, 
+							HttpServletRequest req, HttpServletResponse resp) {
 		try {
 			// 登录用户
 			Subject subject = SecurityUtils.getSubject();
@@ -312,41 +320,42 @@ public class LoFactoryDataimportController {
 			}
 			
 			// 条件 淘宝名
-			if (!Strings.isBlank(tbName) && !tbName.equals("@@")) {
+			if (!Strings.isBlank(tbName)) {
 				cnd.and("tbName", "like", "%" + tbName + "%");
 			}
 			
 			// 条件 工厂名
-			if (!Strings.isBlank(factory) && !factory.equals("@@")) {
+			if (!Strings.isBlank(factory)) {
 				cnd.and("factory", "like", "%" + factory + "%");
 			}
 			
 			// 条件 订单号
-			if (!Strings.isBlank(logisticsNo) && !logisticsNo.equals("@@")) {
+			if (!Strings.isBlank(logisticsNo)) {
 				cnd.and("logisticsNo", "like", "%" + logisticsNo + "%");
 			}
 			
 			// 条件 收货地址
-			if (!Strings.isBlank(addressee) && !addressee.equals("@@")) {
+			if (!Strings.isBlank(addressee)) {
 				cnd.and("addressee", "like", "%" + addressee + "%");
 			}
 			
 			// 条件 收件人手机号
-			if (!Strings.isBlank(phone) && !phone.equals("@@")) {
+			if (!Strings.isBlank(phone)) {
 				cnd.and("phone", "like", "%" + phone + "%");
 			}
 			
 			// 条件 物品内容
-			if (!Strings.isBlank(objectContent) && !objectContent.equals("@@")) {
+			if (!Strings.isBlank(objectContent)) {
 				cnd.and("objectContent", "like", "%" + objectContent + "%");
 			}
 			
 			// 条件 日期
-			if (!Strings.isBlank(date1) && !Strings.isBlank(date2) && !date1.equals("@@") && !date2.equals("@@")) {
+			if (!Strings.isBlank(date1) && !Strings.isBlank(date2)) {
 				cnd.and("STR_TO_DATE(`date`,\"%Y-%m-%d\") BETWEEN '" + date1 + "'", "and", date2);
 			}
 			
 			List<Lo_factory_dataImport> dataImports = loFactoryDataimportService.query(cnd);
+			resp.setContentType("application/vnd.ms-excel;charset=utf-8");
 			resp.setHeader("Content-Disposition", "attachment;filename=" + new String("订单数据导出.xlsx".getBytes(),"ISO-8859-1"));
 			export(resp.getOutputStream(), dataImports);
 		} catch (IOException e) {
