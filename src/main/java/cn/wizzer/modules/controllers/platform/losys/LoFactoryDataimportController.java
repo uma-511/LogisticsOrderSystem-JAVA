@@ -396,23 +396,23 @@ public class LoFactoryDataimportController {
             for(int i = 1; i<=dataImports.size(); i++){
             	dataImport = dataImports.get(i-1);
             	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        		String time= sdf.format(dataImport.getDate());
+        		String time= dataImport.getDate()==null?"":sdf.format(dataImport.getDate());
                 row = sheet.createRow(i);
                 row.createCell(0).setCellValue(i);
 //                row.createCell(1).setCellStyle(cellStyle);
                 row.createCell(1).setCellValue(time);
-                row.createCell(2).setCellValue(dataImport.getTbName());
-                row.createCell(3).setCellValue(dataImport.getFactory());
-                row.createCell(4).setCellValue(dataImport.getAddressee());
-                row.createCell(5).setCellValue(dataImport.getPhone());       
-                row.createCell(6).setCellValue(dataImport.getReceivingAddress());       
-                row.createCell(7).setCellValue(dataImport.getObjectNumber());       
-                row.createCell(8).setCellValue(dataImport.getObjectContent());       
-                row.createCell(9).setCellValue(dataImport.getLogisticsCompany());       
-                row.createCell(10).setCellValue(dataImport.getLogisticsNo());       
+                row.createCell(2).setCellValue(dataImport.getTbName()==null?"":dataImport.getTbName());
+                row.createCell(3).setCellValue(dataImport.getFactory()==null?"":dataImport.getFactory());
+                row.createCell(4).setCellValue(dataImport.getAddressee()==null?"":dataImport.getAddressee());
+                row.createCell(5).setCellValue(dataImport.getPhone()==null?"":dataImport.getPhone());       
+                row.createCell(6).setCellValue(dataImport.getReceivingAddress()==null?"":dataImport.getReceivingAddress());       
+                row.createCell(7).setCellValue(dataImport.getObjectNumber()==null?0:dataImport.getObjectNumber());       
+                row.createCell(8).setCellValue(dataImport.getObjectContent()==null?"":dataImport.getObjectContent());       
+                row.createCell(9).setCellValue(dataImport.getLogisticsCompany()==null?"":dataImport.getLogisticsCompany());       
+                row.createCell(10).setCellValue(dataImport.getLogisticsNo()==null?"":dataImport.getPhone());       
                 row.createCell(11).setCellValue(dataImport.getMoney());       
-                row.createCell(12).setCellValue(dataImport.getStatus());       
-                row.createCell(13).setCellValue(dataImport.getRemarks());       
+                row.createCell(12).setCellValue(dataImport.getStatus()==null?"":dataImport.getStatus());       
+                row.createCell(13).setCellValue(dataImport.getRemarks()==null?"":dataImport.getRemarks());       
             }
         }
         //输出到输出流中
